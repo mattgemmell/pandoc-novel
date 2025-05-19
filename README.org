@@ -1,0 +1,171 @@
+* pandoc novel export
+
+This is a configuration for [[https://pandoc.org][pandoc]], the universal markup converter, intended to make it easy to publish novels or other fiction written in [[https://commonmark.org][Markdown]]. It supports ePub3 ebooks, and PDF for print in 5x8-inch paperback format.
+
+For a quick-start on setup and usage, [[*Setup, usage, and customisation][see this section]].
+
+To see a sample of the output, view [[file:example-book.pdf][the example PDF file]].
+
+
+* Author
+
+This configuration was made by Matt Gemmell. You can find me online at [[https://mattgemmell.scot][mattgemmell.scot]], amongst other places, including [[https://mastodon.scot/@mattgemmell][on Mastodon]]. For other ways to contact me, [[https://mattgemmell.scot/contact/][see this page]].
+
+I'm a novelist, with a background in software, so this was all probably inevitable. You can [[https://mattgemmell.scot/books/][find my books here]], or [[https://ko-fi.com/mattgemmell][buy me a coffee]].
+
+
+* Goals
+
+Many applications allow writing in Markdown, and even writing multi-section, long-form documents. Some also offer export and publishing features. The gold standard amongst these, in my opinion, is [[https://ulysses.app][Ulysses]] on macOS and iOS, which I've used for years. Indeed, I've previously created some Ulysses export styles ([[https://mattgemmell.com/beautiful-ebook-novels-with-ulysses/][for ePub]], and [[https://mattgemmell.scot/beautiful-paperback-novels-with-ulysses/][for print PDF]]) to do much the same as this pandoc configuration, albeit with less flexibility (and requiring Ulysses, of course).
+
+Recently, though, I've found myself wanting a free and open source solution for that same workflow, using files stored in the file system rather than a proprietary app, and this is the result.
+
+This configuration was created with a focus on simplicity for the user. A full example novel project is included (albeit one filled with lorem ipsum gibberish), and only a single command needs to be executed to create a publishable version in two formats:
+
+1. A standards-compliant ePub3 ebook, ready for the Kindle Store, Apple Books Store, and direct use on virtually any e-reader device or app.
+2. A print-ready PDF file, for the interior of a 5x8-inch mass-market paperback.
+
+This will get you 90% of the way there for print (you'll need to provide your own cover wraparound master, of course, to the required specs of your print-on-demand service or printing company), and 99% of the way there for digital (just supply your own cover-image JPEG or PNG).
+
+You can also, of course, use this as an example of a ready-made and detailed configuration for pandoc in this context, and build upon it yourself.
+
+
+* Requirements
+
+You'll need a very basic familiarity with using the terminal. If you're doing extensive customisation, some CSS knowledge will help too, but isn't required. You'll also need the following free and open source software packages:
+
+- [[https://pandoc.org][pandoc]] (3.6.4 at time of writing, in May 2025)
+- [[https://weasyprint.org][weasyprint]] (65.1 〃)
+- [[https://www.python.org][python]] (3.13.3 〃)
+
+These are all readily available via almost any package manager, or directly as installers or source code. If you're on macOS, they're all available via [[https://brew.sh][homebrew]], and I highly recommend it to you.
+
+Python is only needed if you want to make use of [[*Metadata and placeholder support][the placeholders feature]]. If you don't need it, just disable the relevant line in the =build-book.sh= script. (Note: if you /do/ want to use the feature, note that this configuration assumes that your python executable is python3. If it isn't, tweak the =build-book.sh= script appropriately. If you install python via homebrew, you'll be fine.)
+
+
+* Features
+
+I've tried to make this configuration produce a professional result with minimal tinkering. Below are some of the things it offers. Please also note that I'll use the terminology for left-to-right languages such as English, though this configuration should be adaptable to right-to-left also.
+
+** Fiction-style prose formatting
+
+This configuration is intended for prose, formatted using the conventions for written fiction. This includes serif type (set in lovely Palatino by default), paragraph indenting (except the first paragraph in a section), suitable margins and gutters, chapter headings, scene breaks with understated ornaments, and so on. In essence, the output will be like a well-prepared book, just like those on your bookshelf, to make your words look their best.
+
+If you intend to use it for non-fiction (in particular, technical books), some additional CSS styles will likely be required, and can readily be added.
+
+** Novel structural and design conventions
+
+Fiction books are expected by readers to have front- and back-matter, readable scene- and chapter-breaks, running headers or footers in print, decimal page-numbering which starts with the main content, omitted or Roman page-numbering for front-matter, parts (and part-leading chapters) which always begin on a /recto/ (right-hand, for left-to-right written languages) page, and so on and so forth. This configuration handles all of that. See the example novel project as a starting point.
+
+The configuration works with novels of chapters, and also with novels of parts and chapters. Prologues and epilogues are fine too, and are shown in the example. Single chapter headings (like "Chapter 1"), or dual headings ("Chapter 1" above, and "The Boy Who Lived" below, or vice versa) are both supported, including both types in the same project.
+
+** Markdown folder structure
+
+As shown in the example novel project, this configuration works with Markdown files (original/plain Markdown is fine, as is [[https://commonmark.org][CommonMark]]). You can have as many as you like, and they can use the =md=, =mdown=, and =markdown= file-extensions in any combination. It's highly convenient while writing to keep chapters, front-matter pages and so on in separate files, stored in the file system. It's portable and maintainable, and this configuration will work just fine with such a folder structure. See the example novel project.
+
+** Metadata and placeholder support
+
+Book information is defined in a simple [[https://en.wikipedia.org/wiki/JSON][JSON]]-formatted metadata file, whose values can be automatically inserted into any part of your book via placeholders which will be substituted at build time. This allows conveniences such as never having to remember to update your title page, or the copyright year, and the elegance of showing the book's title in the header area of every /verso/ (left-hand) page in the printed edition. You can add your own values alongside the predefined ones shown in the example. See the [[*Metadata and placeholders][metadata and placeholders]] section below.
+
+
+* Setup, usage, and customisation
+
+In all cases please refer to the included example novel project, and the various configuration files in the =novel-export= folder, as your primary reference. In brief, to use the configuration, you should:
+
+1. Ensure that the required software packages are installed, [[*Requirements][as detailed above]].
+2. Prepare your novel using the structure and format of the included example project, in particular the =metadata.json= file. (Your project can live anywhere; it doesn't need to be within this configuration's folder.)
+3. In the terminal, execute the =build-book.sh= script (inside the =novel-export= folder), passing it three parameters in the following order:
+   1. Path to the top-level *folder* containing your book's Markdown files.
+   2. Path to the metadata JSON file for your book.
+   3. The desired output filename (/without/ file-extension) for the generated ePub and PDF books.
+
+Your generated books will be created in the same directory you called this script from. Here's an example invocation:
+
+: ./novel-export/build-book.sh book/ metadata.json example-book
+
+Below is some additional information on getting things looking and working the way you want them to.
+
+** Markdown formatting
+
+H1 headings begin a chapter, part, or a front- or back-matter section. See the included examples. Notably, front-matter sections use an empty H1 (whose content is just an HTML comment, rather than actual text). If you'd like to include a chapter /title/ ("The Boy Who Lived") as well as the chapter /heading/ ("Chapter 1"), simply add an H2 after the appropriate H1. The top-margin of the H1 will be adjusted automatically in this situation, to make things look better.
+
+Scene breaks within a chapter are achieved with a single HR, which is =---= (three or more consecutive hyphens on a line of their own, without any leading whitespace) in Markdown. Scene breaks will take appropriate vertical space, and will be shown with a small "~" ornament in print. Your e-reader app or device may override this for the ePub edition, however. To change or remove the ornament, see the =shared.css= file. Chapters should /not/ end with a scene break; instead, a chapter break (i.e. a forced section break) will automatically be taken.
+
+To deal with text-centering, i.e. in front-matter pages, or to manage page-numbering or running elements, see [[*Section styles][the next section]] below.
+
+** Section styles
+
+Each distinct front- or back-matter page (author information, accolades, title page, half or b*stard title, copyright statement, dedication, colophon, epigraph, afterword, acknowledgements, etc), and every part or chapter, is a section.
+
+Most sections will be part of the manuscript, and thus formatted as fiction — but there are exceptions. Front matter pages, for example, will usually be formatted in a non-fiction style, without indented (and indeed justified) paragraphs, and some of them will be centered (notably the title, copyright, and dedication pages).
+
+This configuration treats all Markdown files as CommonMark, which is an enhanced version of Markdown offering some additional features. In particular, CommonMark formatting allows applying /attributes/ to Markdown headings or blocks, by placing the attributes within braces after the heading itself. This configuration uses such attributes (or annotations) to indicate which style of page a given section will use. The example project shows this in action many times. Here's an example of the syntax:
+
+: # Afterword {.unlisted .recto}
+
+From a technical perspective, an attribute here is usually just a CSS style, like a classname; this is what the example project uses. You can use multiple attributes simultaneously, as the example project does, though some possible combinations may be contradictory. A list of available attributes for sections is shown below. You may also of course define your own via the =shared.css= file (and if appropriate the =print.css= file too).
+
+| Attribute           | Effect                                                       |
+|---------------------+--------------------------------------------------------------|
+| =.unindented=         | Don't apply prose styling. Good for front matter.            |
+| =.recto=              | Section must start on a right-hand page.                     |
+| =.numeral=            | Apply lowercase Roman numeral page-numbering.                |
+| =.clean=              | Hide all [[*Running elements][running elements]] (headers and footers).             |
+| =.unlisted=           | Don't include in ePub's internal table of contents.          |
+| =.centred=            | Centre all text in section. Good for title/copyright etc.    |
+| =.start-page-numbers= | If configured, begins decimal page-numbering at the section. |
+|                     | (See the [[Page numbering]] section below.)                  |
+
+As a matter of convention for novels, you may want to consider the following etiquette notes.
+
+- If your novel has Parts, each one should start on a /recto/ page (this includes prologues and epilogues, which are Parts also). The first chapter in each Part, and the first chapter of the book in all situations, should also start /recto/.
+- Within the front-matter, the title page (and half-title if present), and the dedication should be /recto/.
+- Within the front-matter, the title page (and half title), copyright and/or colophon, dedication, and accolades should usually be centred.
+- Front-matter sections generally don't have a visible heading.
+- All front-matter should be unlisted in the table of contents.
+- Front-matter generally lacks page-numbers and other running elements, but if a section has substantial textual content (like an introduction), it's conventional to apply Roman numeral numbering for those sections only, leaving the others without running elements.
+- Intentionally-blank pages can be inserted as required (via =.clean=), and of course should also be unlisted. However, it's often more compact and intentional to obtain blank pages by setting the subsequent section to start /recto/, where possible and appropriate. Nonetheless, a demonstration of the former approach is included in the example project for completeness.
+
+** Page numbering
+
+In fiction, pages are numbered in decimal (the usual 1, 2, 3, …), and only for the sections which contain the story itself. Front- and back-matter are either unnumbered, or numbered in Roman numerals (usually lowercase), and then only for sections which contain substantial text. Even if the front-matter is numbered, the numbering /restarts/ at page 1 in decimal when the story begins. Rules are made to be broken, of course, but those are the conventions.
+
+In this configuration, decimal page-numbering begins by default at the first section which does /not/ use the =.unindented= attribute (see [[*Section styles][Section styles]] above). This is usually what you'll want, since all of your front-matter will likely use that attribute (and it's conventional to not include front-matter in a book's primary page-numbering).
+
+If this behaviour is unsuitable, the relevant selector in the =pdf.css= file can be disabled (see comments in that file), and you can instead directly apply the =.start-page-numbers= attribute to the heading of whatever section you'd prefer the decimal page-numbering to begin with.
+
+** Running elements
+
+In a printed book, running elements are the things at the top and bottom of pages, beyond the actual prose itself: the headers and footers, if you like. Commonly, page-numbers will be included somewhere, and it's fairly usual for the heading area of /verso/ (left-hand) prose pages to show the book's title, and /recto/ (right-hand) pages to show the title of the current section (normally a chapter). This is exactly what this configuration does by default, putting the page-numbers in the centre of the footer area also, but you can change this to suit your preferences.
+
+You should make your changes in the =pdf.css= file, and you'll want to refer to the [[https://developer.mozilla.org/en-US/docs/Web/CSS/@page][CSS @page standard documentation]]. As an implementation note for this purpose, there are three special CSS string variables provided by this configuration for use in running elements, as follows:
+
+- =book-title=
+- =book-subtitle=
+- =book-author=
+
+These have values as defined in your book's metadata JSON file. The corresponding CSS is in the =shared.css= file. This facility is provided via the placeholders system, detailed next.
+
+** Metadata and placeholders
+
+You'll provide the metadata for your book (title, subtitle if appropriate, author, language, cover image file for ePub, and whatever else you like) in your metadata JSON file. There will also be two further metadata values added automatically, because they must be generated dynamically at build time:
+
+- =date=: The current date, in YYYY-MM-DD format. Used in your book's internal metadata. 
+- =date-year=: The current year, in YYYY format. Useful for your copyright page.
+
+As a convenience, this configuration also includes a simple Python script (nothing to do with pandoc) which can insert any of those metadata values into the collated master Markdown version of your book during the build process. Its functionality is straightforward, as illustrated by this example:
+
+If you have a metadata value named =guitarist=, whose value is ="Mark Knopfler"=, then at build time any occurrence of =%guitarist%= in your entire book will be replaced with =Mark Knopfler=. This feature is wholly contained in the =replace-placeholders.py= script file. Feel free to tailor it to your needs, or ignore it entirely.
+
+
+* Conclusion
+
+I wrote this configuration for myself, but I cleaned it up — such as it is — and documented it for you, unknown internet stranger. I very much hope you'll find it useful, and I wish you good fortune with your writing and publishing.
+
+If you'd like to thank me for this, he said presumptuosly, perhaps you'd enjoy [[https://mattgemmell.scot/books/][reading my novels]]? You can also [[https://mattgemmell.scot/contact][find my contact information here]], or [[https://ko-fi.com/mattgemmell][buy me a coffee]].
+
+Best wishes, \\
+Matt Gemmell
+
+/Edinburgh, Scotland/ \\
+/19th May, 2025/

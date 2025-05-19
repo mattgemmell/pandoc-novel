@@ -1,0 +1,132 @@
+/* See MDN documentation on @page: https://developer.mozilla.org/en-US/docs/Web/CSS/page */
+/* See weasyprint documentation: https://doc.courtbouillon.org/weasyprint/stable/ */
+
+@import url("shared.css");
+
+@page {
+	size: 5in 8in;
+	@top-center { content: string(heading); font-size: 10pt; margin-top: 7mm; }
+	@bottom-center { content: counter(page); font-size: 11pt; margin-bottom: 10mm; }
+}
+
+@page :left {
+	margin: 22.9mm 21.6mm 19mm 12.7mm;
+	@top-center { content: string(book-title); }
+}
+
+@page :right {
+	margin: 22.9mm 12.7mm 19mm 21.6mm;
+}
+
+@page :blank {
+	@top-center { content: none; }
+	@bottom-center { content: none; }
+}
+
+@page clean {
+	@top-center { content: none; }
+	@bottom-center { content: none; }
+}
+
+@page numeral {
+	@top-center { content: none; }
+	@bottom-center { content: counter(page, lower-roman); }
+}
+
+@page no-header {
+	@top-center { content: none; }
+}
+
+@page no-header-reset {
+	/* This page-type resets the page-numbering counter to 1. See .start-page-numbering below. */
+	@top-center { content: none; }
+	counter-reset: page 1;
+}
+
+@page :first {
+	@top-center { content: none; }
+	@bottom-center { content: none; }
+}
+
+body {
+	font-family: Palatino, Georgia, serif;
+	font-size: 10.5pt;
+	line-height: 15.5pt;
+	margin: 0;
+	widows: 1;
+	orphans: 1;
+}
+
+h1 {
+	font-weight: normal;
+	font-size:	20pt;
+	margin-top:	140pt;
+	margin-bottom: 30pt;
+	break-before: always;
+	string-set: heading content();
+	break-after: avoid;
+	page: no-header;
+}
+
+h1:has(+ section) {
+	margin-top: 100pt;
+}
+
+body > section:nth-child(1 of :not(.unindented)) > h1 {
+	/* Makes page-numbering start at the first non-unindented section's heading. */
+	/* If this is unsuitable, disable the following line, and use the explicit ".start-page-numbers" class instead on the appropriate document's heading.*/
+	page: no-header-reset;
+}
+
+.start-page-numbers > h1 {
+	/* Makes page-numbering start at the page for this heading. */
+	page: no-header-reset;
+}
+
+.recto {
+	break-before: right;
+	break-before: recto;
+}
+
+.unindented {
+	page: clean;
+}
+
+.numeral {
+	page: numeral;
+}
+
+.clean {
+	page: clean;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+section:not(.unindented) p + p {
+	text-indent: 12pt;
+}
+
+.book-title {
+	font-size: 20pt;
+}
+
+.book-subtitle {
+	font-size: 14pt;
+}
+
+.book-author {
+	font-size: 16pt;
+	margin-top: 30pt;
+}
+
+hr {
+	break-before: avoid;
+	break-after: avoid;
+}
+
+hr, hr:after {
+	height: 15pt;
+}

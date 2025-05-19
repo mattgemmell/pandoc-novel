@@ -1,0 +1,77 @@
+@page { margin: 0; }
+
+body {
+	widows: 2;
+	orphans: 2;
+	hyphens: auto;
+}
+
+h1, h2 {
+	padding: 0;
+	text-align: center;
+}
+
+h1 {
+	font-size: 1.5rem;
+	margin: 130px 0 60px 0;
+}
+
+h2 {
+	font-size: 1.2rem;
+	margin: 30px 0 40px 0;
+}
+
+h1:has(+ section) {
+	margin-top: 125px;
+	margin-bottom: 30px;
+}
+
+section:not(.unindented) p {
+	margin: 0;
+	text-indent: 0em;
+	text-align: justify;
+}
+
+section:not(.unindented) p + p {
+	text-indent: 1.2em;
+}
+
+.centred {
+	text-align: center;
+}
+
+.book-title {
+	font-size: 2rem;
+	string-set: book-title content();
+}
+
+.book-subtitle {
+	string-set: book-subtitle content();
+}
+
+.book-subtitle, .book-author {
+	font-size: 1.3rem;
+}
+
+.book-author {
+	font-size: 1.5rem;
+	margin-top: 3rem;
+	string-set: book-author content();
+}
+
+hr, hr:after {
+	border: none;
+	width: 100%;
+  height: 1.5rem;
+}
+
+hr:after {
+	display: inline-block;
+	width: 100%;
+	text-align: center;
+	content: "~";
+}
+
+a {
+	white-space: nowrap;
+}

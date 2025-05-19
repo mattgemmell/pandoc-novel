@@ -1,0 +1,9 @@
+---
+to: html5
+css:
+  - ${.}/pdf.css
+section-divs: true
+pdf-engine: weasyprint
+pdf-engine-opt: '--quiet'
+template: ${.}/html5-template.html
+...
