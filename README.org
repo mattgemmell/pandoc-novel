@@ -54,7 +54,7 @@ You'll need a very basic familiarity with using the terminal. If you're doing ex
 
 These are all readily available via almost any package manager, or directly as installers or source code. If you're on macOS, they're all available via [[https://brew.sh][homebrew]], and I highly recommend it to you.
 
-Python is only needed if you want to make use of [[#metadata-and-placeholder-support][the placeholders feature]]. If you don't need it, just disable the relevant line in the =build-book.sh= script. (Note: if you /do/ want to use the feature, note that this configuration assumes that your python executable is python3. If it isn't, tweak the =build-book.sh= script appropriately. If you install python via homebrew, you'll be fine.)
+Python is only needed if you want to make use of [[#metadata-and-placeholder-support][the placeholders feature]]. If you don't need it, just disable the relevant line in the =build-book.sh= script. (Note: if you /do/ want to use the feature, this configuration assumes that your python executable is python3. If it isn't, tweak the =build-book.sh= script appropriately. If you install python via homebrew, you'll be fine.)
 
 
 * Features
