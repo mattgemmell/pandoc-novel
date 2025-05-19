@@ -2,7 +2,7 @@
 
 This is a configuration for [[https://pandoc.org][pandoc]], the universal markup converter, intended to make it easy to publish novels or other fiction written in [[https://commonmark.org][Markdown]]. It supports ePub3 ebooks, and PDF for print in 5x8-inch paperback format.
 
-For a quick-start on setup and usage, [[Setup, usage, and customisation][see this section]].
+For a quick-start on setup and usage, [[#setup-usage-and-customisation][see this section]].
 
 To see a sample of the output, view [[file:example-book.pdf][the example PDF file]].
 
@@ -40,7 +40,7 @@ You'll need a very basic familiarity with using the terminal. If you're doing ex
 
 These are all readily available via almost any package manager, or directly as installers or source code. If you're on macOS, they're all available via [[https://brew.sh][homebrew]], and I highly recommend it to you.
 
-Python is only needed if you want to make use of [[*Metadata and placeholder support][the placeholders feature]]. If you don't need it, just disable the relevant line in the =build-book.sh= script. (Note: if you /do/ want to use the feature, note that this configuration assumes that your python executable is python3. If it isn't, tweak the =build-book.sh= script appropriately. If you install python via homebrew, you'll be fine.)
+Python is only needed if you want to make use of [[#metadata-and-placeholder-support][the placeholders feature]]. If you don't need it, just disable the relevant line in the =build-book.sh= script. (Note: if you /do/ want to use the feature, note that this configuration assumes that your python executable is python3. If it isn't, tweak the =build-book.sh= script appropriately. If you install python via homebrew, you'll be fine.)
 
 
 * Features
@@ -65,14 +65,14 @@ As shown in the example novel project, this configuration works with Markdown fi
 
 ** Metadata and placeholder support
 
-Book information is defined in a simple [[https://en.wikipedia.org/wiki/JSON][JSON]]-formatted metadata file, whose values can be automatically inserted into any part of your book via placeholders which will be substituted at build time. This allows conveniences such as never having to remember to update your title page, or the copyright year, and the elegance of showing the book's title in the header area of every /verso/ (left-hand) page in the printed edition. You can add your own values alongside the predefined ones shown in the example. See the [[*Metadata and placeholders][metadata and placeholders]] section below.
+Book information is defined in a simple [[https://en.wikipedia.org/wiki/JSON][JSON]]-formatted metadata file, whose values can be automatically inserted into any part of your book via placeholders which will be substituted at build time. This allows conveniences such as never having to remember to update your title page, or the copyright year, and the elegance of showing the book's title in the header area of every /verso/ (left-hand) page in the printed edition. You can add your own values alongside the predefined ones shown in the example. See the [[#metadata-and-placeholders][metadata and placeholders]] section below.
 
 
 * Setup, usage, and customisation
 
 In all cases please refer to the included example novel project, and the various configuration files in the =novel-export= folder, as your primary reference. In brief, to use the configuration, you should:
 
-1. Ensure that the required software packages are installed, [[*Requirements][as detailed above]].
+1. Ensure that the required software packages are installed, [[#requirements][as detailed above]].
 2. Prepare your novel using the structure and format of the included example project, in particular the =metadata.json= file. (Your project can live anywhere; it doesn't need to be within this configuration's folder.)
 3. In the terminal, execute the =build-book.sh= script (inside the =novel-export= folder), passing it three parameters in the following order:
    1. Path to the top-level *folder* containing your book's Markdown files.
@@ -91,7 +91,7 @@ H1 headings begin a chapter, part, or a front- or back-matter section. See the i
 
 Scene breaks within a chapter are achieved with a single HR, which is =---= (three or more consecutive hyphens on a line of their own, without any leading whitespace) in Markdown. Scene breaks will take appropriate vertical space, and will be shown with a small "~" ornament in print. Your e-reader app or device may override this for the ePub edition, however. To change or remove the ornament, see the =shared.css= file. Chapters should /not/ end with a scene break; instead, a chapter break (i.e. a forced section break) will automatically be taken.
 
-To deal with text-centering, i.e. in front-matter pages, or to manage page-numbering or running elements, see [[*Section styles][the next section]] below.
+To deal with text-centering, i.e. in front-matter pages, or to manage page-numbering or running elements, see [[#section-styles][the next section]] below.
 
 ** Section styles
 
@@ -110,10 +110,10 @@ From a technical perspective, an attribute here is usually just a CSS style, lik
 | =.unindented=         | Don't apply prose styling. Good for front matter.            |
 | =.recto=              | Section must start on a right-hand page.                     |
 | =.numeral=            | Apply lowercase Roman numeral page-numbering.                |
-| =.clean=              | Hide all [[*Running elements][running elements]] (headers and footers).             |
+| =.clean=              | Hide all [[#running-elements][running elements]] (headers and footers).             |
 | =.unlisted=           | Don't include in ePub's internal table of contents.          |
 | =.centred=            | Centre all text in section. Good for title/copyright etc.    |
-| =.start-page-numbers= | If configured, begins decimal [[*Page numbering][page-numbering]] at the section. |
+| =.start-page-numbers= | If configured, begins decimal [[#page-numbering][page-numbering]] at the section. |
 
 As a matter of convention for novels, you may want to consider the following etiquette notes.
 
@@ -129,7 +129,7 @@ As a matter of convention for novels, you may want to consider the following eti
 
 In fiction, pages are numbered in decimal (the usual 1, 2, 3, …), and only for the sections which contain the story itself. Front- and back-matter are either unnumbered, or numbered in Roman numerals (usually lowercase), and then only for sections which contain substantial text. Even if the front-matter is numbered, the numbering /restarts/ at page 1 in decimal when the story begins. Rules are made to be broken, of course, but those are the conventions.
 
-In this configuration, decimal page-numbering begins by default at the first section which does /not/ use the =.unindented= attribute (see [[*Section styles][Section styles]] above). This is usually what you'll want, since all of your front-matter will likely use that attribute (and it's conventional to not include front-matter in a book's primary page-numbering).
+In this configuration, decimal page-numbering begins by default at the first section which does /not/ use the =.unindented= attribute (see [[#section-styles][Section styles]] above). This is usually what you'll want, since all of your front-matter will likely use that attribute (and it's conventional to not include front-matter in a book's primary page-numbering).
 
 If this behaviour is unsuitable, the relevant selector in the =pdf.css= file can be disabled (see comments in that file), and you can instead directly apply the =.start-page-numbers= attribute to the heading of whatever section you'd prefer the decimal page-numbering to begin with.
 
