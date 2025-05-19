@@ -2,7 +2,7 @@
 
 This is a configuration for [[https://pandoc.org][pandoc]], the universal markup converter, intended to make it easy to publish novels or other fiction written in [[https://commonmark.org][Markdown]]. It supports ePub3 ebooks, and PDF for print in 5x8-inch paperback format.
 
-For a quick-start on setup and usage, [[*Setup, usage, and customisation][see this section]].
+For a quick-start on setup and usage, [[Setup, usage, and customisation][see this section]].
 
 To see a sample of the output, view [[file:example-book.pdf][the example PDF file]].
 
