@@ -113,8 +113,7 @@ From a technical perspective, an attribute here is usually just a CSS style, lik
 | =.clean=              | Hide all [[*Running elements][running elements]] (headers and footers).             |
 | =.unlisted=           | Don't include in ePub's internal table of contents.          |
 | =.centred=            | Centre all text in section. Good for title/copyright etc.    |
-| =.start-page-numbers= | If configured, begins decimal page-numbering at the section. |
-|                     | (See the [[Page numbering]] section below.)                  |
+| =.start-page-numbers= | If configured, begins decimal [[*Page numbering][page-numbering]] at the section. |
 
 As a matter of convention for novels, you may want to consider the following etiquette notes.
 
