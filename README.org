@@ -9,6 +9,8 @@ For a quick-start on setup and usage, [[#setup-usage-and-customisation][see this
 
 To see a sample of the output, view [[file:example-book.pdf][the example PDF file]].
 
+This configuration is [[https://github.com/mattgemmell/pandoc-novel/][available on github]]. It is released under the *[[https://www.gnu.org/licenses/gpl-3.0.en.html][GPL-3.0 license]]*.
+
 
 * Author
 :PROPERTIES:
