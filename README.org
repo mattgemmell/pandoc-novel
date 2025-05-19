@@ -211,7 +211,7 @@ If you have a metadata value named =guitarist=, whose value is ="Mark Knopfler"=
 
 I wrote this configuration for myself, but I cleaned it up — such as it is — and documented it for you, unknown internet stranger. I very much hope you'll find it useful, and I wish you good fortune with your writing and publishing.
 
-If you'd like to thank me for this, he said presumptuosly, perhaps you'd enjoy [[https://mattgemmell.scot/books/][reading my novels]]? You can also [[https://mattgemmell.scot/contact][find my contact information here]], or [[https://ko-fi.com/mattgemmell][buy me a coffee]].
+If you'd like to thank me for this, he said presumptuously, perhaps you'd enjoy [[https://mattgemmell.scot/books/][reading my novels]]? You can also [[https://mattgemmell.scot/contact][find my contact information here]], or [[https://ko-fi.com/mattgemmell][buy me a coffee]].
 
 Best wishes, \\
 Matt Gemmell
