@@ -34,7 +34,7 @@ Many applications allow writing in Markdown, and even writing multi-section, lon
 
 Recently, though, I've found myself wanting a free and open source solution for that same workflow, using files stored in the file system rather than a proprietary app, and this is the result.
 
-This configuration was created with a focus on simplicity for the user. A full example novel project is included (albeit one filled with lorem ipsum gibberish), and only a single command needs to be executed to create a publishable version in two formats:
+This configuration was created with a focus on simplicity for the user. A full example novel project is included (albeit one filled with /lorem ipsum/ gibberish), and only a single command needs to be executed to create a publishable version in two formats:
 
 1. A standards-compliant ePub3 ebook, ready for the Kindle Store, Apple Books Store, and direct use on virtually any e-reader device or app.
 2. A print-ready PDF file, for the interior of a 5x8-inch mass-market paperback.
@@ -57,7 +57,7 @@ You'll need a very basic familiarity with using the terminal. If you're doing ex
 
 These are all readily available via almost any package manager, or directly as installers or source code. If you're on macOS, they're all available via [[https://brew.sh][homebrew]], and I highly recommend it to you.
 
-Python is only needed if you want to make use of [[#metadata-and-placeholder-support][the placeholders feature]]. If you don't need it, just disable the relevant line in the =build-book.sh= script. (Note: if you /do/ want to use the feature, this configuration assumes that your python executable is python3. If it isn't, tweak the =build-book.sh= script appropriately. If you install python via homebrew, you'll be fine.)
+Python is only needed if you want to make use of [[#metadata-and-placeholder-support][the placeholders feature]]. If you don't need it, just disable the relevant line in the =build-book.sh= script. (Note: if you /do/ want to use the feature, this configuration assumes that your python executable is =python3=. If it isn't, tweak the =build-book.sh= script appropriately. If you install python via homebrew, you'll be fine.)
 
 
 * Features
@@ -65,7 +65,7 @@ Python is only needed if you want to make use of [[#metadata-and-placeholder-sup
 :CUSTOM_ID: features
 :END:
 
-I've tried to make this configuration produce a professional result with minimal tinkering. Below are some of the things it offers. Please also note that I'll use the terminology for left-to-right languages such as English, though this configuration should be adaptable to right-to-left also.
+I've tried to make this configuration produce a professional result with minimal tinkering. Below are some of the things it offers. Please also note that I'll use the terminology for left-to-right languages such as English, though this configuration should be adaptable to right-to-left languages also.
 
 ** Fiction-style prose formatting
 :PROPERTIES:
@@ -125,9 +125,13 @@ Below is some additional information on getting things looking and working the w
 :CUSTOM_ID: markdown-formatting
 :END:
 
-H1 headings begin a chapter, part, or a front- or back-matter section. See the included examples. Notably, front-matter sections use an empty H1 (whose content is just an HTML comment, rather than actual text). If you'd like to include a chapter /title/ ("The Boy Who Lived") as well as the chapter /heading/ ("Chapter 1"), simply add an H2 after the appropriate H1. The top-margin of the H1 will be adjusted automatically in this situation, to make things look better.
+H1 headings in Markdown begin a chapter, part, or a front- or back-matter section. See the included examples. Notably, front-matter sections use an empty H1 (whose content is just an HTML comment, rather than actual text).
 
-Scene breaks within a chapter are achieved with a single HR, which is =---= (three or more consecutive hyphens on a line of their own, without any leading whitespace) in Markdown. Scene breaks will take appropriate vertical space, and will be shown with a small "~" ornament in print. Your e-reader app or device may override this for the ePub edition, however. To change or remove the ornament, see the =shared.css= file. Chapters should /not/ end with a scene break; instead, a chapter break (i.e. a forced section break) will automatically be taken.
+If you'd like to include a chapter /title/ ("The Boy Who Lived") as well as the chapter /heading/ ("Chapter 1"), simply add an H2 after the appropriate H1. The top-margin of the H1 will be adjusted automatically in this situation, to make things look better.
+
+Scene breaks within a chapter are achieved with a single HR, which is =---= (three or more consecutive hyphens on a line of their own, without any leading whitespace) in Markdown. Scene breaks will take appropriate vertical space, and will be shown with a small "~" ornament in print. Your e-reader app or device may override this for the ePub edition, however. To change or remove the ornament, see the =shared.css= file.
+
+Chapters should /not/ end with a scene break; instead, a chapter break (i.e. a forced section break) will automatically be taken.
 
 To deal with text-centering, i.e. in front-matter pages, or to manage page-numbering or running elements, see [[#section-styles][the next section]] below.
 
@@ -197,7 +201,7 @@ These have values as defined in your book's metadata JSON file. The correspondin
 :CUSTOM_ID: metadata-and-placeholders
 :END:
 
-You'll provide the metadata for your book (title, subtitle if appropriate, author, language, cover image file for ePub, and whatever else you like) in your metadata JSON file. There will also be two further metadata values added automatically, because they must be generated dynamically at build time:
+You'll provide the metadata for your book (title, subtitle if appropriate, author, language, cover image file for ePub, and whatever else you like, such as an ISBN) in your metadata JSON file. There will also be two further metadata values added automatically, because they must be generated dynamically at build time:
 
 - =date=: The current date, in YYYY-MM-DD format. Used in your book's internal metadata. 
 - =date-year=: The current year, in YYYY format. Useful for your copyright page.
