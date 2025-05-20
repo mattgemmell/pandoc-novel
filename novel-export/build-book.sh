@@ -45,15 +45,15 @@ extra_json="{\"date\":\"${meta_date}\",\"date-year\":\"${meta_date_year}\"}"
 # Replace any metadata placeholders in the master document.
 # (See comments in the 'replace-placeholders.py' Python script for how this works.)
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-python3 "$SCRIPT_DIR"/replace-placeholders.py $TEMP_MASTER_MARKDOWN_FILE $METADATA_JSON "$extra_json"
+python3 "$SCRIPT_DIR"/replace-placeholders.py $TEMP_MASTER_MARKDOWN_FILE "$METADATA_JSON" "$extra_json"
 
 # Invoke pandoc on the master document, once for ePub and once for PDF.
 pandoc --defaults="${SCRIPT_DIR}/options-epub.yaml" --defaults="${SCRIPT_DIR}/options-shared.yaml" \
-       --metadata-file=$METADATA_JSON --metadata=date="$meta_date" --metadata=date-year:"$meta_date_year" \
-       --output=$OUTPUT_BASENAME.epub $TEMP_MASTER_MARKDOWN_FILE
+       --metadata-file="$METADATA_JSON" --metadata=date="$meta_date" --metadata=date-year:"$meta_date_year" \
+       --output="$OUTPUT_BASENAME".epub $TEMP_MASTER_MARKDOWN_FILE
 pandoc --defaults="${SCRIPT_DIR}/options-pdf.yaml" --defaults="${SCRIPT_DIR}/options-shared.yaml" \
-       --metadata-file=$METADATA_JSON --metadata=date="$meta_date" --metadata=date-year:"$meta_date_year" \
-       --output=$OUTPUT_BASENAME.pdf $TEMP_MASTER_MARKDOWN_FILE
+       --metadata-file="$METADATA_JSON" --metadata=date="$meta_date" --metadata=date-year:"$meta_date_year" \
+       --output="$OUTPUT_BASENAME".pdf $TEMP_MASTER_MARKDOWN_FILE
 
 # Clean up temporary files.
 rm $TEMP_MASTER_MARKDOWN_FILE
