@@ -18,10 +18,10 @@ METADATA_JSON="$2"
 OUTPUT_BASENAME="$3"
 TEMP_MASTER_MARKDOWN_FILE="temp-book-master.md"
 
-if [ ! -d $MARKDOWN_DIR ]; then
+if [ ! -d "${MARKDOWN_DIR}" ]; then
 	echo "$MARKDOWN_DIR should be a directory, but isn't."
 	exit 1
-elif [ ! -f $METADATA_JSON ]; then
+elif [ ! -f "${METADATA_JSON}" ]; then
 	echo "$METADATA_JSON should be a file, but isn't."
 	exit 1
 fi
@@ -31,7 +31,7 @@ fi
 
 # Recursively concatenate all markdown files into a master document, separated by blank lines.
 # Note that the `-s` flag on `find` uses lexicographical sorting instead of directory-ordered sorting.
-find -s $MARKDOWN_DIR \( -name "*.md" -o -name "*.mdown" -o -name "*.markdown" \) -type f -exec cat {} \; -exec echo '' \; > $TEMP_MASTER_MARKDOWN_FILE
+find -s "${MARKDOWN_DIR}" \( -name "*.md" -o -name "*.mdown" -o -name "*.markdown" \) -type f -exec cat {} \; -exec echo '' \; > $TEMP_MASTER_MARKDOWN_FILE
 
 # Prepare extra metadata.
 meta_date=$(date +"%Y-%m-%d")
