@@ -30,8 +30,12 @@ fi
 #rm "$PWD/$OUTPUT_BASENAME".{epub,pdf} 2> /dev/null
 
 # Recursively concatenate all markdown files into a master document, separated by blank lines.
-# Note that the `-s` flag on `find` uses lexicographical sorting instead of directory-ordered sorting.
-find -s "${MARKDOWN_DIR}" \( -name "*.md" -o -name "*.mdown" -o -name "*.markdown" \) -type f -exec cat {} \; -exec echo '' \; > $TEMP_MASTER_MARKDOWN_FILE
+> $TEMP_MASTER_MARKDOWN_FILE
+find "${MARKDOWN_DIR}" \( -name "*.md" -o -name "*.mdown" -o -name "*.markdown" \) -type f | sort -V | while read f
+do
+	cat "$f" >> $TEMP_MASTER_MARKDOWN_FILE
+	echo >> $TEMP_MASTER_MARKDOWN_FILE
+done
 
 # Prepare extra metadata.
 meta_date=$(date +"%Y-%m-%d")
