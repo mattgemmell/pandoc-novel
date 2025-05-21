@@ -5,8 +5,8 @@
 
 @page {
 	size: 5in 8in;
-	@top-center { content: string(heading); font-size: 10pt; margin-top: 7mm; }
-	@bottom-center { content: counter(page); font-size: 11pt; margin-bottom: 10mm; }
+	@top-center { content: string(heading); font-size: 10pt; margin-top: 3mm; }
+	@bottom-center { content: counter(page); font-size: 10pt; margin-bottom: 5mm; }
 }
 
 @page :left {
@@ -58,9 +58,9 @@ body {
 }
 
 h1 {
-	font-weight: normal;
-	font-size:	20pt;
-	margin-top:	140pt;
+	font-weight: bold;
+	font-size:	18pt;
+	margin-top:	122pt;
 	margin-bottom: 30pt;
 	break-before: always;
 	string-set: heading content();
