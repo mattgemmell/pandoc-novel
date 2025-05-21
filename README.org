@@ -109,7 +109,7 @@ In all cases please refer to the included example novel project, and the various
 
 1. Ensure that the required software packages are installed, [[#requirements][as detailed above]].
 2. Prepare your novel using the structure and format of the included example project, in particular the =metadata.json= file. (Your project can live anywhere; it doesn't need to be within this configuration's folder.)
-3. In the terminal, change to the directory containing your book's metata JSON file, and execute the =build-book.sh= script (inside the =novel-export= folder), passing it three parameters in the following order:
+3. In the terminal, change to the directory containing your book's metata JSON file, and execute the =build-book.sh= script (inside the =novel-export= folder), passing it these parameters in the following order:
    1. Path to the top-level *folder* containing your book's Markdown files.
    2. Path to the metadata JSON file for your book.
    3. The desired output filename (/without/ file-extension) for the generated ePub and PDF books.
