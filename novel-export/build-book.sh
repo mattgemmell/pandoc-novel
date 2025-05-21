@@ -53,7 +53,10 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # (See comments in the 'replace-placeholders.py' Python script for how this works.)
 if [[ $PLACEHOLDER_MODE != "none" ]]; then
 	if command -v python3 2>&1 >/dev/null; then
-		python3 "$SCRIPT_DIR"/replace-placeholders.py $TEMP_MASTER_MARKDOWN_FILE "$METADATA_JSON" "$extra_json" "$PLACEHOLDER_MODE"
+		python3 "$SCRIPT_DIR"/replace-placeholders.py --input=$TEMP_MASTER_MARKDOWN_FILE --json-file="$METADATA_JSON" \
+																									--json-values="$extra_json" --replacement-mode="$PLACEHOLDER_MODE"
+	else
+		echo "Couldn't find python3. Placeholders won't be replaced."
 	fi
 fi
 
