@@ -53,7 +53,7 @@ You'll need a very basic familiarity with using the terminal. If you're doing ex
 
 - [[https://pandoc.org][pandoc]] (3.6.4 at time of writing, in May 2025)
 - [[https://weasyprint.org][weasyprint]] (65.1 〃)
-- [[https://www.python.org][python]] (3.13.3 〃) [optional]
+- [[https://www.python.org][python]] (3.13.3 〃) *[Optional]*
 
 These are all readily available via almost any package manager, or directly as installers or source code. If you're on macOS, they're all available via [[https://brew.sh][homebrew]], and I highly recommend it to you.
 
@@ -215,7 +215,7 @@ For more advanced needs, or for those who have experience in using a templating 
 
 - =basic=: The default, simple behaviour, already detailed above. Built-in.
 - =templite=: Uses the [[https://github.com/sametmax/templite?tab=readme-ov-file][Templite templating system]] and syntax. Built-in.
-- =jinja2=: Uses the [[https://jinja.palletsprojects.com/en/stable/templates/][Jinja2 templating system]] and syntax. Requires jinja2 for Python.
+- =jinja2=: Uses the [[https://jinja.palletsprojects.com/en/stable/templates/][Jinja2 templating system]] and syntax. *Requires jinja2 for Python*.
 - =none=: Disables placeholder processing entirely (and silences the warning message about python3 not being installed, if applicable).
 
 You can also use the placeholders feature entirely independently of this pandoc configuration. Execute the =replace-placeholders.py= script with the =-h= flag for information on how to use it.
