@@ -216,7 +216,7 @@ You'll provide the metadata for your book (title, subtitle if appropriate, autho
 
 As a convenience, this configuration also includes a simple Python script (nothing to do with pandoc) which can insert any of those metadata values into the collated master Markdown version of your book during the build process. Its functionality is straightforward, as illustrated by this example:
 
-If you have a metadata value named =guitarist=, whose value is ="Mark Knopfler"=, then at build time any occurrence of =%guitarist%= in your entire book will be replaced with =Mark Knopfler= (note the percentage-symbols as delimiters). This feature is wholly contained in the =replace-placeholders.py= script file. Feel free to tailor it to your needs, or ignore it entirely.
+If you have a metadata entry named =guitarist=, whose value is ="Mark Knopfler"=, then at build time any occurrence of =%guitarist%= in your entire book will be replaced with =Mark Knopfler= (note the percentage-symbols as delimiters). This feature is wholly contained in the =replace-placeholders.py= script file. Feel free to tailor it to your needs, or ignore it entirely.
 
 For more advanced needs, or for those who have experience in using a templating engine, additional functionality is available via alternate replacement modes. To choose a replacement mode, specify its name as the (optional) fourth parameter when invoking the build script. The available modes are:
 
