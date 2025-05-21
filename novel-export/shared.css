@@ -75,3 +75,11 @@ hr:after {
 a {
 	white-space: nowrap;
 }
+
+.small {
+	font-size: 0.75rem;
+}
+
+.gap-before {
+	margin-top: 2rem;
+}

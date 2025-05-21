@@ -14,12 +14,20 @@
 
 import sys
 import json
-import re
 
 # Check we have two params. (Arg 0 is this script itself).
 if len(sys.argv) >= 3:
 	text_file_path = sys.argv[1]
 	json_file_path = sys.argv[2]
+	valid_modes = ["basic", "templite", "jinja2"]
+	placeholder_mode = valid_modes[0]
+	
+	if len(sys.argv) > 3:
+		placeholder_mode = sys.argv[4]
+		if placeholder_mode not in valid_modes:
+			sys.exit(f"Invalid placeholder mode ({placeholder_mode}); should be {', '.join(valid_modes)} or none.")
+		elif placeholder_mode == "none":
+			sys.exit(0)
 	
 	try:
 		# Read the text file.
@@ -42,10 +50,28 @@ if len(sys.argv) >= 3:
 				except ValueError as e:
 					print("An error occurred: %s" % e)
 			
-			# Replace all occurrences of key placeholders in text_contents.
-			for key, value in json_contents.items():
-				#print(f"{key}: {value}")
-				text_contents = text_contents.replace(f"%{key}%", value)
+			if placeholder_mode == "basic":
+				# Replace all occurrences of key placeholders in text_contents.
+				for key, value in json_contents.items():
+					#print(f"{key}: {value} [{type(value)}]")
+					text_contents = text_contents.replace(f"%{key}%", str(value))
+			
+			elif placeholder_mode == "templite":
+				try:
+					from templite import Templite
+					#t = Templite(text_contents, delimiters=["{%", "%}"])
+					t = Templite(text_contents)
+					text_contents = t.render(**json_contents)
+				except ImportError as e:
+					print("Couldn't find templite module: ", e)
+					
+			elif placeholder_mode == "jinja2":
+				try:
+					from jinja2 import Template
+					template = Template(text_contents)
+					text_contents = template.render(json_contents)
+				except ImportError as e:
+					print("Couldn't find jinja2 for python3: ", e)
 			
 			# Save text_file.
 			try:
