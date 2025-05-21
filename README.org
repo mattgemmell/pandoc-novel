@@ -57,7 +57,7 @@ You'll need a very basic familiarity with using the terminal. If you're doing ex
 
 These are all readily available via almost any package manager, or directly as installers or source code. If you're on macOS, they're all available via [[https://brew.sh][homebrew]], and I highly recommend it to you.
 
-Python is only needed if you want to make use of [[#metadata-and-placeholder-support][the placeholders feature]]. If you don't need it, just disable the relevant line in the =build-book.sh= script. (Note: if you /do/ want to use the feature, this configuration assumes that your python executable is =python3=. If it isn't, tweak the =build-book.sh= script appropriately. If you install python via homebrew, you'll be fine.)
+Python is only needed if you want to make use of [[#metadata-and-placeholder-support][the placeholders feature]]. If you don't need it, you'll just see a message in the terminal when using this configuration's build script, saying that =python3= wasn't found, and placeholders won't be processed. To silence this message, see the [[#metadata-and-placeholders][metadata and placeholders]] section.
 
 
 * Features
@@ -113,6 +113,7 @@ In all cases please refer to the included example novel project, and the various
    1. Path to the top-level *folder* containing your book's Markdown files.
    2. Path to the metadata JSON file for your book.
    3. The desired output filename (/without/ file-extension) for the generated ePub and PDF books.
+   4. [Optional] The placeholder-replacement mode to use. See [[#metadata-and-placeholders][metadata and placeholders]] below.
 
 Your generated books will be created in the same directory you called this script from. Here's an example invocation:
 
@@ -209,6 +210,15 @@ You'll provide the metadata for your book (title, subtitle if appropriate, autho
 As a convenience, this configuration also includes a simple Python script (nothing to do with pandoc) which can insert any of those metadata values into the collated master Markdown version of your book during the build process. Its functionality is straightforward, as illustrated by this example:
 
 If you have a metadata value named =guitarist=, whose value is ="Mark Knopfler"=, then at build time any occurrence of =%guitarist%= in your entire book will be replaced with =Mark Knopfler= (note the percentage-symbols as delimiters). This feature is wholly contained in the =replace-placeholders.py= script file. Feel free to tailor it to your needs, or ignore it entirely.
+
+For more advanced needs, or for those who have experience in using a templating engine, additional functionality is available via alternate replacement modes. To choose a replacement mode, specify its name as the (optional) fourth parameter when invoking the build script. The available modes are:
+
+- =basic=: The default, simple behaviour, already detailed above. Built-in.
+- =templite=: Uses the [[https://github.com/sametmax/templite?tab=readme-ov-file][Templite templating system]] and syntax. Built-in.
+- =jinja2=: Uses the [[https://jinja.palletsprojects.com/en/stable/templates/][Jinja2 templating system]] and syntax. Requires jinja2 for Python.
+- =none=: Disables placeholder processing entirely (and silences the warning message about python3 not being installed, if applicable).
+
+You can also use the placeholders feature entirely independently of this pandoc configuration. Execute the =replace-placeholders.py= script with the =-h= flag for information on how to use it.
 
 
 * Conclusion
