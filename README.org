@@ -50,9 +50,9 @@ You can also, of course, use this as an example of a ready-made and detailed con
 :CUSTOM_ID: requirements
 :END:
 
-You'll need a very basic familiarity with using the terminal. If you're doing extensive customisation, some CSS knowledge will help too, but isn't required. You'll also need the following free and open source software packages:
+You'll need a very basic familiarity with using the terminal. If you're doing extensive customisation, some CSS knowledge will help too, but isn't required. You'll also need the following free and open source software packages, shown with the versions most recently tested on:
 
-- [[https://pandoc.org][pandoc]] (3.6.4 at time of writing, in May 2025)
+- [[https://pandoc.org][pandoc]] (3.7.0.1 at time of writing, in May 2025)
 - [[https://weasyprint.org][weasyprint]] (65.1 〃)
 - [[https://www.python.org][python]] (3.13.3 〃) *[Optional]*
 
@@ -125,6 +125,17 @@ In all cases please refer to the included example novel project, and the various
 Your generated books will be created in the same directory you called this script from. Here's an example invocation:
 
 : ./novel-export/build-book.sh book/ metadata.json example-book
+
+If you're interested in automating the build process, for example to batch-generate many different books at once, it may be burdensome to explicitly specify the output filename for each project. To help, an optional Python script =autoname-build.py= is included which calls the usual build script for you, accepting the same parameters /except/ for the output filename. Instead, it generates an output filename on your behalf, using the following logic:
+
+1. If your metadata JSON file includes a =filename= entry, that entry will be used as the filename.
+2. Otherwise, the (required) =title= entry in the metadata JSON file will be converted into a suitable format for use as a filename; for example, ="My Great Title!"= would become ="my-great-title"=.
+
+Execute the =autobuild.py= script with the =-h= flag to learn how to use it, and note that it of course requires Python to be already installed. As with the standard build script, you should first change into the directory containing your book's metadata JSON file. Here's an example invocation:
+
+: python novel-export/autoname-build.py --input-folder=book/ --json-file=metadata.json --replacement-mode=basic
+
+You can also pass the =--test= flag, and the script will just show a message telling you the full build command it /would/ have run, without actually doing so.
 
 Below is some additional information on getting things looking and working the way you want them to.
 
@@ -241,4 +252,4 @@ Best wishes, \\
 Matt Gemmell
 
 /Edinburgh, Scotland/ \\
-/19th May, 2025/
+/22nd May, 2025/
