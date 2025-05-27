@@ -10,6 +10,7 @@
 # Handle script arguments.
 if [ $# -lt 3 ]; then
 	echo "Usage: $0 PATH_TO_MARKDOWN_FOLDER METADATA_JSON_FILE OUTPUT_FILENAME_WITHOUT_EXTENSION [PLACEHOLDER_MODE]"
+	echo "Invoke from same directory as your METADATA_JSON_FILE."
 	echo "ePub and PDF books will be created in same directory script is called from."
 	exit 1
 fi
@@ -19,6 +20,11 @@ METADATA_JSON="$2"
 OUTPUT_BASENAME="$3"
 TEMP_MASTER_MARKDOWN_FILE="temp-book-master.md"
 PLACEHOLDER_MODE="basic"
+
+MARKDOWN_DIR="${MARKDOWN_DIR/#\~/$HOME}"
+METADATA_JSON="${METADATA_JSON/#\~/$HOME}"
+MARKDOWN_DIR=`realpath "$MARKDOWN_DIR"`
+METADATA_JSON=`realpath "$METADATA_JSON"`
 
 if [ $# -gt 3 ]; then
 	PLACEHOLDER_MODE="$4"
