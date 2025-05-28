@@ -14,9 +14,12 @@
 
 import sys
 import argparse
+import os
 import json
+import re
 
 valid_modes = ["basic", "templite", "jinja2"]
+transformations_filename = "transformations.json"
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--input', '-i', help="Input text file", type= str, required=True)
@@ -54,6 +57,24 @@ try:
 				json_contents.update(extra_json)
 			except ValueError as e:
 				print("An error occurred: %s" % e)
+		
+		# Check for any requested transformations.
+		transformations_path = os.path.join(os.path.dirname(os.path.abspath(json_file_path)), transformations_filename)
+		try:
+			#print("Will check for transformations here: " + transformations_path)
+			# Read the transformations file.
+			transformations_file = open(transformations_path, 'r')
+			transformations = json.load(transformations_file)
+			transformations_file.close()
+			
+			# Perform transformations from file.
+			for key, value in transformations.items():
+				#print(f"Transform {key}: {str(value)} [{type(value)}]")
+				text_contents = re.sub(key, value, text_contents)
+			
+		except IOError as e:
+			#print("Couldn't read transformations file: %s" % e)
+			pass
 		
 		if placeholder_mode == "basic":
 			# Replace all occurrences of key placeholders in text_contents.
