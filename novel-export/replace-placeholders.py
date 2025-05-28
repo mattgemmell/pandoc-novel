@@ -1,14 +1,15 @@
 #!/usr/bin/python
 
-# Usage: replace-placeholders.py TEXT_FILE JSON_FILE [EXTRA_JSON_STRING]
+# Usage: Run this script with the "-h" flag for help.
 
 # Takes an input TEXT_FILE and a variables (simple list of key-value pairs) JSON_FILE.
 # Additional JSON key-value pairs can optionally be specified in EXTRA_JSON_STRING.
 # Replaces all occurrences of variables' placeholders with their values in TEXT_FILE.
 
-# The placeholders have the form "%key%".
-# For example, given the JSON pair:	"name": "Bob",
-# all occurrences of "%name%" are replaced with "Bob".
+# Assuming the default "basic" replacement mode:
+# - The placeholders have the form "%key%".
+# - For example, given the JSON pair:	"name": "Bob", all occurrences of "%name%" are replaced with "Bob".
+# See README for more information: https://github.com/mattgemmell/pandoc-novel/blob/main/README.org
 
 # Note: this UPDATES/OVERWRITES the input TEXT_FILE without warning!
 
@@ -19,7 +20,7 @@ import json
 import re
 
 valid_modes = ["basic", "templite", "jinja2"]
-transformations_filename = "transformations.json"
+transformations_filename = "transformations.tsv"
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--input', '-i', help="Input text file", type= str, required=True)
@@ -61,17 +62,36 @@ try:
 		# Check for any requested transformations.
 		transformations_path = os.path.join(os.path.dirname(os.path.abspath(json_file_path)), transformations_filename)
 		try:
-			#print("Will check for transformations here: " + transformations_path)
+			#print("Checking for transformations file: " + transformations_path)
 			# Read the transformations file.
+			transformations = []
+			delimiter = "\t"
+			search_key, replace_key, comment_key = "search", "replace", "comment"
 			transformations_file = open(transformations_path, 'r')
-			transformations = json.load(transformations_file)
+			for line in transformations_file:
+				components = line.split(delimiter)
+				if len(components) > 1:
+					transformation = {search_key: components[0], replace_key: components[1]}
+					if len(components) > 2:
+						transformation[comment_key] = delimiter.join(components[2:]).rstrip()
+					transformations.append(transformation)
 			transformations_file.close()
 			
-			# Perform transformations from file.
-			for key, value in transformations.items():
-				#print(f"Transform {key}: {str(value)} [{type(value)}]")
-				text_contents = re.sub(key, value, text_contents)
+			if len(transformations) > 0:
+				print("Transformations found. Performing:")
+			else:
+				print("No transformations found in file.")
 			
+			# Perform transformations from file.
+			for transformation in transformations:
+				message = ""
+				if comment_key in transformation:
+					message = transformation[comment_key]
+				else:
+					message = f"Replace '{transformation[search_key]}' with '{transformation[replace_key]}'"
+				print(f"- {message}")
+				text_contents = re.sub(transformation[search_key], transformation[replace_key], text_contents)
+		
 		except IOError as e:
 			#print("Couldn't read transformations file: %s" % e)
 			pass
