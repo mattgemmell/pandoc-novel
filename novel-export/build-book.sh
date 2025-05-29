@@ -25,9 +25,15 @@ MARKDOWN_DIR="${MARKDOWN_DIR/#\~/$HOME}"
 METADATA_JSON="${METADATA_JSON/#\~/$HOME}"
 MARKDOWN_DIR=`realpath "$MARKDOWN_DIR"`
 METADATA_JSON=`realpath "$METADATA_JSON"`
+OTHER_ARGS=()
 
 if [ $# -gt 3 ]; then
 	PLACEHOLDER_MODE="$4"
+	if [ $# -gt 4 ]; then
+		all_args=($@)
+		OTHER_ARGS=${all_args[@]:4}
+		#echo $OTHER_ARGS
+	fi
 fi
 
 if [ ! -d "${MARKDOWN_DIR}" ]; then
@@ -69,10 +75,10 @@ fi
 # Invoke pandoc on the master document, once for ePub and once for PDF.
 pandoc --defaults="${SCRIPT_DIR}/options-epub.yaml" --defaults="${SCRIPT_DIR}/options-shared.yaml" \
        --metadata-file="$METADATA_JSON" --metadata=date="$meta_date" --metadata=date-year:"$meta_date_year" \
-       --output="$OUTPUT_BASENAME".epub $TEMP_MASTER_MARKDOWN_FILE
+       --output="$OUTPUT_BASENAME".epub $TEMP_MASTER_MARKDOWN_FILE $OTHER_ARGS
 pandoc --defaults="${SCRIPT_DIR}/options-pdf.yaml" --defaults="${SCRIPT_DIR}/options-shared.yaml" \
        --metadata-file="$METADATA_JSON" --metadata=date="$meta_date" --metadata=date-year:"$meta_date_year" \
-       --output="$OUTPUT_BASENAME".pdf $TEMP_MASTER_MARKDOWN_FILE
+       --output="$OUTPUT_BASENAME".pdf $TEMP_MASTER_MARKDOWN_FILE $OTHER_ARGS
 
 # Clean up temporary files.
 rm $TEMP_MASTER_MARKDOWN_FILE

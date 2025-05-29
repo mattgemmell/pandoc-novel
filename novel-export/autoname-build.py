@@ -38,17 +38,17 @@ def string_to_slug(text):
 
 valid_modes = ["basic", "templite", "jinja2"]
 
-parser=argparse.ArgumentParser()
+parser=argparse.ArgumentParser(allow_abbrev=False)
 parser.add_argument('--input-folder', '-i', help="Folder containing input Markdown files", type= str, required=True)
 parser.add_argument('--json-file', '-j', help="JSON file with book metadata", type= str, required=True)
 parser.add_argument('--replacement-mode', '-m', help=f"[optional] Replacement system to use: {', '.join(valid_modes)} or none (default is basic)", type= str, default= "basic")
 parser.add_argument('--test', '-t', help="Just display which filename would be used, without actually invoking a build.", action="store_true")
-args=parser.parse_args()
+args=parser.parse_known_args()
 
-input_folder_path = args.input_folder
-json_file_path = args.json_file
-placeholder_mode = args.replacement_mode
-test_mode = args.test == True
+input_folder_path = args[0].input_folder
+json_file_path = args[0].json_file
+placeholder_mode = args[0].replacement_mode
+test_mode = args[0].test == True
 
 if placeholder_mode not in valid_modes:
 	sys.exit(f"Invalid placeholder mode ({placeholder_mode}); should be {', '.join(valid_modes)} or none.")
@@ -85,13 +85,17 @@ try:
 		script_name = "build-book.sh"
 		script_path = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), script_name)
 		script_args = f"{input_folder_path} {json_file_path} '{output_basename}' '{placeholder_mode}'"
+		extra_args = ""
+		if len(args[1]) > 0:
+			extra_args = ' '.join(args[1])
+			script_args = f"{script_args} {extra_args}"
 		command_string = f"{script_path} {script_args}"
 		if test_mode:
 				print("Test mode: not building anything. In a real run, I'd execute this command:\n", command_string)
 		else:
 			import subprocess
 			try:
-				p = subprocess.run([script_path, input_folder_path, json_file_path, output_basename, placeholder_mode])
+				p = subprocess.run([script_path, input_folder_path, json_file_path, output_basename, placeholder_mode, extra_args])
 			except Exception as e:
 				print("Exception: ", e)
 		
