@@ -126,6 +126,8 @@ Your generated books will be created in the same directory you called this scrip
 
 : ./novel-export/build-book.sh book/ metadata.json example-book
 
+Any additional parameters beyond the 4th will be passed as-is to pandoc. This is also true for the auto-naming wrapper script, mentioned next, though in that case any parameters beyond the 3rd will be passed.
+
 If you're interested in automating the build process, for example to batch-generate many different books at once, it may be burdensome to explicitly specify the output filename for each project. To help, an optional Python script =autoname-build.py= is included which calls the usual build script for you, accepting the same parameters /except/ for the output filename. Instead, it generates an output filename on your behalf, using the following logic:
 
 1. If your metadata JSON file includes a =filename= entry, that entry will be used as the filename.
@@ -262,6 +264,46 @@ Keep in mind that the transformations will be run on the concatenated master doc
 The transformations feature can be especially useful if the publishable content for your book is kept alongside other information in the same Markdown files, and you wish to strip the non-publishable portions automatically at build time, instead of having to keep duplicate copies of that content just for publishing. As with the placeholders system in general, transformations are completely non-destructive, leaving your original content files untouched.
 
 
+* Questions
+:PROPERTIES:
+:CUSTOM_ID: questions
+:END:
+
+The following questions are anticipated, and answers are supplied.
+
+*** In what order are the Markdown files within a book's source directory collated?
+
+A sensible order, with numbers sorted naturally, and alphabetical otherwise. In particular, files with unpadded numeric prefixes (1-9, then 10-99, and so on), should behave as a human being would expect. From a technical perspective, this is known as a /version sort/, in the parlance of the eponymous sort utility on all unix-like systems.
+
+In any case, you can always enforce desirable collation ordering by suitably naming your files and folders. See the included sample book project for an example of this.
+
+*** How can multiple different books be built from the same installation of this configuration?
+
+The build script can be called from any directory which contains a metadata JSON file, passing the suitable parameters. You'll also need a cover image for the resulting ePub file. Create an appropiate metadata file and cover image for each book, and invoke the script accordingly.
+
+*** The same CSS stylesheets are used for every build; how can I customise the output for a given book?
+
+Create a CSS file which appropriately overrides the standard styles, and then specify it when building the relevant book, using any of the following methods:
+
+- Add a =css= entry to your book's metadata JSON file, whose value is the filename of your custom CSS stylesheet. The stylesheet should reside in the same directory as the metadata file.
+- Invoke the =build-book.sh= script with an argument of the form =--css=your-stylesheet.css= /after/ all other positional arguments (including optional ones, which must be specified in this scenario).
+- Invoke the =autoname-build.py= Python script with a =--css=your-stylesheet.css= argument.
+
+This illustrates a general point: pandoc is generally forgiving of being supplied with multiple arguments (and/or metadata values) of the same type, and will accumulate all such values rather than replacing earlier instances with later ones. Any additional arguments supplied to the build scripts are passed as-is to pandoc, and extensive customisation can be achieved in this manner.
+
+*** How can I create a print PDF for a paper size other than 5x8 inches?
+
+This size was chosen because it is the smallest generally-available trim size for print-on-demand and self-publishing services, and is one of the most popular trim sizes for paperbacks presently. If you wish to create a 6x9-inch book (or some other size) instead, this is possible via a minimal CSS override of the existing =pdf.css= stylesheet, which is left as an exercise for the reader. See the previous question for how to apply such a stylesheet to a given book.
+
+*** How can I use the same front- or back-matter for different books?
+
+Linking such directories in the file-system should work (as symlinks, for example). In order to make the contents of such files adapt to the particular book being built, consider making use of the [[#templating-systems][templating systems]] feature of this configuration.
+
+*** My Markdown content requires pre-processing of some kind before collation for publishing; is this possible?
+
+This is the intended purpose of the [[#transformations][transformations]] feature, which uses regular expressions for the task. It is non-destructive, and will only affect the collated /copy/ of your Markdown content, not the original source files themselves.
+
+
 * Conclusion
 :PROPERTIES:
 :CUSTOM_ID: conclusion
@@ -275,4 +317,4 @@ Best wishes, \\
 Matt Gemmell
 
 /Edinburgh, Scotland/ \\
-/22nd May, 2025/
+/29th May, 2025/
