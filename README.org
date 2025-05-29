@@ -281,7 +281,7 @@ In any case, you can always enforce desirable collation ordering by suitably nam
 
 The build script can be called from any directory which contains a metadata JSON file, passing the suitable parameters. You'll also need a cover image for the resulting ePub file. Create an appropiate metadata file and cover image for each book, and invoke the script accordingly.
 
-*** The same CSS stylesheets are used for every build; how can I customise the output for a given book?
+*** How can I customise the appearance or layout of a given book?
 
 Create a CSS file which appropriately overrides the standard styles, and then specify it when building the relevant book, using any of the following methods:
 
@@ -299,7 +299,7 @@ This size was chosen because it is the smallest generally-available trim size fo
 
 Linking such directories in the file-system should work (as symlinks, for example). In order to make the contents of such files adapt to the particular book being built, consider making use of the [[#templating-systems][templating systems]] feature of this configuration.
 
-*** My Markdown content requires pre-processing of some kind before collation for publishing; is this possible?
+*** How can I pre-process my Markdown content before collation for publishing?
 
 This is the intended purpose of the [[#transformations][transformations]] feature, which uses regular expressions for the task. It is non-destructive, and will only affect the collated /copy/ of your Markdown content, not the original source files themselves.
 
