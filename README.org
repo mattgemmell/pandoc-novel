@@ -285,7 +285,7 @@ The build script can be called from any directory which contains a metadata JSON
 
 Create a CSS file which appropriately overrides the standard styles, and then specify it when building the relevant book, using any of the following methods:
 
-- Add a =css= entry to your book's metadata JSON file, whose value is the filename of your custom CSS stylesheet. The stylesheet should reside in the same directory as the metadata file.
+- Add a =css= entry to your book's metadata JSON file, whose value is the filename of your custom CSS stylesheet if it resides in the same directory as the metadata file, or the full path to the stylesheet otherwise.
 - Invoke the =build-book.sh= script with an argument of the form =--css=your-stylesheet.css= /after/ all other positional arguments (including optional ones, which must be specified in this scenario).
 - Invoke the =autoname-build.py= Python script with a =--css=your-stylesheet.css= argument.
 
@@ -293,7 +293,7 @@ This illustrates a general point: pandoc is generally forgiving of being supplie
 
 *** How can I create a print PDF for a paper size other than 5x8 inches?
 
-This size was chosen because it is the smallest generally-available trim size for print-on-demand and self-publishing services, and is one of the most popular trim sizes for paperbacks presently. If you wish to create a 6x9-inch book (or some other size) instead, this is possible via a minimal CSS override of the existing =pdf.css= stylesheet, which is left as an exercise for the reader. See the previous question for how to apply such a stylesheet to a given book.
+This size was chosen because it is the smallest generally-available trim size for print-on-demand and self-publishing services, and is one of the most popular trim sizes for paperbacks presently. If you wish to create a 6x9-inch book (or some other size) instead, this is possible via a trivial CSS override of the existing =pdf.css= stylesheet, and a 6x9-inch version is included in the =pdf-6x9.css= file. See the previous question for how to apply such a stylesheet to a given book.
 
 *** How can I use the same front- or back-matter for different books?
 
