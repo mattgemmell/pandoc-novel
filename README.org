@@ -263,6 +263,10 @@ Keep in mind that the transformations will be run on the concatenated master doc
 
 The transformations feature can be especially useful if the publishable content for your book is kept alongside other information in the same Markdown files, and you wish to strip the non-publishable portions automatically at build time, instead of having to keep duplicate copies of that content just for publishing. As with the placeholders system in general, transformations are completely non-destructive, leaving your original content files untouched.
 
+*** TKs
+
+As a convenience, after all placeholders/templating and transformations have been processed, the collated master document will be checked for any [[https://en.wikipedia.org/wiki/To_come_(publishing)][instances of TK]], a convention in the realm of publishing for "to come", or something not yet completed. If any are found, a warning will be emitted with the number of found TKs.
+
 
 * Questions
 :PROPERTIES:

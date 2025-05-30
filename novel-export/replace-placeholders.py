@@ -119,6 +119,15 @@ try:
 			except ImportError as e:
 				print("Couldn't find jinja2 for python3: ", e)
 		
+		# Determine if any TKs are present, and warn if so.
+		tks = re.findall(r"(?i)\b(TK)+\b", text_contents)
+		num_tks = len(tks)
+		if num_tks > 0:
+			if num_tks == 1:
+				print(f"Warning: there is {num_tks} TK in the collated Markdown contents.")
+			else:
+				print(f"Warning: there are {num_tks} TKs in the collated Markdown contents.")
+		
 		# Save text_file.
 		try:
 			text_file = open(text_file_path, 'w')
