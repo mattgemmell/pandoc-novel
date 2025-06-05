@@ -124,11 +124,11 @@ You may also supply any of the following optional parameters, if desired:
 | =-h= | Displays help information on usage of the script, taking no other action. |
 | =--replacement-mode= | The placeholder-replacement mode to use. See the [[#metadata-and-placeholders][metadata and placeholders]] section. Should be one of: "basic" (default), "templite", "jinja2", or "none". |
 | =--output-basename= | Output filename without extension. Default is automatic based on metadata; see below. |
-|=--verbose=|Enable verbose logging. Disabled by default.|
-|=--check-tks=|Check for TKs in the input Markdown files. Enabled by default. [[#tks][Found TKs will be reported]], but will not prevent books being built. Disable with =--no-check-tks=.|
-|=--run-transformations=|Perform any transformations found in [[#transformations][a transformations file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-perform-transformations=.|
-|=--formats=|Output formats to create books in. Default is "all", or can be a space-separated list of options from "epub" and "pdf".|
-|(Other arguments)|Any remaining arguments will be passed as-is to pandoc when building each format.|
+| =--verbose= | Enable verbose logging. Disabled by default. |
+| =--check-tks= | Check for TKs in the input Markdown files. Enabled by default. [[#tks][Found TKs will be reported]], but will not prevent books being built. Disable with =--no-check-tks=. |
+| =--run-transformations= | Perform any transformations found in [[#transformations][a transformations file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-perform-transformations=. |
+| =--formats= | Output formats to create books in. Default is "all", or can be a space-separated list of options from "epub" and "pdf". |
+| (Other arguments) | Any remaining arguments will be passed as-is to pandoc when building each format. |
 
 If you don't wish to specify the output basename explicitly, one will be supplied for you automatically based on the metadata JSON file, using the following logic:
 
