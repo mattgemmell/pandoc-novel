@@ -54,11 +54,9 @@ You'll need a very basic familiarity with using the terminal. If you're doing ex
 
 - [[https://pandoc.org][pandoc]] (3.7.0.1 at time of writing, in May 2025)
 - [[https://weasyprint.org][weasyprint]] (65.1 〃)
-- [[https://www.python.org][python]] (3.13.3 〃) *[Optional]*
+- [[https://www.python.org][python]] (3.13.3 〃)
 
 These are all readily available via almost any package manager, or directly as installers or source code. If you're on macOS, they're all available via [[https://brew.sh][homebrew]], and I highly recommend it to you.
-
-Python is only needed if you want to make use of [[#metadata-and-placeholder-support][the placeholders feature]]. If you don't need it, you'll just see a message in the terminal when using this configuration's build script, saying that =python3= wasn't found, and placeholders won't be processed. To silence this message, see the [[#metadata-and-placeholders][metadata and placeholders]] section.
 
 
 * Features
@@ -112,32 +110,30 @@ In all cases please refer to the included example novel project, and the various
 
 2. Prepare your novel using the structure and format of the included example project, in particular the =metadata.json= file. (Your project can live anywhere; it doesn't need to be within this configuration's folder.)
 
-3. In the terminal, *change to the directory containing your book's metadata JSON file*, and execute the =build-book.sh= script (inside the =novel-export= folder), passing it these parameters in the following order:
+3. In the terminal, *change to the directory containing your book's metadata JSON file*, and execute the =build-book.py= Python script (inside the =novel-export= folder), passing it the following parameters as a minimum:
 
-   1. Path to the top-level *folder* containing your book's Markdown files.
+| =--input-folder=       | Path to the folder containing all of your book's Markdown files |
+| =--json-metadata-file= | Path to the JSON metadata file for your book                    |
 
-   2. Path to the metadata JSON file for your book.
+Your generated books will be created in the same directory you called the build script from. Here's an example invocation:
 
-   3. The desired output filename (/without/ file-extension) for the generated ePub and PDF books.
+: python novel-export/build-book.py --input-folder=book/ --json-metadata-file=metadata.json
 
-   4. *[Optional]* The placeholder-replacement mode to use. See the [[#metadata-and-placeholders][metadata and placeholders]] section.
+You may also supply any of the following optional parameters, if desired:
 
-Your generated books will be created in the same directory you called this script from. Here's an example invocation:
+| =-h= | Displays help information on usage of the script, taking no other action. |
+| =--replacement-mode= | The placeholder-replacement mode to use. See the [[#metadata-and-placeholders][metadata and placeholders]] section. Should be one of: "basic" (default), "templite", "jinja2", or "none". |
+| =--output-basename= | Output filename without extension. Default is automatic based on metadata; see below. |
+|=--verbose=|Enable verbose logging. Disabled by default.|
+|=--check-tks=|Check for TKs in the input Markdown files. Enabled by default. [[#tks][Found TKs will be reported]], but will not prevent books being built. Disable with =--no-check-tks=.|
+|=--run-transformations=|Perform any transformations found in [[#transformations][a transformations file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-perform-transformations=.|
+|=--formats=|Output formats to create books in. Default is "all", or can be a space-separated list of options from "epub" and "pdf".|
+|(Other arguments)|Any remaining arguments will be passed as-is to pandoc when building each format.|
 
-: ./novel-export/build-book.sh book/ metadata.json example-book
+If you don't wish to specify the output basename explicitly, one will be supplied for you automatically based on the metadata JSON file, using the following logic:
 
-Any additional parameters beyond the 4th will be passed as-is to pandoc. This is also true for the auto-naming wrapper script, mentioned next, though in that case any parameters beyond the 3rd will be passed.
-
-If you're interested in automating the build process, for example to batch-generate many different books at once, it may be burdensome to explicitly specify the output filename for each project. To help, an optional Python script =autoname-build.py= is included which calls the usual build script for you, accepting the same parameters /except/ for the output filename. Instead, it generates an output filename on your behalf, using the following logic:
-
-1. If your metadata JSON file includes a =filename= entry, that entry will be used as the filename.
-2. Otherwise, the (required) =title= entry in the metadata JSON file will be converted into a suitable format for use as a filename; for example, ="My Great Title!"= would become ="my-great-title"=.
-
-Execute the =autobuild.py= script with the =-h= flag to learn how to use it, and note that it of course requires Python to be already installed. As with the standard build script, you should first change into the directory containing your book's metadata JSON file. Here's an example invocation:
-
-: python novel-export/autoname-build.py --input-folder=book/ --json-file=metadata.json --replacement-mode=basic
-
-You can also pass the =--test= flag, and the script will just show a message telling you the full build command it /would/ have run, without actually doing so.
+1. If your metadata JSON file includes a =basename= entry, that entry will be used as the basename.
+2. Otherwise, the (required) =title= entry in the metadata JSON file will be converted into a suitable format for use as a basename; for example, ="My Great Title!"= would become ="my-great-title"=.
 
 Below is some additional information on getting things looking and working the way you want them to.
 
@@ -227,23 +223,23 @@ You'll provide the metadata for your book (title, subtitle if appropriate, autho
 - =date=: The current date, in YYYY-MM-DD format. Used in your book's internal metadata. 
 - =date-year=: The current year, in YYYY format. Useful for your copyright page.
 
-As a convenience, this configuration also includes a simple Python script (nothing to do with pandoc) which can insert any of those metadata values into the collated master Markdown version of your book during the build process. Its functionality is straightforward, as illustrated by this example:
+As a convenience, the Python build script can insert any of those metadata values into the collated master Markdown version of your book during the build process. Its functionality is straightforward, as illustrated by this example:
 
-If you have a metadata entry named =guitarist=, whose value is ="Mark Knopfler"=, then at build time any occurrence of =%guitarist%= in your entire book will be replaced with =Mark Knopfler= (note the percentage-symbols as delimiters). This feature is wholly contained in the =replace-placeholders.py= script file. Feel free to tailor it to your needs, or ignore it entirely.
+If you have a metadata entry named =guitarist=, whose value is ="Mark Knopfler"=, then at build time any occurrence of =%guitarist%= in your entire book will be replaced with =Mark Knopfler= (note the percentage-symbols as delimiters). This feature can be disabled if desired, or substituted with more sophisticated functionality, detailed below.
 
 *** Templating systems
 :PROPERTIES:
 :CUSTOM_ID: templating-systems
 :END:
 
-For more advanced needs, or for those who have experience in using a templating engine, additional functionality is available via alternate replacement modes. To choose a replacement mode, specify its name as the (optional) fourth parameter when invoking the build script. The available modes are:
+For more advanced needs, or for those who have experience in using a templating engine, additional functionality is available via alternate replacement modes. The available modes are:
 
 - =basic=: The default, simple behaviour, already detailed above. Built-in.
 - =templite=: Uses the [[https://github.com/sametmax/templite?tab=readme-ov-file][Templite templating system]] and syntax. Built-in.
 - =jinja2=: Uses the [[https://jinja.palletsprojects.com/en/stable/templates/][Jinja2 templating system]] and syntax. *Requires jinja2 for Python*.
-- =none=: Disables placeholder processing entirely (and silences the warning message about python3 not being installed, if applicable).
+- =none=: Disables placeholder processing entirely.
 
-You can also use the placeholders feature entirely independently of this pandoc configuration. Execute the =replace-placeholders.py= script with the =-h= flag for information on how to use it.
+Placeholder modes are mutually exclusive, but the chosen mode can be used together with the transformations feature, detailed next.
 
 *** Transformations
 :PROPERTIES:
@@ -252,7 +248,7 @@ You can also use the placeholders feature entirely independently of this pandoc 
 
 For /very/ advanced needs, such as your Markdown content needing to be cleaned up or otherwise modified before being sent through the placeholders system, an optional and implicit feature exists: transformations. In brief, this allows your collated master Markdown file to be transformed via a series of regular expressions, /before/ the placeholders system is applied. It works as follows.
 
-If a file named =transformations.tsv= exists in the same directory as your metadata JSON file, it will be read by the placeholders system. This file should contain lines with *tab-separated values*. The first value on each line should be the search expression, and the second value should be the replacement expression (which can be empty, and can also use capture groups from the search expression, as you'd expect). Optionally, a third value on a given line will be treated as a comment or description of what the regular expression does.
+If a file named =transformations.tsv= exists in the same directory as your metadata JSON file, it will be read by the build script. This file should contain lines with *tab-separated values*. The first value on each line should be the search expression, and the second value should be the replacement expression (which can be empty, and can also use capture groups from the search expression, as you'd expect). Optionally, a third value on a given line will be treated as a comment or description of what the regular expression does.
 
 These entries are [[https://docs.python.org/3/library/re.html#regular-expression-syntax][Python-compatible regular expressions]], and are applied in order. Here are some examples:
 
@@ -261,11 +257,14 @@ These entries are [[https://docs.python.org/3/library/re.html#regular-expression
 
 Keep in mind that the transformations will be run on the concatenated master document of your book, with its *entire contents in a single Markdown file*. This may have implications for the specific regular expressions you use (in particular, you will probably want to use /multi-line mode/, by prefixing appropriate search patterns with =(?m)=).
 
-The transformations feature can be especially useful if the publishable content for your book is kept alongside other information in the same Markdown files, and you wish to strip the non-publishable portions automatically at build time, instead of having to keep duplicate copies of that content just for publishing. As with the placeholders system in general, transformations are completely non-destructive, leaving your original content files untouched.
+The transformations feature can be especially useful if the publishable content for your book is kept alongside other information in the same Markdown files, and you wish to strip the non-publishable portions automatically at build time, instead of having to keep duplicate copies of that content just for publishing. As with the placeholders system in general, transformations are completely non-destructive, leaving your original input Markdown files untouched.
 
 *** TKs
+:PROPERTIES:
+:CUSTOM_ID: tks
+:END:
 
-As a convenience, after all placeholders/templating and transformations have been processed, the collated master document will be checked for any [[https://en.wikipedia.org/wiki/To_come_(publishing)][instances of TK]], a convention in the realm of publishing for "to come", or something not yet completed. If any are found, a warning will be emitted with the number of found TKs.
+As a convenience, before any placeholders/templating or transformations have been processed, the input Markdown files will be checked for [[https://en.wikipedia.org/wiki/To_come_(publishing)][instances of TK]], a convention in the realm of publishing for "to come", or something not yet completed. If any are found, a warning will be emitted with the number of TKs found in each applicable document, then the build process will continue regardless.
 
 
 * Questions
@@ -277,23 +276,22 @@ The following questions are anticipated, and answers are supplied.
 
 *** In what order are the Markdown files within a book's source directory collated?
 
-A sensible order, with numbers sorted naturally, and alphabetical otherwise. In particular, files with unpadded numeric prefixes (1-9, then 10-99, and so on), should behave as a human being would expect. From a technical perspective, this is known as a /version sort/, in the parlance of the eponymous sort utility on all unix-like systems.
+A sensible order, with numbers sorted naturally, and alphabetical otherwise. In particular, files with unpadded numeric prefixes (1-9, then 10-99, and so on), should behave as a human being would expect. From a technical perspective, this is known as a /version sort/.
 
 In any case, you can always enforce desirable collation ordering by suitably naming your files and folders. See the included sample book project for an example of this.
 
 *** How can multiple different books be built from the same installation of this configuration?
 
-The build script can be called from any directory which contains a metadata JSON file, passing the suitable parameters. You'll also need a cover image for the resulting ePub file. Create an appropiate metadata file and cover image for each book, and invoke the script accordingly.
+The build script can be called from any directory which contains a metadata JSON file, passing the relevant parameters. You'll also need a cover image in the same directory, for the resulting ePub file. Create an appropiate metadata file and cover image for each book, and invoke the script accordingly.
 
 *** How can I customise the appearance or layout of a given book?
 
-Create a CSS file which appropriately overrides the standard styles, and then specify it when building the relevant book, using any of the following methods:
+Create a CSS file which appropriately overrides the standard styles, and then specify it when building the relevant book, using either of the following methods:
 
 - Add a =css= entry to your book's metadata JSON file, whose value is the filename of your custom CSS stylesheet if it resides in the same directory as the metadata file, or the full path to the stylesheet otherwise.
-- Invoke the =build-book.sh= script with an argument of the form =--css=your-stylesheet.css= /after/ all other positional arguments (including optional ones, which must be specified in this scenario).
-- Invoke the =autoname-build.py= Python script with a =--css=your-stylesheet.css= argument.
+- Invoke the =build-book.py= script with an argument of the form =--css=your-stylesheet.css=, which will be passed directly to pandoc when building your books.
 
-This illustrates a general point: pandoc is generally forgiving of being supplied with multiple arguments (and/or metadata values) of the same type, and will accumulate all such values rather than replacing earlier instances with later ones. Any additional arguments supplied to the build scripts are passed as-is to pandoc, and extensive customisation can be achieved in this manner.
+This illustrates a general point: pandoc is generally forgiving of being supplied with multiple arguments (and/or metadata values) of the same type, and will accumulate all such values rather than replacing earlier instances with later ones. Any additional arguments supplied to the build script are passed as-is to pandoc, and extensive customisation can be achieved in this manner.
 
 *** How can I create a print PDF for a paper size other than 5x8 inches?
 
@@ -321,4 +319,4 @@ Best wishes, \\
 Matt Gemmell
 
 /Edinburgh, Scotland/ \\
-/29th May, 2025/
+/5th June, 2025/

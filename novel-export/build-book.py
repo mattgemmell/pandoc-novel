@@ -1,0 +1,299 @@
+#!/usr/bin/python
+
+# Usage: Run this script with the "-h" flag for brief help.
+# Documentation: https://github.com/mattgemmell/pandoc-novel/blob/main/README.org
+
+import re
+import argparse
+import os
+import glob
+import sys
+import datetime
+import json
+import subprocess
+
+# --- Globals ---
+
+master_filename = "temp-book-master.md"
+tk_pattern = r"(?i)\b(TK)+\b"
+valid_placeholder_modes = ["basic", "templite", "jinja2"] # or "none"
+valid_output_formats = ["epub", "pdf"] # or "all"
+transformations_filename = "transformations.tsv"
+verbose_mode = False
+
+# --- Functions ---
+
+def inform(msg, severity="normal", force=False):
+	should_echo = (force or verbose_mode or severity=="error")
+	if should_echo:
+		out = ""
+		match severity:
+			case "warning":
+				out = f"[Warning]: {msg}"
+			case "error":
+				out = f"[ERROR]: {msg}"
+				should_echo = True
+			case _:
+				out = msg
+		print(out)
+
+def sorted_alphanumeric(data):
+	# Sorts lexicographically; natural numeric then alphabetical.
+	convert = lambda text: int(text) if text.isdigit() else text.lower()
+	alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ] 
+	return sorted(data, key=alphanum_key)
+
+def string_to_slug(text):
+		# Via: https://www.slingacademy.com/article/python-ways-to-convert-a-string-to-a-url-slug/
+		
+    # Remove non-alphanumeric characters
+    text = re.sub(r'\W+', ' ', text)
+
+    # Replace whitespace runs with single hyphens
+    text = re.sub(r'\s+', '-', text)
+
+    # Remove leading and trailing hyphens
+    text = text.strip('-')
+
+    # Return in lowercase
+    return text.lower()
+
+#--- Main script begins ---
+
+parser=argparse.ArgumentParser(allow_abbrev=False)
+parser.add_argument('--input-folder', '-i', help="Input folder of Markdown files", type= str, required=True)
+parser.add_argument('--json-metadata-file', '-j', help="JSON file with metadata", type= str, required=True)
+parser.add_argument('--replacement-mode', '-m', choices=valid_placeholder_modes + ["none"], help=f"[optional] Replacement system to use: {', '.join(valid_placeholder_modes)} (default is {valid_placeholder_modes[0]})", type= str, default= valid_placeholder_modes[0])
+parser.add_argument('--output-basename', '-o', help=f"[optional] Output filename without extension (default is automatic based on metadata)", type= str, default= None)
+parser.add_argument('--verbose', '-v', help="[optional] Enable verbose logging", action="store_true", default=False)
+parser.add_argument('--check-tks', help="[optional] Check for TKs in Markdown files (default: enabled), or disable with --no-check-tks", action=argparse.BooleanOptionalAction, default=True)
+parser.add_argument('--run-transformations', help=f"[optional] Perform any transformations found in {transformations_filename} file (default: enabled), or disable with --no-perform-transformations", action=argparse.BooleanOptionalAction, default=True)
+parser.add_argument('--formats', '-f', help=f"[optional] Output formats to create (as many as required), from: {', '.join(valid_output_formats)}, or all (default all)", action='store', nargs='+', choices=valid_output_formats + ["all"], default="all")
+args=parser.parse_known_args()
+
+# Obtain configuration parameters
+this_script_path = os.path.abspath(os.path.expanduser(sys.argv[0]))
+folder_path = args[0].input_folder
+json_file_path = args[0].json_metadata_file
+placeholder_mode = args[0].replacement_mode
+output_basename = args[0].output_basename
+verbose_mode = (args[0].verbose == True)
+check_tks = (args[0].check_tks == True)
+run_transformations = (args[0].run_transformations == True)
+output_formats = args[0].formats
+if isinstance(output_formats, list):
+	# Uniquify
+	output_formats = list(dict.fromkeys(output_formats))
+else:
+	output_formats = [output_formats]
+extra_args = None
+if len(args[1]) > 0:
+	extra_args = ' '.join(args[1])
+
+# Check if folder_path exists and is a folder.
+full_folder_path = os.path.abspath(os.path.expanduser(folder_path))
+inform(f"Path to Markdown folder: {full_folder_path}")
+if not os.path.isdir(full_folder_path):
+	inform("Path to Markdown folder isn't a folder.", severity="error")
+	sys.exit(1)
+
+# Check if json_file_path exists and is a file.
+full_metadata_path = os.path.abspath(os.path.expanduser(json_file_path))
+inform(f"Path to JSON metadata file: {full_metadata_path}")
+if not os.path.isfile(full_metadata_path):
+	if not full_metadata_path.endswith():
+		inform("Path to JSON metadata file isn't a file.", severity="error")
+		sys.exit(1)
+
+# Validate placeholder mode.
+if placeholder_mode not in valid_placeholder_modes:
+	inform(f"Invalid placeholder mode ({placeholder_mode}); should be {', '.join(valid_modes)} or none.", severity="error")
+	sys.exit(1)
+
+# Obtain all Markdown files, sorted sensibly.
+files = sorted_alphanumeric([p for p in glob.glob(f"{full_folder_path}/**/*", recursive=True) if os.path.isfile(p) and p.endswith((".md", ".markdown", ".mdown"))])
+
+master_documents = []
+files_with_tks = []
+
+try:
+	for file in files:
+		#print(file)
+		text_file = open(file, 'r')
+		text_contents = text_file.read()
+		text_file.close()
+		
+		master_documents.append(text_contents)
+		
+		if check_tks:
+			tks = re.findall(r"(?i)\b(TK)+\b", text_contents)
+			if len(tks) > 0:
+				filename = os.path.basename(file)
+				files_with_tks.append(f"{filename} ({len(tks)} TK{'s' if len(tks) != 1 else ''})")
+			
+except IOError as e:
+	inform(f"Couldn't read Markdown files: {e}", severity="error")
+	sys.exit(1)
+
+inform(f"{len(master_documents)} Markdown files read.", force=verbose_mode)
+
+if check_tks:
+	num_tks = len(files_with_tks)
+	if num_tks > 0:
+		inform(f"TKs are present in the following files:\n{'\n'.join(['- ' + f for f in files_with_tks])}\n(Continuing regardless.)", severity="warning", force=check_tks)
+	else:
+		inform(f"No TKs found.", force=check_tks)
+
+# Concatenate master file.
+master_contents = "\n".join(master_documents)
+
+# Prepare extra metadata.
+now = datetime.datetime.now()
+meta_date = now.strftime("%Y-%m-%d")
+meta_date_year = now.strftime("%Y")
+
+# Read the JSON metadata file.
+json_contents = None
+try:
+	json_file = open(full_metadata_path, 'r')
+	json_contents = json.load(json_file)
+	json_file.close()
+except IOError as e:
+		inform(f"Couldn't read JSON metadata file: {e}", severity="error")
+		sys.exit(1)
+
+# Add dynamically-generated extra metadata.
+json_contents['date'] = meta_date
+json_contents['date-year'] = meta_date_year
+
+# Process transformations.
+if run_transformations:
+	# Check for any requested transformations.
+	transformations_path = os.path.join(os.path.dirname(full_metadata_path), transformations_filename)
+	
+	inform(f"Checking for transformations file: {transformations_path}")
+	if not os.path.isfile(transformations_path):
+		inform(f"Transformations file not found. Continuing.")
+	else:
+		transformations = []
+		try:
+			# Read the transformations file.
+			delimiter = "\t"
+			search_key, replace_key, comment_key = "search", "replace", "comment"
+			transformations_file = open(transformations_path, 'r')
+			for line in transformations_file:
+				components = line.split(delimiter)
+				if len(components) > 1:
+					transformation = {search_key: components[0], replace_key: components[1]}
+					if len(components) > 2:
+						transformation[comment_key] = delimiter.join(components[2:]).rstrip()
+					transformations.append(transformation)
+			transformations_file.close()
+		except IOError as e:
+			inform(f"Couldn't read transformations file: {e}", severity="warning")
+		
+		if len(transformations) > 0:
+			inform("Transformations found. Performing:")
+		else:
+			inform("No transformations found in file. Continuing.")
+		
+		# Perform transformations from file.
+		for transformation in transformations:
+			message = ""
+			if comment_key in transformation:
+				message = transformation[comment_key]
+			else:
+				message = f"Replace '{transformation[search_key]}' with '{transformation[replace_key]}'"
+			inform(f"- {message}")
+			master_contents = re.sub(transformation[search_key], transformation[replace_key], master_contents)
+
+# Process placeholders.
+if placeholder_mode == "basic":
+	# Replace all occurrences of metadata placeholders in master_contents.
+	for key, value in json_contents.items():
+		#print(f"{key}: {value} [{type(value)}]")
+		master_contents = master_contents.replace(f"%{key}%", str(value))
+
+elif placeholder_mode == "templite":
+	try:
+		from templite import Templite
+		t = Templite(master_contents)
+		master_contents = t.render(**json_contents)
+	except ImportError as e:
+		inform(f"Couldn't find templite module: {e}", severity="warning")
+		
+elif placeholder_mode == "jinja2":
+	try:
+		from jinja2 import Template
+		template = Template(master_contents)
+		master_contents = template.render(json_contents)
+	except ImportError as e:
+		inform(f"Couldn't find jinja2 for python3: {e}", severity="warning")
+
+# Save master file.
+try:
+	master_file = open(master_filename, 'w')
+	master_file.write(master_contents)
+	master_file.close()
+except IOError as e:
+	inform(f"Couldn't save master file: {e}", severity="error")
+	sys.exit(1)
+
+# Determine output basename, if not already specified.
+if not output_basename:
+	inform(f"No output basename supplied in arguments; checking metadata.")
+	basename_key = "basename"
+	title_key = "title"
+	if basename_key in json_contents and json_contents[basename_key] != "":
+		output_basename = json_contents[basename_key]
+		inform(f"Using basename specified in metadata: {output_basename}")
+	else:
+		# Slugify the 'title' entry as a filename.
+		if title_key in json_contents and json_contents[title_key] != "":
+			title_val = json_contents[title_key]
+			output_basename = string_to_slug(title_val)
+			inform(f"Converted metadata title '{title_val}' to basename: {output_basename}")
+		else:
+			inform(f"Couldn't find '{basename_key}' or '{title_key}' in metadata.", severity="error")
+			sys.exit(1)
+else:
+	inform(f"Requested output basename: {output_basename}")
+
+if extra_args:
+	inform(f"Found extra arguments. Passing them to pandoc: {extra_args}")
+
+# Invoke pandoc for each format, passing extra_args and warning for unrecognised formats.
+inform(f"Output formats requested: {', '.join(output_formats)}")
+all_formats = "all" in output_formats
+yaml_shared_path = os.path.join(os.path.dirname(this_script_path), "options-shared.yaml")
+pandoc_args = ['pandoc', f'--defaults={yaml_shared_path}', f'--metadata-file={full_metadata_path}', f'--metadata=date:"{meta_date}"', f'--metadata=date-year:"{meta_date_year}"', master_filename]
+if extra_args:
+	pandoc_args.append(extra_args)
+
+for this_format in output_formats:
+	if not this_format in valid_output_formats and this_format != "all":
+		inform(f"Output format '{this_format}' not presently supported. Skipping.", severity="warning")
+	else:
+		try:
+			if this_format == "epub" or all_formats:
+				inform(f"Building epub format with pandoc.")
+				yaml_epub_path = os.path.join(os.path.dirname(this_script_path), "options-epub.yaml")
+				p = subprocess.run(pandoc_args + [f'--defaults={yaml_epub_path}', f'--output={output_basename}.epub'])
+				
+			if this_format == "pdf" or all_formats:
+				inform(f"Building pdf format with pandoc.")
+				yaml_pdf_path = os.path.join(os.path.dirname(this_script_path), "options-pdf.yaml")
+				p = subprocess.run(pandoc_args + [f'--defaults={yaml_pdf_path}', f'--output={output_basename}.pdf'])
+				
+		except Exception as e:
+			inform(f"Couldn't build {this_format} format with pandoc: {e}", severity="error")
+			sys.exit(1)
+
+# Remove temporary master file.
+try:
+	os.remove(master_filename)
+except IOError as e:
+	inform(f"Couldn't delete master file: {e}", severity="error")
+	sys.exit(1)
+
+inform("Done.")
