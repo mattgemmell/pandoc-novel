@@ -3,7 +3,7 @@
 :CUSTOM_ID: pandoc-novel-export
 :END:
 
-This is a configuration for [[https://pandoc.org][pandoc]], the universal markup converter, intended to make it easy to publish novels or other fiction written in [[https://commonmark.org][Markdown]]. It supports ePub3 ebooks, and PDF for print in 5x8-inch paperback format.
+This is a configuration for [[https://pandoc.org][pandoc]], the universal markup converter, intended to make it easy to publish novels or other fiction written in [[https://commonmark.org][Markdown]]. It supports ePub3 ebooks, and PDF for print in 5x8-inch or 6x9-inch paperback format.
 
 For a quick-start on setup and usage, [[#setup-usage-and-customisation][see this section]].
 
@@ -38,7 +38,7 @@ This configuration was created with a focus on simplicity for the user. A full e
 
 1. A standards-compliant ePub3 ebook, ready for the Kindle Store, Apple Books Store, and direct use on virtually any e-reader device or app.
 
-2. A print-ready PDF file, for the interior of a 5x8-inch mass-market paperback.
+ 2. A print-ready PDF file, for the interior of a 5x8-inch mass-market paperback. See the [[#setup-usage-and-customisation][usage section]] for how to generate in 6x9-inch format instead of (or in addition to) 5x8.
 
 This will get you 90% of the way there for print (you'll need to provide your own cover wraparound master, of course, to the required specs of your print-on-demand service or printing company), and 99% of the way there for digital (just supply your own cover-image JPEG or PNG).
 
@@ -126,10 +126,11 @@ You may also supply any of the following optional parameters, if desired:
 | =--verbose= | Enable verbose logging. Disabled by default. |
 | =--json-metadata-file= | Path to the JSON metadata file for your book. |
 | =--output-basename= | Output filename without extension. Default is automatic based on metadata; see below. |
-| =--formats= | Output formats to create books in. Default is "all", or can be a space-separated list of options from "epub" and "pdf". |
+| =--formats= | Output formats to create books in. Default is "epub" and "pdf", or can be a space-separated list of options from "epub", "pdf", and "pdf-6x9". Use "all" to build all supported formats. |
 | =--check-tks= | Check for TKs in the input Markdown files. Enabled by default. [[#tks][Found TKs will be reported]], but will not prevent books being built. Disable with =--no-check-tks=. |
 | =--replacement-mode= | The placeholder-replacement mode to use. See the [[#metadata-and-placeholders][metadata and placeholders]] section. Should be one of: "basic" (default), "templite", "jinja2", or "none". |
 | =--run-transformations= | Perform any transformations found in [[#transformations][a transformations file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-perform-transformations=. |
+| =--retain-collated-master= | Keeps the collated master Markdown file after generating books, instead of deleting it. |
 | =--show-pandoc-commands= | Display the actual pandoc commands and arguments when invoking them for each format. |
 | =--pandoc-verbose= | Tell pandoc to enable its own verbose logging. |
 | (Other arguments) | Any remaining arguments will be passed as-is to pandoc when building each format. |
@@ -297,9 +298,9 @@ Create a CSS file which appropriately overrides the standard styles, and then sp
 
 This illustrates a general point: pandoc is generally forgiving of being supplied with multiple arguments (and/or metadata values) of the same type, and will accumulate all such values rather than replacing earlier instances with later ones. Any additional arguments supplied to the build script are passed as-is to pandoc, and extensive customisation can be achieved in this manner.
 
-*** How can I create a print PDF for a paper size other than 5x8 inches?
+*** How can I create a print PDF for other paper sizes?
 
-This size was chosen because it is the smallest generally-available trim size for print-on-demand and self-publishing services, and is one of the most popular trim sizes for paperbacks presently. If you wish to create a 6x9-inch book (or some other size) instead, this is possible via a trivial CSS override of the existing =pdf.css= stylesheet, and a 6x9-inch version is included in the =pdf-6x9.css= file. See the previous question for how to apply such a stylesheet to a given book.
+The default 5x8-inch size was chosen because it is the smallest generally-available trim size for print-on-demand and self-publishing services, and is one of the most popular trim sizes for paperbacks presently. If you wish to create a book of some other size instead, this is possible via a trivial CSS override of the existing =pdf.css= stylesheet, and a 6x9-inch example is included in the =pdf-6x9.css= file. See the previous question for how to apply such a stylesheet to a given book.
 
 *** How can I use the same front- or back-matter for different books?
 

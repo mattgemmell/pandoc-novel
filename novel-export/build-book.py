@@ -15,10 +15,10 @@ import subprocess
 # --- Globals ---
 
 default_metadata_filename = "metadata.json"
-master_filename = "temp-book-master.md"
+master_basename = "collated-book-master"
 tk_pattern = r"(?i)\b(TK)+\b"
 valid_placeholder_modes = ["basic", "templite", "jinja2"] # or "none"
-valid_output_formats = ["epub", "pdf"] # or "all"
+valid_output_formats = ["epub", "pdf", "pdf-6x9"] # or "all"
 transformations_filename = "transformations.tsv"
 verbose_mode = False
 
@@ -69,7 +69,8 @@ parser.add_argument('--output-basename', '-o', help=f"[optional] Output filename
 parser.add_argument('--verbose', '-v', help="[optional] Enable verbose logging", action="store_true", default=False)
 parser.add_argument('--check-tks', help="[optional] Check for TKs in Markdown files (default: enabled), or disable with --no-check-tks", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--run-transformations', help=f"[optional] Perform any transformations found in {transformations_filename} file (default: enabled), or disable with --no-perform-transformations", action=argparse.BooleanOptionalAction, default=True)
-parser.add_argument('--formats', '-f', help=f"[optional] Output formats to create (as many as required), from: {', '.join(valid_output_formats)}, or all (default all)", action='store', nargs='+', choices=valid_output_formats + ["all"], default="all")
+parser.add_argument('--formats', '-f', help=f"[optional] Output formats to create (as many as required), from: {', '.join(valid_output_formats)}, or all (default 'epub pdf')", action='store', nargs='+', choices=valid_output_formats + ["all"], default=["epub", "pdf"])
+parser.add_argument('--retain-collated-master', '-c', help="[optional] Keeps the collated master Markdown file after generating books, instead of deleting it.", action="store_true", default=False)
 parser.add_argument('--pandoc-verbose', '-V', help="[optional] Tell pandoc to enable its own verbose logging", action="store_true", default=False)
 parser.add_argument('--show-pandoc-commands', '-p', help="[optional] Display the actual pandoc commands and arguments when invoking them for each format", action="store_true", default=False)
 args=parser.parse_known_args()
@@ -91,6 +92,7 @@ else:
 	output_formats = [output_formats]
 pandoc_verbose = (args[0].pandoc_verbose == True)
 show_pandoc_commands = (args[0].show_pandoc_commands == True)
+retain_collated_master = (args[0].retain_collated_master == True)
 extra_args = None
 if len(args[1]) > 0:
 	extra_args = ' '.join(args[1])
@@ -147,7 +149,7 @@ if check_tks:
 	if num_tks > 0:
 		inform(f"TKs are present in the following files:\n{'\n'.join(['- ' + f for f in files_with_tks])}\n(Continuing regardless.)", severity="warning", force=check_tks)
 	else:
-		inform(f"No TKs found.", force=check_tks)
+		inform(f"No TKs found.")
 
 # Concatenate master file.
 master_contents = "\n".join(master_documents)
@@ -235,8 +237,11 @@ elif placeholder_mode == "jinja2":
 	except ImportError as e:
 		inform(f"Couldn't find jinja2 for python3: {e}", severity="warning")
 
-# Save master file.
+# Save master file with timestamp.
+timestamp = now.strftime("%Y%m%d-%H%M%S-%f")
+master_filename = f"{master_basename}-{timestamp}.md"
 try:
+	inform(f"Saving collated master file: {master_filename}")
 	master_file = open(master_filename, 'w')
 	master_file.write(master_contents)
 	master_file.close()
@@ -298,15 +303,28 @@ for this_format in output_formats:
 					inform(f"Using pandoc command:\n{' '.join(format_command)}")
 				p = subprocess.run(format_command)
 				
+			if this_format == "pdf-6x9" or all_formats:
+				inform(f"Building pdf-6x9 format with pandoc.")
+				yaml_pdf_path = os.path.join(os.path.dirname(this_script_path), "options-pdf.yaml")
+				css_pdf_6x9_path = os.path.join(os.path.dirname(this_script_path), "pdf-6x9.css")
+				format_command = pandoc_args + [f'--defaults={yaml_pdf_path}', f'--output={output_basename}-6x9.pdf', f'--css={css_pdf_6x9_path}']
+				if show_pandoc_commands:
+					inform(f"Using pandoc command:\n{' '.join(format_command)}")
+				p = subprocess.run(format_command)
+				
 		except Exception as e:
 			inform(f"Couldn't build {this_format} format with pandoc: {e}", severity="error")
 			sys.exit(1)
 
 # Remove temporary master file.
-try:
-	os.remove(master_filename)
-except IOError as e:
-	inform(f"Couldn't delete master file: {e}", severity="error")
-	sys.exit(1)
+if not retain_collated_master:
+	inform(f"Deleting collated master file: {master_filename}")
+	try:
+		os.remove(master_filename)
+	except IOError as e:
+		inform(f"Couldn't delete master file: {e}", severity="error")
+		sys.exit(1)
+else:
+	inform(f"Keeping collated master file, as requested: {master_filename}")
 
 inform("Done.")
