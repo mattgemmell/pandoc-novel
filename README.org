@@ -296,7 +296,7 @@ Create a CSS file which appropriately overrides the standard styles, and then sp
 - Add a =css= entry to your book's metadata JSON file, whose value is the filename of your custom CSS stylesheet if it resides in the same directory as the metadata file, or the full path to the stylesheet otherwise.
 - Invoke the =build-book.py= script with an argument of the form =--css=your-stylesheet.css=, which will be passed directly to pandoc when building your books.
 
-This illustrates a general point: pandoc is generally forgiving of being supplied with multiple arguments (and/or metadata values) of the same type, and will accumulate all such values rather than replacing earlier instances with later ones. Any additional arguments supplied to the build script are passed as-is to pandoc, and extensive customisation can be achieved in this manner.
+This illustrates a general point: pandoc is tolerant of being supplied with multiple arguments (and/or metadata values) of the same type, and will accumulate all such values rather than replacing earlier instances with later ones. Any additional arguments supplied to the build script are passed as-is to pandoc, and extensive customisation can be achieved in this manner.
 
 *** How can I create a print PDF for other paper sizes?
 
@@ -306,7 +306,7 @@ The default 5x8-inch size was chosen because it is the smallest generally-availa
 
 Linking such directories in the file-system should work (as symlinks, for example). In order to make the contents of such files adapt to the particular book being built, consider making use of the [[#templating-systems][templating systems]] feature of this configuration.
 
-*** How can I pre-process my Markdown content before collation for publishing?
+*** How can I pre-process my Markdown content before publishing?
 
 This is the intended purpose of the [[#transformations][transformations]] feature, which uses regular expressions for the task. It is non-destructive, and will only affect the collated /copy/ of your Markdown content, not the original source files themselves.
 
