@@ -14,6 +14,7 @@ import subprocess
 
 # --- Globals ---
 
+default_metadata_filename = "metadata.json"
 master_filename = "temp-book-master.md"
 tk_pattern = r"(?i)\b(TK)+\b"
 valid_placeholder_modes = ["basic", "templite", "jinja2"] # or "none"
@@ -62,7 +63,7 @@ def string_to_slug(text):
 
 parser=argparse.ArgumentParser(allow_abbrev=False)
 parser.add_argument('--input-folder', '-i', help="Input folder of Markdown files", type= str, required=True)
-parser.add_argument('--json-metadata-file', '-j', help="JSON file with metadata", type= str, required=True)
+parser.add_argument('--json-metadata-file', '-j', help="JSON file with metadata", type= str, default=default_metadata_filename)
 parser.add_argument('--replacement-mode', '-m', choices=valid_placeholder_modes + ["none"], help=f"[optional] Replacement system to use: {', '.join(valid_placeholder_modes)} (default is {valid_placeholder_modes[0]})", type= str, default= valid_placeholder_modes[0])
 parser.add_argument('--output-basename', '-o', help=f"[optional] Output filename without extension (default is automatic based on metadata)", type= str, default= None)
 parser.add_argument('--verbose', '-v', help="[optional] Enable verbose logging", action="store_true", default=False)
