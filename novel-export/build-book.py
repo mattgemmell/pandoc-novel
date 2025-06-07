@@ -68,7 +68,7 @@ parser.add_argument('--replacement-mode', '-m', choices=valid_placeholder_modes 
 parser.add_argument('--output-basename', '-o', help=f"[optional] Output filename without extension (default is automatic based on metadata)", type= str, default= None)
 parser.add_argument('--verbose', '-v', help="[optional] Enable verbose logging", action="store_true", default=False)
 parser.add_argument('--check-tks', help="[optional] Check for TKs in Markdown files (default: enabled), or disable with --no-check-tks", action=argparse.BooleanOptionalAction, default=True)
-parser.add_argument('--run-transformations', help=f"[optional] Perform any transformations found in {transformations_filename} file (default: enabled), or disable with --no-perform-transformations", action=argparse.BooleanOptionalAction, default=True)
+parser.add_argument('--run-transformations', help=f"[optional] Perform any transformations found in {transformations_filename} file (default: enabled), or disable with --no-run-transformations", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--formats', '-f', help=f"[optional] Output formats to create (as many as required), from: {', '.join(valid_output_formats)}, or all (default 'epub pdf')", action='store', nargs='+', choices=valid_output_formats + ["all"], default=["epub", "pdf"])
 parser.add_argument('--retain-collated-master', '-c', help="[optional] Keeps the collated master Markdown file after generating books, instead of deleting it.", action="store_true", default=False)
 parser.add_argument('--pandoc-verbose', '-V', help="[optional] Tell pandoc to enable its own verbose logging", action="store_true", default=False)

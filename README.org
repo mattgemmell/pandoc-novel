@@ -129,7 +129,7 @@ You may also supply any of the following optional parameters, if desired:
 | =--formats= | Output formats to create books in. Default is "epub" and "pdf", or can be a space-separated list of options from "epub", "pdf", and "pdf-6x9". Use "all" to build all supported formats. |
 | =--check-tks= | Check for TKs in the input Markdown files. Enabled by default. [[#tks][Found TKs will be reported]], but will not prevent books being built. Disable with =--no-check-tks=. |
 | =--replacement-mode= | The placeholder-replacement mode to use. See the [[#metadata-and-placeholders][metadata and placeholders]] section. Should be one of: "basic" (default), "templite", "jinja2", or "none". |
-| =--run-transformations= | Perform any transformations found in [[#transformations][a transformations file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-perform-transformations=. |
+| =--run-transformations= | Perform any transformations found in [[#transformations][a transformations file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-run-transformations=. |
 | =--retain-collated-master= | Keeps the collated master Markdown file after generating books, instead of deleting it. |
 | =--show-pandoc-commands= | Display the actual pandoc commands and arguments when invoking them for each format. |
 | =--pandoc-verbose= | Tell pandoc to enable its own verbose logging. |
