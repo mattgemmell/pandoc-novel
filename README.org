@@ -38,7 +38,7 @@ This configuration was created with a focus on simplicity for the user. A full e
 
 1. A standards-compliant ePub3 ebook, ready for the Kindle Store, Apple Books Store, and direct use on virtually any e-reader device or app.
 
- 2. A print-ready PDF file, for the interior of a 5x8-inch mass-market paperback. See the [[#setup-usage-and-customisation][usage section]] for how to generate in 6x9-inch format instead of (or in addition to) 5x8.
+2. A print-ready PDF file, for the interior of a 5x8-inch mass-market paperback. See the [[#setup-usage-and-customisation][usage section]] for how to generate in 6x9-inch format instead of (or in addition to) 5x8.
 
 This will get you 90% of the way there for print (you'll need to provide your own cover wraparound master, of course, to the required specs of your print-on-demand service or printing company), and 99% of the way there for digital (just supply your own cover-image JPEG or PNG).
 
