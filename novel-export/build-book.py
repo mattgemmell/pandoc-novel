@@ -70,6 +70,8 @@ parser.add_argument('--verbose', '-v', help="[optional] Enable verbose logging",
 parser.add_argument('--check-tks', help="[optional] Check for TKs in Markdown files (default: enabled), or disable with --no-check-tks", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--run-transformations', help=f"[optional] Perform any transformations found in {transformations_filename} file (default: enabled), or disable with --no-perform-transformations", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--formats', '-f', help=f"[optional] Output formats to create (as many as required), from: {', '.join(valid_output_formats)}, or all (default all)", action='store', nargs='+', choices=valid_output_formats + ["all"], default="all")
+parser.add_argument('--pandoc-verbose', '-V', help="[optional] Tell pandoc to enable its own verbose logging", action="store_true", default=False)
+parser.add_argument('--show-pandoc-commands', '-p', help="[optional] Display the actual pandoc commands and arguments when invoking them for each format", action="store_true", default=False)
 args=parser.parse_known_args()
 
 # Obtain configuration parameters
@@ -87,6 +89,8 @@ if isinstance(output_formats, list):
 	output_formats = list(dict.fromkeys(output_formats))
 else:
 	output_formats = [output_formats]
+pandoc_verbose = (args[0].pandoc_verbose == True)
+show_pandoc_commands = (args[0].show_pandoc_commands == True)
 extra_args = None
 if len(args[1]) > 0:
 	extra_args = ' '.join(args[1])
@@ -268,6 +272,8 @@ inform(f"Output formats requested: {', '.join(output_formats)}")
 all_formats = "all" in output_formats
 yaml_shared_path = os.path.join(os.path.dirname(this_script_path), "options-shared.yaml")
 pandoc_args = ['pandoc', f'--defaults={yaml_shared_path}', f'--metadata-file={full_metadata_path}', f'--metadata=date:"{meta_date}"', f'--metadata=date-year:"{meta_date_year}"', master_filename]
+if pandoc_verbose:
+	pandoc_args.append("--verbose")
 if extra_args:
 	pandoc_args.append(extra_args)
 
@@ -279,12 +285,18 @@ for this_format in output_formats:
 			if this_format == "epub" or all_formats:
 				inform(f"Building epub format with pandoc.")
 				yaml_epub_path = os.path.join(os.path.dirname(this_script_path), "options-epub.yaml")
-				p = subprocess.run(pandoc_args + [f'--defaults={yaml_epub_path}', f'--output={output_basename}.epub'])
+				format_command = pandoc_args + [f'--defaults={yaml_epub_path}', f'--output={output_basename}.epub']
+				if show_pandoc_commands:
+					inform(f"Using pandoc command:\n{' '.join(format_command)}")
+				p = subprocess.run(format_command)
 				
 			if this_format == "pdf" or all_formats:
 				inform(f"Building pdf format with pandoc.")
 				yaml_pdf_path = os.path.join(os.path.dirname(this_script_path), "options-pdf.yaml")
-				p = subprocess.run(pandoc_args + [f'--defaults={yaml_pdf_path}', f'--output={output_basename}.pdf'])
+				format_command = pandoc_args + [f'--defaults={yaml_pdf_path}', f'--output={output_basename}.pdf']
+				if show_pandoc_commands:
+					inform(f"Using pandoc command:\n{' '.join(format_command)}")
+				p = subprocess.run(format_command)
 				
 		except Exception as e:
 			inform(f"Couldn't build {this_format} format with pandoc: {e}", severity="error")

@@ -130,6 +130,8 @@ You may also supply any of the following optional parameters, if desired:
 | =--check-tks= | Check for TKs in the input Markdown files. Enabled by default. [[#tks][Found TKs will be reported]], but will not prevent books being built. Disable with =--no-check-tks=. |
 | =--replacement-mode= | The placeholder-replacement mode to use. See the [[#metadata-and-placeholders][metadata and placeholders]] section. Should be one of: "basic" (default), "templite", "jinja2", or "none". |
 | =--run-transformations= | Perform any transformations found in [[#transformations][a transformations file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-perform-transformations=. |
+| =--show-pandoc-commands= | Display the actual pandoc commands and arguments when invoking them for each format. |
+| =--pandoc-verbose= | Tell pandoc to enable its own verbose logging. |
 | (Other arguments) | Any remaining arguments will be passed as-is to pandoc when building each format. |
 
 If you don't wish to specify the output basename explicitly, one will be supplied for you automatically based on the metadata JSON file, using the following logic:
