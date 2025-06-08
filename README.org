@@ -120,20 +120,23 @@ Your generated books will be created in the same directory you called the build 
 
 : python novel-export/build-book.py --input-folder=book/
 
-You may also supply any of the following optional parameters, if desired:
+You may also supply any of the following optional parameters with suitable values, if desired:
+
+| =--json-metadata-file= | Path to the JSON metadata file for your book. |
+| =--output-basename= | Output filename without extension. Default is automatic based on metadata; see below. |
+| =--formats= | Output formats to create books in. A space-separated list of options from "epub", "pdf", and "pdf-6x9". Use "all" to build all supported formats. Default is "epub pdf". |
+| =--replacement-mode= | The placeholder-replacement mode to use. See the [[#metadata-and-placeholders][metadata and placeholders]] section. Should be one of: "basic" (default), "templite", "jinja2", or "none". |
+| (Other arguments) | Any remaining arguments will be passed as-is to pandoc when building each format. |
+
+Additionally, there are several flags (without values) which tailor the script's behaviour:
 
 | =--help= | Displays help information on usage of the script, taking no other action. |
 | =--verbose= | Enable verbose logging. Disabled by default. |
-| =--json-metadata-file= | Path to the JSON metadata file for your book. |
-| =--output-basename= | Output filename without extension. Default is automatic based on metadata; see below. |
-| =--formats= | Output formats to create books in. Default is "epub" and "pdf", or can be a space-separated list of options from "epub", "pdf", and "pdf-6x9". Use "all" to build all supported formats. |
 | =--check-tks= | Check for TKs in the input Markdown files. Enabled by default. [[#tks][Found TKs will be reported]], but will not prevent books being built. Disable with =--no-check-tks=. |
-| =--replacement-mode= | The placeholder-replacement mode to use. See the [[#metadata-and-placeholders][metadata and placeholders]] section. Should be one of: "basic" (default), "templite", "jinja2", or "none". |
 | =--run-transformations= | Perform any transformations found in [[#transformations][a transformations file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-run-transformations=. |
 | =--retain-collated-master= | Keeps the collated master Markdown file after generating books, instead of deleting it (default is to delete). |
-| =--show-pandoc-commands= | Display the actual pandoc commands and arguments when invoking them for each format. |
-| =--pandoc-verbose= | Tell pandoc to enable its own verbose logging. |
-| (Other arguments) | Any remaining arguments will be passed as-is to pandoc when building each format. |
+| =--show-pandoc-commands= | Display the actual pandoc commands and arguments when invoking them for each format. Disabled by default. |
+| =--pandoc-verbose= | Tell pandoc to enable its own verbose logging. Disabled by default. |
 
 If you don't wish to specify the output basename explicitly, one will be supplied for you automatically based on the metadata JSON file, using the following logic:
 
