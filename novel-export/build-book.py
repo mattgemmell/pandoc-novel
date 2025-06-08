@@ -68,6 +68,7 @@ parser.add_argument('--replacement-mode', '-m', choices=valid_placeholder_modes 
 parser.add_argument('--output-basename', '-o', help=f"[optional] Output filename without extension (default is automatic based on metadata)", type= str, default= None)
 parser.add_argument('--verbose', '-v', help="[optional] Enable verbose logging", action="store_true", default=False)
 parser.add_argument('--check-tks', help="[optional] Check for TKs in Markdown files (default: enabled), or disable with --no-check-tks", action=argparse.BooleanOptionalAction, default=True)
+parser.add_argument('--stop-on-tks', '-k', help="[optional] Treat TKs as errors and stop", action="store_true", default=False)
 parser.add_argument('--run-transformations', help=f"[optional] Perform any transformations found in {transformations_filename} file (default: enabled), or disable with --no-run-transformations", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--formats', '-f', help=f"[optional] Output formats to create (as many as required), from: {', '.join(valid_output_formats)}, or all (default 'epub pdf')", action='store', nargs='+', choices=valid_output_formats + ["all"], default=["epub", "pdf"])
 parser.add_argument('--retain-collated-master', '-c', help="[optional] Keeps the collated master Markdown file after generating books, instead of deleting it.", action="store_true", default=False)
@@ -83,6 +84,7 @@ placeholder_mode = args[0].replacement_mode
 output_basename = args[0].output_basename
 verbose_mode = (args[0].verbose == True)
 check_tks = (args[0].check_tks == True)
+stop_on_tks = (args[0].stop_on_tks == True)
 run_transformations = (args[0].run_transformations == True)
 output_formats = args[0].formats
 if isinstance(output_formats, list):
@@ -147,7 +149,12 @@ inform(f"{len(master_documents)} Markdown files read.", force=verbose_mode)
 if check_tks:
 	num_tks = len(files_with_tks)
 	if num_tks > 0:
-		inform(f"TKs are present in the following files:\n{'\n'.join(['- ' + f for f in files_with_tks])}\n(Continuing regardless.)", severity="warning", force=check_tks)
+		inform(f"TKs are present in the following files:\n{'\n'.join(['- ' + f for f in files_with_tks])}", severity="warning", force=check_tks)
+		if stop_on_tks:
+			inform("TKs were found and you requested to stop on TKs. Not continuing.", severity="error")
+			sys.exit(1)
+		else:
+			inform(f"(Continuing despite TKs.)", severity="warning", force=check_tks)
 	else:
 		inform(f"No TKs found.")
 

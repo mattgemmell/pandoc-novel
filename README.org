@@ -3,7 +3,7 @@
 :CUSTOM_ID: pandoc-novel-export
 :END:
 
-This is a configuration for [[https://pandoc.org][pandoc]], the universal markup converter, intended to make it easy to publish novels or other fiction written in [[https://commonmark.org][Markdown]]. It supports ePub3 ebooks, and PDF for print in 5x8-inch or 6x9-inch paperback format.
+This is a configuration for [[https://pandoc.org][pandoc]], the universal markup converter, intended to make it easy to publish novels or other fiction written in [[https://commonmark.org][Markdown]]. It supports ePub3 ebooks, and PDF for print in 5x8-inch or 6x9-inch paperback/hardback format.
 
 For a quick-start on setup and usage, [[#setup-usage-and-customisation][see this section]].
 
@@ -133,6 +133,7 @@ Additionally, there are several flags (without values) which tailor the script's
 | =--help= | Displays help information on usage of the script, taking no other action. |
 | =--verbose= | Enable verbose logging. Disabled by default. |
 | =--check-tks= | Check for TKs in the input Markdown files. Enabled by default. [[#tks][Found TKs will be reported]], but will not prevent books being built. Disable with =--no-check-tks=. |
+| =--stop-on-tks= | Treat TKs as errors, and abort the build process after reporting them. Disabled by default. |
 | =--run-transformations= | Perform any transformations found in [[#transformations][a transformations file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-run-transformations=. |
 | =--retain-collated-master= | Keeps the collated master Markdown file after generating books, instead of deleting it (default is to delete). |
 | =--show-pandoc-commands= | Display the actual pandoc commands and arguments when invoking them for each format. Disabled by default. |
@@ -272,7 +273,7 @@ The transformations feature can be especially useful if the publishable content 
 :CUSTOM_ID: tks
 :END:
 
-As a convenience, before any placeholders/templating or transformations have been processed, the input Markdown files will be checked for [[https://en.wikipedia.org/wiki/To_come_(publishing)][instances of TK]], a convention in the realm of publishing for "to come", or something not yet completed. If any are found, a warning will be emitted with the number of TKs found in each applicable document, then the build process will continue regardless.
+As a convenience, before any placeholders/templating or transformations have been processed, the input Markdown files will be checked for [[https://en.wikipedia.org/wiki/To_come_(publishing)][instances of TK]], a convention in the realm of publishing for "to come", or something not yet completed. If any are found, a warning will be emitted with the number of TKs found in each applicable document, then the build process will continue regardless (unless =--stop-on-tks= was specified, in which case the build process will /not/ continue).
 
 
 * Questions
