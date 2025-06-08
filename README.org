@@ -38,7 +38,7 @@ This configuration was created with a focus on simplicity for the user. A full e
 
 1. A standards-compliant ePub3 ebook, ready for the Kindle Store, Apple Books Store, and direct use on virtually any e-reader device or app.
 
-2. A print-ready PDF file, for the interior of a 5x8-inch mass-market paperback. See the [[#setup-usage-and-customisation][usage section]] for how to generate in 6x9-inch format instead of (or in addition to) 5x8.
+2. A print-ready PDF file, for the interior of a 5x8-inch paperback. See the [[#setup-usage-and-customisation][usage section]] for how to generate in 6x9-inch format instead of (or in addition to) 5x8.
 
 This will get you 90% of the way there for print (you'll need to provide your own cover wraparound master, of course, to the required specs of your print-on-demand service or printing company), and 99% of the way there for digital (just supply your own cover-image JPEG or PNG).
 
@@ -265,7 +265,7 @@ These entries are [[https://docs.python.org/3/library/re.html#regular-expression
 
 Keep in mind that the transformations will be run on the concatenated master document of your book, with its *entire contents in a single Markdown file*. This may have implications for the specific regular expressions you use (in particular, you will probably want to use /multi-line mode/, by prefixing appropriate search patterns with =(?m)=).
 
-The transformations feature can be especially useful if the publishable content for your book is kept alongside other information in the same Markdown files, and you wish to strip the non-publishable portions automatically at build time, instead of having to keep duplicate copies of that content just for publishing. As with the placeholders system in general, transformations are completely non-destructive, leaving your original input Markdown files untouched.
+The transformations feature can be especially useful if the publishable content for your book is kept alongside other information in the same Markdown files, and you wish to strip the non-publishable portions automatically at build time, instead of having to make duplicate copies of that content just for publishing. As with the placeholders system in general, transformations are completely non-destructive, leaving your original input Markdown files untouched.
 
 *** TKs
 :PROPERTIES:
@@ -307,7 +307,7 @@ The default 5x8-inch size was chosen because it is the smallest generally-availa
 
 *** How can I use the same front- or back-matter for different books?
 
-Linking such directories in the file-system should work (as symlinks, for example). In order to make the contents of such files adapt to the particular book being built, consider making use of the [[#templating-systems][templating systems]] feature of this configuration.
+Linking such directories in the file-system (as symlinks, for example) should work. In order to make the contents of such files adapt to the particular book being built, consider making use of the [[#templating-systems][templating systems]] feature of this configuration.
 
 *** How can I pre-process my Markdown content before publishing?
 
@@ -327,4 +327,4 @@ Best wishes, \\
 Matt Gemmell
 
 /Edinburgh, Scotland/ \\
-/5th June, 2025/
+/8th June, 2025/
