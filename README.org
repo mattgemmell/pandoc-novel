@@ -308,7 +308,7 @@ The default 5x8-inch size was chosen because it is the smallest generally-availa
 
 *** How can I use the same front- or back-matter for different books?
 
-Linking such directories in the file-system (as symlinks, for example) should work. In order to make the contents of such files adapt to the particular book being built, consider making use of the [[#templating-systems][templating systems]] feature of this configuration.
+Linking such files or directories in the file-system as symlinks will work (for macOS users, note that Finder aliases will /not/ be sufficient; see the =ln= utility in the Terminal instead). In order to make the contents adapt to the particular book being built, consider making use of the [[#metadata-and-placeholders][placeholders]] or [[#templating-systems][templating systems]] feature of this configuration.
 
 *** How can I pre-process my Markdown content before publishing?
 
