@@ -63,7 +63,7 @@ def string_to_slug(text):
 
 parser=argparse.ArgumentParser(allow_abbrev=False)
 parser.add_argument('--input-folder', '-i', help="Input folder of Markdown files", type= str, required=True)
-parser.add_argument('--exclude', '-e', help=f"[optional] Regular expression matching filenames of Markdown documents to exclude from the built books", type= str, default= None)
+parser.add_argument('--exclude', '-e', help=f"[optional] Regular expressions (one or more, space separated) matching filenames of Markdown documents to exclude from the built books", action="store", nargs='+', default= None)
 parser.add_argument('--json-metadata-file', '-j', help="JSON file with metadata", type= str, default=default_metadata_filename)
 parser.add_argument('--replacement-mode', '-m', choices=valid_placeholder_modes + ["none"], help=f"[optional] Replacement system to use: {', '.join(valid_placeholder_modes)} (default is {valid_placeholder_modes[0]})", type= str, default= valid_placeholder_modes[0])
 parser.add_argument('--output-basename', '-o', help=f"[optional] Output filename without extension (default is automatic based on metadata)", type= str, default= None)
@@ -132,9 +132,11 @@ try:
 	for file in files:
 		filename = os.path.basename(file)
 		excluded = False
-		if exclusions and exclusions != "":
-			if re.search(exclusions, filename):
-				excluded = True
+		if exclusions and len(exclusions) > 0:
+			for excl in exclusions:
+				if re.search(excl, filename):
+					excluded = True
+					break
 		
 		if not excluded:
 			text_file = open(file, 'r')

@@ -122,7 +122,7 @@ Your generated books will be created in the same directory you called the build 
 
 You may also supply any of the following optional parameters with suitable values, if desired:
 
-| =--exclude= | Regular expression matching filenames of Markdown documents to exclude from the built books. |
+| =--exclude= | Regular expressions (one or more, space-separated) matching filenames of Markdown documents to exclude from the built books. |
 | =--json-metadata-file= | Path to the JSON metadata file for your book. |
 | =--output-basename= | Output filename without extension. Default is automatic based on metadata; see below. |
 | =--formats= | Output formats to create books in. A space-separated list of options from "epub", "pdf", and "pdf-6x9". Use "all" to build all supported formats. Default is "epub pdf". |
