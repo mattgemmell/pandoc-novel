@@ -1,6 +1,4 @@
 ---
 to: epub3
-css:
-  - ${.}/shared.css
 epub-title-page: false
 ...

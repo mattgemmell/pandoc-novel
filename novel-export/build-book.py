@@ -338,11 +338,20 @@ if extra_args:
 inform(f"Output formats requested: {', '.join(output_formats)}")
 all_formats = "all" in output_formats
 yaml_shared_path = os.path.join(os.path.dirname(this_script_path), "options-shared.yaml")
-pandoc_args = ['pandoc', f'--defaults={yaml_shared_path}', f'--metadata-file={full_metadata_path}', f'--metadata=date:"{meta_date}"', f'--metadata=date-year:"{meta_date_year}"', master_filename]
+# Final arg list will be: pre_args + (format-specific args, so settings/styles override properly) + post_args
+pandoc_pre_args = ['pandoc', f'--defaults={yaml_shared_path}']
+pandoc_post_args = [f'--metadata-file={full_metadata_path}', f'--metadata=date:"{meta_date}"', f'--metadata=date-year:"{meta_date_year}"', master_filename]
+# Work around pandoc issue with not accepting css entries in metadata files.
+if "css" in json_contents:
+	extra_css = json_contents["css"]
+	if not isinstance(extra_css, list):
+		extra_css = [extra_css]
+	for css_arg in extra_css:
+		pandoc_post_args.append(f"--css={css_arg}")
 if pandoc_verbose:
-	pandoc_args.append("--verbose")
+	pandoc_post_args.append("--verbose")
 if extra_args:
-	pandoc_args.append(extra_args)
+	pandoc_post_args.append(extra_args)
 
 for this_format in output_formats:
 	if not this_format in valid_output_formats and this_format != "all":
@@ -352,7 +361,7 @@ for this_format in output_formats:
 			if this_format == "epub" or all_formats:
 				inform(f"Building epub format with pandoc...")
 				yaml_epub_path = os.path.join(os.path.dirname(this_script_path), "options-epub.yaml")
-				format_command = pandoc_args + [f'--defaults={yaml_epub_path}', f'--output={output_basename}.epub']
+				format_command = pandoc_pre_args + [f'--defaults={yaml_epub_path}', f'--output={output_basename}.epub'] + pandoc_post_args
 				if show_pandoc_commands:
 					inform(f"Using pandoc command:\n{' '.join(format_command)}")
 				p = subprocess.run(format_command)
@@ -360,7 +369,7 @@ for this_format in output_formats:
 			if this_format == "pdf" or all_formats:
 				inform(f"Building pdf format with pandoc...")
 				yaml_pdf_path = os.path.join(os.path.dirname(this_script_path), "options-pdf.yaml")
-				format_command = pandoc_args + [f'--defaults={yaml_pdf_path}', f'--output={output_basename}.pdf']
+				format_command = pandoc_pre_args + [f'--defaults={yaml_pdf_path}', f'--output={output_basename}.pdf'] + pandoc_post_args
 				if show_pandoc_commands:
 					inform(f"Using pandoc command:\n{' '.join(format_command)}")
 				p = subprocess.run(format_command)
@@ -369,7 +378,7 @@ for this_format in output_formats:
 				inform(f"Building pdf-6x9 format with pandoc...")
 				yaml_pdf_path = os.path.join(os.path.dirname(this_script_path), "options-pdf.yaml")
 				css_pdf_6x9_path = os.path.join(os.path.dirname(this_script_path), "pdf-6x9.css")
-				format_command = pandoc_args + [f'--defaults={yaml_pdf_path}', f'--output={output_basename}-6x9.pdf', f'--css={css_pdf_6x9_path}']
+				format_command = pandoc_pre_args + [f'--defaults={yaml_pdf_path}', f'--output={output_basename}-6x9.pdf', f'--css={css_pdf_6x9_path}'] + pandoc_post_args
 				if show_pandoc_commands:
 					inform(f"Using pandoc command:\n{' '.join(format_command)}")
 				p = subprocess.run(format_command)
