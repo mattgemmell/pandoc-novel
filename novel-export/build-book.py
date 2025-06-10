@@ -63,6 +63,7 @@ def string_to_slug(text):
 
 parser=argparse.ArgumentParser(allow_abbrev=False)
 parser.add_argument('--input-folder', '-i', help="Input folder of Markdown files", type= str, required=True)
+parser.add_argument('--exclude', '-e', help=f"[optional] Regular expression matching filenames of Markdown documents to exclude from the built books", type= str, default= None)
 parser.add_argument('--json-metadata-file', '-j', help="JSON file with metadata", type= str, default=default_metadata_filename)
 parser.add_argument('--replacement-mode', '-m', choices=valid_placeholder_modes + ["none"], help=f"[optional] Replacement system to use: {', '.join(valid_placeholder_modes)} (default is {valid_placeholder_modes[0]})", type= str, default= valid_placeholder_modes[0])
 parser.add_argument('--output-basename', '-o', help=f"[optional] Output filename without extension (default is automatic based on metadata)", type= str, default= None)
@@ -79,6 +80,7 @@ args=parser.parse_known_args()
 # Obtain configuration parameters
 this_script_path = os.path.abspath(os.path.expanduser(sys.argv[0]))
 folder_path = args[0].input_folder
+exclusions = args[0].exclude
 json_file_path = args[0].json_metadata_file
 placeholder_mode = args[0].replacement_mode
 output_basename = args[0].output_basename
@@ -124,27 +126,45 @@ files = sorted_alphanumeric([p for p in glob.glob(f"{full_folder_path}/**/*", re
 
 master_documents = []
 files_with_tks = []
+num_exclusions = 0
 
 try:
 	for file in files:
-		#print(file)
-		text_file = open(file, 'r')
-		text_contents = text_file.read()
-		text_file.close()
+		filename = os.path.basename(file)
+		excluded = False
+		if exclusions and exclusions != "":
+			if re.search(exclusions, filename):
+				excluded = True
 		
-		master_documents.append(text_contents)
+		if not excluded:
+			text_file = open(file, 'r')
+			text_contents = text_file.read()
+			text_file.close()
+			
+			master_documents.append(text_contents)
+			
+		else:
+			num_exclusions = num_exclusions + 1
+			inform(f"File excluded, as requested: {filename}")
+			continue
 		
 		if check_tks:
 			tks = re.findall(r"(?i)\b(TK)+\b", text_contents)
 			if len(tks) > 0:
-				filename = os.path.basename(file)
 				files_with_tks.append(f"{filename} ({len(tks)} TK{'s' if len(tks) != 1 else ''})")
 			
 except IOError as e:
 	inform(f"Couldn't read Markdown files: {e}", severity="error")
 	sys.exit(1)
 
-inform(f"{len(master_documents)} Markdown files read.", force=verbose_mode)
+msg_excluded = ""
+if num_exclusions > 0:
+	msg_excluded = f" ({num_exclusions} file{'s' if num_exclusions != 1 else ''} excluded)"
+inform(f"{len(master_documents)} Markdown files read{msg_excluded}.", force=verbose_mode)
+
+if len(master_documents) == 0:
+	inform(f"No files selected for building. Not continuing.", severity="error")
+	sys.exit(1)
 
 if check_tks:
 	num_tks = len(files_with_tks)
@@ -295,7 +315,7 @@ for this_format in output_formats:
 	else:
 		try:
 			if this_format == "epub" or all_formats:
-				inform(f"Building epub format with pandoc.")
+				inform(f"Building epub format with pandoc...")
 				yaml_epub_path = os.path.join(os.path.dirname(this_script_path), "options-epub.yaml")
 				format_command = pandoc_args + [f'--defaults={yaml_epub_path}', f'--output={output_basename}.epub']
 				if show_pandoc_commands:
@@ -303,7 +323,7 @@ for this_format in output_formats:
 				p = subprocess.run(format_command)
 				
 			if this_format == "pdf" or all_formats:
-				inform(f"Building pdf format with pandoc.")
+				inform(f"Building pdf format with pandoc...")
 				yaml_pdf_path = os.path.join(os.path.dirname(this_script_path), "options-pdf.yaml")
 				format_command = pandoc_args + [f'--defaults={yaml_pdf_path}', f'--output={output_basename}.pdf']
 				if show_pandoc_commands:
@@ -311,7 +331,7 @@ for this_format in output_formats:
 				p = subprocess.run(format_command)
 				
 			if this_format == "pdf-6x9" or all_formats:
-				inform(f"Building pdf-6x9 format with pandoc.")
+				inform(f"Building pdf-6x9 format with pandoc...")
 				yaml_pdf_path = os.path.join(os.path.dirname(this_script_path), "options-pdf.yaml")
 				css_pdf_6x9_path = os.path.join(os.path.dirname(this_script_path), "pdf-6x9.css")
 				format_command = pandoc_args + [f'--defaults={yaml_pdf_path}', f'--output={output_basename}-6x9.pdf', f'--css={css_pdf_6x9_path}']
