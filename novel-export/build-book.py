@@ -15,6 +15,7 @@ import subprocess
 # --- Globals ---
 
 default_metadata_filename = "metadata.json"
+exclusions_filename = "exclusions.tsv"
 master_basename = "collated-book-master"
 tk_pattern = r"(?i)\b(TK)+\b"
 valid_placeholder_modes = ["basic", "templite", "jinja2"] # or "none"
@@ -63,7 +64,7 @@ def string_to_slug(text):
 
 parser=argparse.ArgumentParser(allow_abbrev=False)
 parser.add_argument('--input-folder', '-i', help="Input folder of Markdown files", type= str, required=True)
-parser.add_argument('--exclude', '-e', help=f"[optional] Regular expressions (one or more, space separated) matching filenames of Markdown documents to exclude from the built books", action="store", nargs='+', default= None)
+parser.add_argument('--exclude', '-e', help=f"[optional] Regular expressions (one or more, space-separated) matching filenames of Markdown documents to exclude from the built books", action="store", nargs='+', default= None)
 parser.add_argument('--json-metadata-file', '-j', help="JSON file with metadata", type= str, default=default_metadata_filename)
 parser.add_argument('--replacement-mode', '-m', choices=valid_placeholder_modes + ["none"], help=f"[optional] Replacement system to use: {', '.join(valid_placeholder_modes)} (default is {valid_placeholder_modes[0]})", type= str, default= valid_placeholder_modes[0])
 parser.add_argument('--output-basename', '-o', help=f"[optional] Output filename without extension (default is automatic based on metadata)", type= str, default= None)
@@ -128,14 +129,50 @@ master_documents = []
 files_with_tks = []
 num_exclusions = 0
 
+# Normalise exclusions and try to load additional patterns from a file.
+tsv_delimiter = "\t"
+search_key, replace_key, comment_key = "search", "replace", "comment"
+exclusions_path = os.path.join(os.path.dirname(full_metadata_path), exclusions_filename)
+
+exclusions_map = []
+if exclusions:
+	for excl in exclusions:
+		exclusions_map.append({search_key: excl})
+
+inform(f"Checking for exclusions file: {exclusions_path}")
+if not os.path.isfile(exclusions_path):
+	inform(f"Exclusions file not found. Continuing.")
+else:
+	try:
+		# Read the exclusions file.
+		exclusions_file = open(exclusions_path, 'r')
+		inform(f"Exclusions file found. Processing.")
+		for line in exclusions_file:
+			components = line.split(tsv_delimiter)
+			if len(components) > 0:
+				exclusion = {search_key: components[0]}
+				if len(components) > 1:
+					exclusion[comment_key] = tsv_delimiter.join(components[1:]).rstrip()
+				exclusions_map.append(exclusion)
+		exclusions_file.close()
+	except IOError as e:
+		inform(f"Couldn't read exclusions file: {e}", severity="warning")
+
 try:
 	for file in files:
 		filename = os.path.basename(file)
 		excluded = False
-		if exclusions and len(exclusions) > 0:
-			for excl in exclusions:
-				if re.search(excl, filename):
+		if exclusions_map and len(exclusions_map) > 0:
+			for excl in exclusions_map:
+				if re.search(excl[search_key], filename):
 					excluded = True
+					num_exclusions = num_exclusions + 1
+					message = ""
+					if comment_key in excl:
+						message = f"{excl[comment_key]}"
+					else:
+						message = f"\"{excl[search_key]}\""
+					inform(f"- File excluded, as requested: {filename} (matched exclusion: {message})")
 					break
 		
 		if not excluded:
@@ -146,8 +183,6 @@ try:
 			master_documents.append(text_contents)
 			
 		else:
-			num_exclusions = num_exclusions + 1
-			inform(f"File excluded, as requested: {filename}")
 			continue
 		
 		if check_tks:
@@ -214,15 +249,13 @@ if run_transformations:
 		transformations = []
 		try:
 			# Read the transformations file.
-			delimiter = "\t"
-			search_key, replace_key, comment_key = "search", "replace", "comment"
 			transformations_file = open(transformations_path, 'r')
 			for line in transformations_file:
-				components = line.split(delimiter)
+				components = line.split(tsv_delimiter)
 				if len(components) > 1:
 					transformation = {search_key: components[0], replace_key: components[1]}
 					if len(components) > 2:
-						transformation[comment_key] = delimiter.join(components[2:]).rstrip()
+						transformation[comment_key] = tsv_delimiter.join(components[2:]).rstrip()
 					transformations.append(transformation)
 			transformations_file.close()
 		except IOError as e:
