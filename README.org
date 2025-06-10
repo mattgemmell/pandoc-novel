@@ -158,7 +158,7 @@ You may wish to exclude certain Markdown files within the input folder structure
 
 2. Create a file in the same directory as your book's metadata JSON file, named =exclusions.tsv=, as detailed below.
 
-An exclusions file will be automatically detected and loaded at build time. It should be a **tab-separated** text file, and each line should begin with a regular expression. Optionally, a line can then have a tab character followed by arbitrary text which will be treated as a comment, or a description of the exclusion pattern on that line.
+An exclusions file will be automatically detected and loaded at build time. It should be a *tab-separated* text file, and each line should begin with a regular expression. Optionally, a line can then have a tab character followed by arbitrary text which will be treated as a comment, or a description of the exclusion pattern on that line.
 
 Regardless of whether an exclusion is specified as an argument or via an exclusions file, at build time all exclusions will be considered, and any duly-excluded files will be reported (including which particular exclusion matched in each case).
 
