@@ -14,6 +14,7 @@ import subprocess
 
 # --- Globals ---
 
+args_filename = "args.txt"
 default_metadata_filename = "metadata.json"
 exclusions_filename = "exclusions.tsv"
 master_basename = "collated-book-master"
@@ -60,9 +61,21 @@ def string_to_slug(text):
     # Return in lowercase
     return text.lower()
 
+class MGArgumentParser(argparse.ArgumentParser):
+	def convert_arg_line_to_args(self, arg_line):
+		# Split on first space or equals to allow full arg+vals per line.
+		return re.split(r"[ =]", arg_line, maxsplit=1)
+
 #--- Main script begins ---
 
-parser=argparse.ArgumentParser(allow_abbrev=False)
+# Check for an args file.
+found_args_file = False
+file_args_prefix = '@'
+if os.path.isfile(args_filename):
+	found_args_file = True
+	sys.argv.insert(1, f"{file_args_prefix}{args_filename}")
+
+parser=MGArgumentParser(allow_abbrev=False, fromfile_prefix_chars=file_args_prefix)
 parser.add_argument('--input-folder', '-i', help="Input folder of Markdown files", type= str, required=True)
 parser.add_argument('--exclude', '-e', help=f"[optional] Regular expressions (one or more, space-separated) matching filenames of Markdown documents to exclude from the built books", action="store", nargs='+', default= None)
 parser.add_argument('--json-metadata-file', '-j', help="JSON file with metadata", type= str, default=default_metadata_filename)
@@ -101,6 +114,9 @@ retain_collated_master = (args[0].retain_collated_master == True)
 extra_args = None
 if len(args[1]) > 0:
 	extra_args = ' '.join(args[1])
+
+if found_args_file:
+	inform(f"Found args file {args_filename}. Processing.")
 
 # Check if folder_path exists and is a folder.
 full_folder_path = os.path.abspath(os.path.expanduser(folder_path))
