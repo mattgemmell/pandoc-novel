@@ -150,7 +150,7 @@ If you don't wish to specify the output basename explicitly, one will be supplie
 :CUSTOM_ID: args-files
 :END:
 
-Instead of specify arguments (parameters) for the build script on the command line, you can also store them in an /args file/. The build script will look in whatever directory you invoke it from, checking for the existence of a file named =args.txt=, and will load that file if found. You can specify any of the available parameters or flags listed above in this way, one per line, with argument names and values separated by either a space or an equals-sign. Here's the contents of an example args file:
+Instead of specifying arguments (parameters) for the build script on the command line, you can also store them in an /args file/. The build script will look in whatever directory you invoke it from, checking for the existence of a file named =args.txt=, and will load that file if found. You can specify any of the available parameters or flags listed above in this way, one per line, with argument names and values separated by either a space or an equals-sign. Here's the contents of an example args file:
 
 #+BEGIN_SRC
 --verbose
@@ -159,7 +159,7 @@ Instead of specify arguments (parameters) for the build script on the command li
 --replacement-mode=templite
 #+END_SRC
 
-This allows for convenient per-book customisation without having to remember which parameters to use for the build script in each case.
+This allows for convenient per-book customisation without having to remember which parameters to use for the build script in each case. You can combine both methods of specifying arguments as you wish, with the command-line arguments taking priority over the args file.
 
 Below is some additional information on getting things looking and working the way you want them to.
 
