@@ -152,10 +152,12 @@ If you don't wish to specify the output basename explicitly, one will be supplie
 
 Instead of specify arguments (parameters) for the build script on the command line, you can also store them in an /args file/. The build script will look in whatever directory you invoke it from, checking for the existence of a file named =args.txt=, and will load that file if found. You can specify any of the available parameters or flags listed above in this way, one per line, with argument names and values separated by either a space or an equals-sign. Here's the contents of an example args file:
 
-| --verbose
-| --input-folder My Great Book
-| --formats epub
-| --replacement-mode=templite
+#+BEGIN_SRC
+--verbose
+--input-folder My Great Book
+--formats epub
+--replacement-mode=templite
+#+END_SRC
 
 This allows for convenient per-book customisation without having to remember which parameters to use for the build script in each case.
 
