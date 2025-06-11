@@ -346,7 +346,7 @@ The default 5x8-inch size was chosen because it is the smallest generally-availa
 
 *** How can I have the book's subtitle in the running heads of PDF verso pages, instead of the title?
 
-Generally, see the question above regarding customising a book's appearance. In this particular case, the override CSS file should contain the following CSS:
+Generally, see [[#how-can-i-customise-the-appearance-or-layout-of-a-given-book][the question above]] regarding customising a book's appearance. In this particular case, the override CSS file should contain the following CSS:
 
 #+BEGIN_SRC css
 @page :left {
