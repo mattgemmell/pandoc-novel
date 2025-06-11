@@ -143,7 +143,7 @@ Additionally, there are several flags (without values) which tailor the script's
 If you don't wish to specify the output basename explicitly, one will be supplied for you automatically based on the metadata JSON file, using the following logic:
 
 1. If your metadata JSON file includes a =basename= entry, that entry will be used as the basename.
-2. Otherwise, the (required) =title= entry in the metadata JSON file will be converted into a suitable format for use as a basename; for example, ="My Great Title!"= would become ="my-great-title"=.
+2. Otherwise, the (required) =title= entry in the metadata JSON file will be converted into a suitable format for use as a basename; for example, ="My Great Title!"= would become ="my-great-title"=. If a =subtitle= entry is also present, it will be suitably appended.
 
 ** Args files support
 :PROPERTIES:

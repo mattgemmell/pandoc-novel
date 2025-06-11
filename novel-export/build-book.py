@@ -332,15 +332,18 @@ if not output_basename:
 	inform(f"No output basename supplied in arguments; checking metadata.")
 	basename_key = "basename"
 	title_key = "title"
+	subtitle_key = "subtitle"
 	if basename_key in json_contents and json_contents[basename_key] != "":
 		output_basename = json_contents[basename_key]
 		inform(f"Using basename specified in metadata: {output_basename}")
 	else:
-		# Slugify the 'title' entry as a filename.
+		# Slugify the 'title' entry as a filename, appending subtitle if present.
 		if title_key in json_contents and json_contents[title_key] != "":
 			title_val = json_contents[title_key]
+			if subtitle_key in json_contents and json_contents[subtitle_key] != "":
+				title_val = f"{title_val} - {json_contents[subtitle_key]}"
 			output_basename = string_to_slug(title_val)
-			inform(f"Converted metadata title '{title_val}' to basename: {output_basename}")
+			inform(f"Converted metadata '{title_val}' to basename: {output_basename}")
 		else:
 			inform(f"Couldn't find '{basename_key}' or '{title_key}' in metadata.", severity="error")
 			sys.exit(1)
