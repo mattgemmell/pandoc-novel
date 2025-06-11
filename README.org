@@ -352,7 +352,7 @@ Generally, see the question above regarding customising a book's appearance. In 
 @page :left {
 	@top-center { content: string(book-subtitle); }
 }
-#+BEGIN_SRC
+#+END_SRC
 
 *** How can I use the same front- or back-matter for different books?
 
