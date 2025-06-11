@@ -350,7 +350,7 @@ Generally, see the question above regarding customising a book's appearance. In 
 
 #+BEGIN_SRC css
 @page :left {
-	@top-center { content: string(book-subtitle); }
+  @top-center { content: string(book-subtitle); }
 }
 #+END_SRC
 
