@@ -14,7 +14,7 @@ import subprocess
 
 # --- Globals ---
 
-args_filename = "args.txt"
+default_args_filename = "args.txt"
 default_metadata_filename = "metadata.json"
 default_exclusions_filename = "exclusions.tsv"
 default_transformations_filename = "transformations.tsv"
@@ -63,7 +63,11 @@ def string_to_slug(text):
 
 class MGArgumentParser(argparse.ArgumentParser):
 	def convert_arg_line_to_args(self, arg_line):
-		# Split on first space or equals to allow full arg+vals per line.
+		# Ignore whitespace or #-commented lines
+		if (re.match(r"^[\s]*#", arg_line) or 
+				re.match(r"^[\s]*$", arg_line)):
+			return []
+		# Split on first space or equals-sign to allow full arg+vals per line.
 		return re.split(r"[ =]", arg_line, maxsplit=1)
 
 # --- Main script begins ---
@@ -71,9 +75,9 @@ class MGArgumentParser(argparse.ArgumentParser):
 # Check for an args file.
 found_args_file = False
 file_args_prefix = '@'
-if os.path.isfile(args_filename):
+if os.path.isfile(default_args_filename):
 	found_args_file = True
-	sys.argv.insert(1, f"{file_args_prefix}{args_filename}")
+	sys.argv.insert(1, f"{file_args_prefix}{default_args_filename}")
 
 parser=MGArgumentParser(allow_abbrev=False, fromfile_prefix_chars=file_args_prefix)
 parser.add_argument('--input-folder', '-i', help="Input folder of Markdown files", type= str, required=True)
@@ -122,7 +126,7 @@ if len(args[1]) > 0:
 	extra_args = ' '.join(args[1])
 
 if found_args_file:
-	inform(f"Found args file {args_filename}. Processing.")
+	inform(f"Found args file {default_args_filename}. Processing.")
 
 # Check if folder_path exists and is a folder.
 full_folder_path = os.path.abspath(os.path.expanduser(folder_path))
