@@ -157,7 +157,7 @@ Instead of specifying arguments (parameters) for the build script on the command
 
 : python novel-export/build-book.py @myargs.txt
 
-You can specify any of the available parameters or flags listed above in this way, one per line, with argument names and values separated by either a space or an equals-sign. Here's the contents of an example args file:
+You can specify any of the available parameters or flags (listed above) in args files, one per line, with argument names and values separated by either a space or an equals-sign. Here's the contents of an example args file:
 
 #+BEGIN_SRC
 --verbose
