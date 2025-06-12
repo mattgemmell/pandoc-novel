@@ -227,7 +227,7 @@ Scene breaks within a chapter are achieved with a single HR, which is =---= (thr
 
 Chapters should /not/ end with a scene break; instead, a chapter break (i.e. a forced section break) will automatically be taken.
 
-To deal with text-centering in front-matter pages, or to manage page-numbering or running elements, see [[#section-styles][the next section]] below. To center particular paragraphs within otherwise-justified prose, [[#centering-text][see this question]].
+To deal with text-centering in front-matter pages, or to manage page-numbering or running elements, see [[#section-styles][the next section]] below. To center particular paragraphs within otherwise-justified prose, [[#how-can-i-centrecenter-a-given-paragraph-within-the-main-prose-sections-of-the-book][see this question]].
 
 ** Section styles
 :PROPERTIES:
