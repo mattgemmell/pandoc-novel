@@ -400,7 +400,7 @@ Linking such files or directories in the file-system as symlinks will work (for 
 
 *** How can I centre/center a given paragraph within the main prose sections of the book?
 
-CommonMark syntax works well for this purpose, as shown below:
+CommonMark attributes work well for this purpose, as shown below:
 
 #+BEGIN_SRC markdown
 The terminal made a sound as ominous as the text that appeared on it, flashing in crimson.
@@ -411,7 +411,7 @@ ALERT: SYSTEM BREACH
 "Time to go," Greenwood said.
 #+END_SRC
 
-Note that the class directives line should be immediately before the relevant paragraph, without any blank lines between.
+Note that the attributes line should be immediately before the relevant paragraph, without any blank lines between.
 
 *** How can I pre-process my Markdown content before publishing?
 
