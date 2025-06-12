@@ -398,7 +398,7 @@ You can also use =book-author= instead of =book-title= or =book-subtitle=, if de
 
 Linking such files or directories in the file-system as symlinks will work (for macOS users, note that Finder aliases will /not/ be sufficient; see the =ln= utility in the Terminal instead). In order to make the contents adapt to the particular book being built, consider making use of the [[#metadata-and-placeholders][placeholders]] or [[#templating-systems][templating systems]] feature of this configuration.
 
-*** How can I centre a given paragraph within the main prose sections of the book?
+*** How can I centre/center a given paragraph within the main prose sections of the book?
 
 CommonMark syntax works well for this purpose, as shown below:
 
