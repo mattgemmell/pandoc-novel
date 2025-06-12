@@ -170,15 +170,49 @@ Below is some additional information on getting things looking and working the w
 :CUSTOM_ID: exclusions
 :END:
 
-You may wish to exclude certain Markdown files within the input folder structure from being included in your books, and you can readily do so via the exclusions feature. Exclusions are specified as regular expressions which match filenames to exclude, and they can be specified in two different ways (which can be used separately or together).
+You may wish to exclude certain Markdown files within the input folder structure from being included in your books, and you can readily do so via the exclusions feature. Exclusions are specified as regular expressions, and they can be specified in two different ways (which can be used separately or together).
 
 1. Specify exclusion patterns as one or more space-separated values for the =--exclude= argument when invoking the build script. An example of such an argument follows: =--exclude "^_" "(?i)\bnotes\.[^.]+"= (this would exclude filenames beginning with an underscore, and filenames with the case-insensitive word "notes" just before the file-extension).
 
 2. Create a file in the same directory as your book's metadata JSON file, named =exclusions.tsv=, as detailed below.
 
-An exclusions file will be automatically detected and loaded at build time. It should be a *tab-separated* text file, and each line should begin with a regular expression. Optionally, a line can then have a tab character followed by arbitrary text which will be treated as a comment, or a description of the exclusion pattern on that line.
+Exclusions specified as arguments to the build script are always treated as matching against filenames, where a match indicates that the file should be excluded from the build. Exclusions specified via a file, however, are considerably more flexible.
 
-Regardless of whether an exclusion is specified as an argument or via an exclusions file, at build time all exclusions will be considered, and any duly-excluded files will be reported (including which particular exclusion matched in each case).
+An exclusions file will be automatically detected and loaded at build time. It should be a *tab-separated* text file, using the format detailed below. Exclusions will be processed in order (arguments take precedence over the file), and exclusions are /final/; i.e. if a file matches a given exclusion, that file will immediately be excluded, and any later exclusions will not be considered against that particular file. Any duly-excluded files will be reported (including which particular exclusion matched in each case).
+
+Here is an example of an exclusions file:
+
+#+BEGIN_SRC
+Skip any ancillary or in-progress files:
+exclude	filename	*							(?i)^_								Filename begins with underscore
+exclude	filename	*							(?i)NOTES\.[^.]+$			Basename ends with 'notes'
+exclude	contents	*							(?i)\b(TK)+\b					File contains TKs
+
+Test the inclusion functionality:
+include	contents	(?i)stories$	(?i)\b#genre-scifi\b	Only science fiction!
+#+END_SRC
+
+The example file above is formatted as follows:
+
+- Exclusions are specified one per line, with fields separated by tab characters. Multiple tab characters can be used for readability; they will be collapsed before processing.
+- The first field on a line should be either the word =exclude= or =include= (or the abbreviated versions =e= or =i=), all in lowercase. This is the /mode/ of the rule.
+- The second field should be either =filename= or =contents= (or =f= or =c= respectively), in lowercase. This is the /scope/ of the rule.
+- The third field is the /path filter/, and can be either "*" (for any path), or a regular expression which will be matched against the full path of each Markdown file, not including the filename.
+- Finally, and optionally, the fourth field can be a comment or description of the rule, which is not required. It can contain tab characters if necessary.
+- Any lines which don't conform to this format are ignored, and can be used for comments or whitespacing. In particular, prefixing an otherwise-valid rule line with any non-whitespace character will disable it, effectively commenting it out.
+
+As is hopefully implied, the =filename= scope matches filenames, and the =contents= scope matches file contents. More interesting is the =mode= field. The =exclude= mode operates just like argument-type exclusions, and simply excludes any file which matches the rule from the build. The =include= scope inverts this functionality: only files which match the rule will be included in the build.
+
+*Take heed:* /exclusion/ patterns can only exclude files which match them, but /inclusion/ patterns will *EXCLUDE* all files which do *NOT* match, even those in any front- or back-matter sections. Use this feature with care, and remember the path-filter option to narrow the effects of such patterns.
+
+Thus, in the example file above, there are four rules in total, with the following effects:
+
+1. Exclude files whose filename begins with an underscore.
+2. Exclude files whose filename has the word 'notes' just before the file-extension.
+3. Exclude files whose /contents/ contain at least one occurrence of TK (or TKTK, etc) as a separate word.
+4. Exclude /all/ files which do *not* contain the '#genre-scifi' hashtag, but only those with file-paths which end in 'stories' (files without such a path are unaffected, and will still be included).
+
+This is a very powerful feature, and with judicious use it can achieve sophisticated customisations.
 
 ** Markdown formatting
 :PROPERTIES:
@@ -326,6 +360,10 @@ In any case, you can always enforce desirable collation ordering by suitably nam
 *** How can I exclude certain Markdown files from the build process?
 
 You can specify exclusions either as a parameter when invoking the build script, or via a file; see the [[#exclusions][exclusions]] feature.
+
+*** How can I ignore files containing TKs, rather than just reporting them or stopping the build?
+
+The [[#exclusions][exclusions]] feature can readily be used for this purpose, and its documentation contains an example of that exact functionality.
 
 *** How can multiple different books be built from the same installation of this configuration?
 

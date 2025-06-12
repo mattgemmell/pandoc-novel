@@ -66,7 +66,7 @@ class MGArgumentParser(argparse.ArgumentParser):
 		# Split on first space or equals to allow full arg+vals per line.
 		return re.split(r"[ =]", arg_line, maxsplit=1)
 
-#--- Main script begins ---
+# --- Main script begins ---
 
 # Check for an args file.
 found_args_file = False
@@ -147,13 +147,18 @@ num_exclusions = 0
 
 # Normalise exclusions and try to load additional patterns from a file.
 tsv_delimiter = "\t"
-search_key, replace_key, comment_key = "search", "replace", "comment"
+exclusion_mode_key, exclusion_scope_key, path_key, search_key, replace_key, comment_key = "mode", "scope", "path", "search", "replace", "comment"
+mode_exclude, mode_e, mode_include, mode_i = "exclude", "e", "include", "i"
+valid_exclusion_modes = [mode_exclude, mode_e, mode_include, mode_i]
+scope_filename, scope_f, scope_contents, scope_c = "filename", "f", "contents", "c"
+valid_exclusion_scopes = [scope_filename, scope_f, scope_contents, scope_c]
+path_any = "*"
 exclusions_path = os.path.join(os.path.dirname(full_metadata_path), exclusions_filename)
 
 exclusions_map = []
 if exclusions:
 	for excl in exclusions:
-		exclusions_map.append({search_key: excl})
+		exclusions_map.append({exclusion_mode_key: mode_exclude, exclusion_scope_key: scope_filename, path_key: path_any, search_key: excl})
 
 inform(f"Checking for exclusions file: {exclusions_path}")
 if not os.path.isfile(exclusions_path):
@@ -164,23 +169,49 @@ else:
 		exclusions_file = open(exclusions_path, 'r')
 		inform(f"Exclusions file found. Processing.")
 		for line in exclusions_file:
-			components = line.split(tsv_delimiter)
-			if len(components) > 0:
-				exclusion = {search_key: components[0]}
-				if len(components) > 1:
-					exclusion[comment_key] = tsv_delimiter.join(components[1:]).rstrip()
-				exclusions_map.append(exclusion)
+			line = re.sub(r"\t+", "\t", line) # Collapse tab-runs
+			components = line.strip('\n').split(tsv_delimiter)
+			if len(components) > 3:
+				exclusion = {exclusion_mode_key: components[0], exclusion_scope_key: components[1], path_key: components[2], search_key: components[3]}
+				if len(components) > 4:
+					exclusion[comment_key] = tsv_delimiter.join(components[4:]).rstrip()
+				if exclusion[exclusion_mode_key] in valid_exclusion_modes and exclusion[exclusion_scope_key] in valid_exclusion_scopes:
+					# Normalise modes and scopes.
+					if exclusion[exclusion_mode_key] == mode_e:
+						exclusion[exclusion_mode_key] = mode_exclude
+					elif exclusion[exclusion_mode_key] == mode_i:
+						exclusion[exclusion_mode_key] = mode_include
+					
+					if exclusion[exclusion_scope_key] == scope_f:
+						exclusion[exclusion_scope_key] = scope_filename
+					elif exclusion[exclusion_scope_key] == scope_c:
+						exclusion[exclusion_scope_key] = scope_contents
+					
+					exclusions_map.append(exclusion)
+					
 		exclusions_file.close()
 	except IOError as e:
 		inform(f"Couldn't read exclusions file: {e}", severity="warning")
 
 try:
 	for file in files:
+		text_file = open(file, 'r')
+		text_contents = text_file.read()
+		text_file.close()
+		
 		filename = os.path.basename(file)
+		file_path = os.path.dirname(file)
 		excluded = False
 		if exclusions_map and len(exclusions_map) > 0:
 			for excl in exclusions_map:
-				if re.search(excl[search_key], filename):
+				# Heed path filter if specified.
+				if excl[path_key] != path_any:
+					if not re.search(excl[path_key], file_path):
+						continue
+				
+				# Run regexp search.
+				found_match = re.search(excl[search_key], (filename if excl[exclusion_scope_key] == scope_filename else text_contents))
+				if (found_match and excl[exclusion_mode_key] == mode_exclude) or (not found_match and excl[exclusion_mode_key] == mode_include):
 					excluded = True
 					num_exclusions = num_exclusions + 1
 					message = ""
@@ -188,21 +219,16 @@ try:
 						message = f"{excl[comment_key]}"
 					else:
 						message = f"\"{excl[search_key]}\""
-					inform(f"- File excluded, as requested: {filename} (matched exclusion: {message})")
+					inform(f"- File excluded, as requested: {filename} ({'filename' if excl[exclusion_scope_key] == scope_filename else 'contents'} {'matched' if found_match else 'did not match'} {'exclusion' if excl[exclusion_mode_key] == mode_exclude else 'inclusion'}: {message})")
 					break
 		
 		if not excluded:
-			text_file = open(file, 'r')
-			text_contents = text_file.read()
-			text_file.close()
-			
 			master_documents.append(text_contents)
-			
 		else:
 			continue
 		
 		if check_tks:
-			tks = re.findall(r"(?i)\b(TK)+\b", text_contents)
+			tks = re.findall(tk_pattern, text_contents)
 			if len(tks) > 0:
 				files_with_tks.append(f"{filename} ({len(tks)} TK{'s' if len(tks) != 1 else ''})")
 			
@@ -267,7 +293,7 @@ if run_transformations:
 			# Read the transformations file.
 			transformations_file = open(transformations_path, 'r')
 			for line in transformations_file:
-				components = line.split(tsv_delimiter)
+				components = line.strip('\n').split(tsv_delimiter)
 				if len(components) > 1:
 					transformation = {search_key: components[0], replace_key: components[1]}
 					if len(components) > 2:
