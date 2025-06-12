@@ -184,9 +184,9 @@ Here is an example of an exclusions file:
 
 #+BEGIN_SRC
 Skip any ancillary or in-progress files:
-exclude	filename	*		(?i)^_				Filename begins with underscore
-exclude	filename	*		(?i)NOTES\.[^.]+$		Basename ends with 'notes'
-exclude	contents	*		(?i)\b(TK)+\b			File contains TKs
+exclude	filename	*		(?i)^_		Filename begins with underscore
+exclude	filename	*		(?i)NOTES\.[^.]+$	Basename ends with 'notes'
+exclude	contents	*		(?i)\b(TK)+\b	File contains TKs
 
 Test the inclusion functionality:
 include	contents	(?i)stories$	(?i)\b#genre-scifi\b	Only science fiction!
