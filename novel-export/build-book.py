@@ -85,6 +85,7 @@ parser.add_argument('--verbose', '-v', help="[optional] Enable verbose logging",
 parser.add_argument('--check-tks', help="[optional] Check for TKs in Markdown files (default: enabled), or disable with --no-check-tks", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--stop-on-tks', '-k', help="[optional] Treat TKs as errors and stop", action="store_true", default=False)
 parser.add_argument('--run-transformations', help=f"[optional] Perform any transformations found in {transformations_filename} file (default: enabled), or disable with --no-run-transformations", action=argparse.BooleanOptionalAction, default=True)
+parser.add_argument('--run-exclusions', help=f"[optional] Process any exclusions from --exclude arguments, or in {exclusions_filename} file (default: enabled), or disable with --no-run-exclusions", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--formats', '-f', help=f"[optional] Output formats to create (as many as required), from: {', '.join(valid_output_formats)}, or all (default 'epub pdf')", action='store', nargs='+', choices=valid_output_formats + ["all"], default=["epub", "pdf"])
 parser.add_argument('--retain-collated-master', '-c', help="[optional] Keeps the collated master Markdown file after generating books, instead of deleting it.", action="store_true", default=False)
 parser.add_argument('--pandoc-verbose', '-V', help="[optional] Tell pandoc to enable its own verbose logging", action="store_true", default=False)
@@ -102,6 +103,7 @@ verbose_mode = (args[0].verbose == True)
 check_tks = (args[0].check_tks == True)
 stop_on_tks = (args[0].stop_on_tks == True)
 run_transformations = (args[0].run_transformations == True)
+run_exclusions = (args[0].run_exclusions == True)
 output_formats = args[0].formats
 if isinstance(output_formats, list):
 	# Uniquify
@@ -156,14 +158,14 @@ path_any = "*"
 exclusions_path = os.path.join(os.path.dirname(full_metadata_path), exclusions_filename)
 
 exclusions_map = []
-if exclusions:
+if exclusions and run_exclusions:
 	for excl in exclusions:
 		exclusions_map.append({exclusion_mode_key: mode_exclude, exclusion_scope_key: scope_filename, path_key: path_any, search_key: excl})
 
 inform(f"Checking for exclusions file: {exclusions_path}")
 if not os.path.isfile(exclusions_path):
 	inform(f"Exclusions file not found. Continuing.")
-else:
+elif run_exclusions:
 	try:
 		# Read the exclusions file.
 		exclusions_file = open(exclusions_path, 'r')
