@@ -153,7 +153,9 @@ If you don't wish to specify the output basename explicitly, one will be supplie
 :CUSTOM_ID: args-files
 :END:
 
-Instead of specifying arguments (parameters) for the build script on the command line, you can also store them in an /args file/. The build script will automatically look in whatever directory you invoke it from, checking for the existence of a file named =args.txt= by default, and will load that file if found. You can also explicitly specify an args file by passing its filename to the build script as a bare argument, prefixed by an =@= symbol, for example: =python build-book.py @myargs.txt=
+Instead of specifying arguments (parameters) for the build script on the command line, you can also store them in an /args file/. The build script will automatically look in whatever directory you invoke it from, checking for the existence of a file named =args.txt= by default, and will load that file if found. You can also explicitly specify an args file by passing its filename to the build script as a bare argument, prefixed by an =@= symbol. Here's an example invocation:
+
+: python novel-export/build-book.py @myargs.txt
 
 You can specify any of the available parameters or flags listed above in this way, one per line, with argument names and values separated by either a space or an equals-sign. Here's the contents of an example args file:
 
