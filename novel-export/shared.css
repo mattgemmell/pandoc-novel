@@ -36,7 +36,7 @@ section:not(.unindented) p + p {
 	text-indent: 1.2em;
 }
 
-.centred {
+.centred, section > div.centred > * {
 	text-align: center;
 }
 
@@ -78,4 +78,9 @@ hr:after {
 
 .gap-before {
 	margin-top: 2rem;
+}
+
+.gap {
+	margin-top: 1rem;
+	margin-bottom: 1rem;
 }

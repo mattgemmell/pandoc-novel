@@ -227,7 +227,7 @@ Scene breaks within a chapter are achieved with a single HR, which is =---= (thr
 
 Chapters should /not/ end with a scene break; instead, a chapter break (i.e. a forced section break) will automatically be taken.
 
-To deal with text-centering, i.e. in front-matter pages, or to manage page-numbering or running elements, see [[#section-styles][the next section]] below.
+To deal with text-centering, e.g. in front-matter pages, or to manage page-numbering or running elements, see [[#section-styles][the next section]] below.
 
 ** Section styles
 :PROPERTIES:
@@ -397,6 +397,21 @@ You can also use =book-author= instead of =book-title= or =book-subtitle=, if de
 *** How can I use the same front- or back-matter for different books?
 
 Linking such files or directories in the file-system as symlinks will work (for macOS users, note that Finder aliases will /not/ be sufficient; see the =ln= utility in the Terminal instead). In order to make the contents adapt to the particular book being built, consider making use of the [[#metadata-and-placeholders][placeholders]] or [[#templating-systems][templating systems]] feature of this configuration.
+
+*** How can I centre a given paragraph within the main prose sections of the book?
+
+CommonMark syntax works well for this purpose, as shown below:
+
+#+BEGIN_SRC markdown
+The terminal made a sound as ominous as the text that appeared on it, flashing in crimson.
+
+{.centred .gap}
+ALERT: SYSTEM BREACH
+
+"Time to go," Greenwood said.
+#+END_SRC
+
+Note that the class directives line should be immediately before the relevant paragraph, without any blank lines between.
 
 *** How can I pre-process my Markdown content before publishing?
 
