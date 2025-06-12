@@ -16,12 +16,12 @@ import subprocess
 
 args_filename = "args.txt"
 default_metadata_filename = "metadata.json"
-exclusions_filename = "exclusions.tsv"
+default_exclusions_filename = "exclusions.tsv"
+default_transformations_filename = "transformations.tsv"
 master_basename = "collated-book-master"
 tk_pattern = r"(?i)\b(TK)+\b"
 valid_placeholder_modes = ["basic", "templite", "jinja2"] # or "none"
 valid_output_formats = ["epub", "pdf", "pdf-6x9"] # or "all"
-transformations_filename = "transformations.tsv"
 verbose_mode = False
 
 # --- Functions ---
@@ -79,13 +79,15 @@ parser=MGArgumentParser(allow_abbrev=False, fromfile_prefix_chars=file_args_pref
 parser.add_argument('--input-folder', '-i', help="Input folder of Markdown files", type= str, required=True)
 parser.add_argument('--exclude', '-e', help=f"[optional] Regular expressions (one or more, space-separated) matching filenames of Markdown documents to exclude from the built books", action="store", nargs='+', default= None)
 parser.add_argument('--json-metadata-file', '-j', help="JSON file with metadata", type= str, default=default_metadata_filename)
+parser.add_argument('--exclusions-file', '-E', help="File of exclusion rules", type= str, default=default_exclusions_filename)
+parser.add_argument('--transformations-file', '-t', help="File of transformations to perform", type= str, default=default_transformations_filename)
 parser.add_argument('--replacement-mode', '-m', choices=valid_placeholder_modes + ["none"], help=f"[optional] Replacement system to use: {', '.join(valid_placeholder_modes)} (default is {valid_placeholder_modes[0]})", type= str, default= valid_placeholder_modes[0])
 parser.add_argument('--output-basename', '-o', help=f"[optional] Output filename without extension (default is automatic based on metadata)", type= str, default= None)
 parser.add_argument('--verbose', '-v', help="[optional] Enable verbose logging", action="store_true", default=False)
 parser.add_argument('--check-tks', help="[optional] Check for TKs in Markdown files (default: enabled), or disable with --no-check-tks", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--stop-on-tks', '-k', help="[optional] Treat TKs as errors and stop", action="store_true", default=False)
-parser.add_argument('--run-transformations', help=f"[optional] Perform any transformations found in {transformations_filename} file (default: enabled), or disable with --no-run-transformations", action=argparse.BooleanOptionalAction, default=True)
-parser.add_argument('--run-exclusions', help=f"[optional] Process any exclusions from --exclude arguments, or in {exclusions_filename} file (default: enabled), or disable with --no-run-exclusions", action=argparse.BooleanOptionalAction, default=True)
+parser.add_argument('--run-transformations', help=f"[optional] Perform any transformations found in default or specified transformations file (default: enabled), or disable with --no-run-transformations", action=argparse.BooleanOptionalAction, default=True)
+parser.add_argument('--run-exclusions', help=f"[optional] Process any exclusions from --exclude arguments, or in the default or specified exclusions file (default: enabled), or disable with --no-run-exclusions", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--formats', '-f', help=f"[optional] Output formats to create (as many as required), from: {', '.join(valid_output_formats)}, or all (default 'epub pdf')", action='store', nargs='+', choices=valid_output_formats + ["all"], default=["epub", "pdf"])
 parser.add_argument('--retain-collated-master', '-c', help="[optional] Keeps the collated master Markdown file after generating books, instead of deleting it.", action="store_true", default=False)
 parser.add_argument('--pandoc-verbose', '-V', help="[optional] Tell pandoc to enable its own verbose logging", action="store_true", default=False)
@@ -97,6 +99,8 @@ this_script_path = os.path.abspath(os.path.expanduser(sys.argv[0]))
 folder_path = args[0].input_folder
 exclusions = args[0].exclude
 json_file_path = args[0].json_metadata_file
+exclusions_path = args[0].exclusions_file
+transformations_path = args[0].transformations_file
 placeholder_mode = args[0].replacement_mode
 output_basename = args[0].output_basename
 verbose_mode = (args[0].verbose == True)
@@ -131,9 +135,8 @@ if not os.path.isdir(full_folder_path):
 full_metadata_path = os.path.abspath(os.path.expanduser(json_file_path))
 inform(f"Path to JSON metadata file: {full_metadata_path}")
 if not os.path.isfile(full_metadata_path):
-	if not full_metadata_path.endswith():
-		inform("Path to JSON metadata file isn't a file.", severity="error")
-		sys.exit(1)
+	inform("Path to JSON metadata file isn't a file.", severity="error")
+	sys.exit(1)
 
 # Validate placeholder mode.
 if placeholder_mode not in valid_placeholder_modes:
@@ -155,20 +158,20 @@ valid_exclusion_modes = [mode_exclude, mode_e, mode_include, mode_i]
 scope_filename, scope_f, scope_contents, scope_c = "filename", "f", "contents", "c"
 valid_exclusion_scopes = [scope_filename, scope_f, scope_contents, scope_c]
 path_any = "*"
-exclusions_path = os.path.join(os.path.dirname(full_metadata_path), exclusions_filename)
 
 exclusions_map = []
 if exclusions and run_exclusions:
 	for excl in exclusions:
 		exclusions_map.append({exclusion_mode_key: mode_exclude, exclusion_scope_key: scope_filename, path_key: path_any, search_key: excl})
 
-inform(f"Checking for exclusions file: {exclusions_path}")
-if not os.path.isfile(exclusions_path):
+full_exclusions_path = os.path.abspath(os.path.expanduser(exclusions_path))
+inform(f"Checking for exclusions file: {full_exclusions_path}")
+if not os.path.isfile(full_exclusions_path):
 	inform(f"Exclusions file not found. Continuing.")
 elif run_exclusions:
 	try:
 		# Read the exclusions file.
-		exclusions_file = open(exclusions_path, 'r')
+		exclusions_file = open(full_exclusions_path, 'r')
 		inform(f"Exclusions file found. Processing.")
 		for line in exclusions_file:
 			line = re.sub(r"\t+", "\t", line) # Collapse tab-runs
@@ -284,16 +287,16 @@ json_contents['date-year'] = meta_date_year
 # Process transformations.
 if run_transformations:
 	# Check for any requested transformations.
-	transformations_path = os.path.join(os.path.dirname(full_metadata_path), transformations_filename)
+	full_transformations_path = os.path.abspath(os.path.expanduser(transformations_path))
 	
-	inform(f"Checking for transformations file: {transformations_path}")
-	if not os.path.isfile(transformations_path):
+	inform(f"Checking for transformations file: {full_transformations_path}")
+	if not os.path.isfile(full_transformations_path):
 		inform(f"Transformations file not found. Continuing.")
 	else:
 		transformations = []
 		try:
 			# Read the transformations file.
-			transformations_file = open(transformations_path, 'r')
+			transformations_file = open(full_transformations_path, 'r')
 			for line in transformations_file:
 				components = line.strip('\n').split(tsv_delimiter)
 				if len(components) > 1:

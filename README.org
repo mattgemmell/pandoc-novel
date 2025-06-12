@@ -122,11 +122,13 @@ Your generated books will be created in the same directory you called the build 
 
 You may also supply any of the following optional parameters with suitable values, if desired:
 
-| =--exclude= | Regular expressions (one or more, space-separated) matching filenames of Markdown documents to exclude from the built books.  See the [[#exclusions][exclusions]] section. |
 | =--json-metadata-file= | Path to the JSON metadata file for your book. |
+| =--exclude= | Regular expressions (one or more, space-separated) matching filenames of Markdown documents to exclude from the built books.  See the [[#exclusions][exclusions]] section. |
+| =--exclusions-file= | Path to a file of [[#exclusions][exclusions]] rules to apply. |
 | =--output-basename= | Output filename without extension. Default is automatic based on metadata; see below. |
 | =--formats= | Output formats to create books in. A space-separated list of options from "epub", "pdf", and "pdf-6x9". Use "all" to build all supported formats. Default is "epub pdf". |
 | =--replacement-mode= | The placeholder-replacement mode to use. See the [[#metadata-and-placeholders][metadata and placeholders]] section. Should be one of: "basic" (default), "templite", "jinja2", or "none". |
+| =--transformations-file= | Path to a file of [[#transformations][transformations]] to perform. |
 | (Other arguments) | Any remaining arguments will be passed as-is to pandoc when building each format. |
 
 Additionally, there are several flags (without values) which tailor the script's behaviour:
@@ -175,11 +177,13 @@ You may wish to exclude certain Markdown files within the input folder structure
 
 1. Specify exclusion patterns as one or more space-separated values for the =--exclude= argument when invoking the build script. An example of such an argument follows: =--exclude "^_" "(?i)\bnotes\.[^.]+"= (this would exclude filenames beginning with an underscore, and filenames with the case-insensitive word "notes" just before the file-extension).
 
-2. Create a file in the same directory as your book's metadata JSON file, named =exclusions.tsv=, as detailed below.
+2. Create a file in the same directory as your book's metadata JSON file, with the default filename =exclusions.tsv= or any other filename you prefer, as detailed below.
 
 Exclusions specified as arguments to the build script are always treated as matching against filenames, where a match indicates that the file should be excluded from the build. Exclusions specified via a file, however, are considerably more flexible.
 
-An exclusions file will be automatically detected and loaded at build time. It should be a *tab-separated* text file, using the format detailed below. Exclusions will be processed in order (arguments take precedence over the file), and exclusions are /final/; i.e. if a file matches a given exclusion, that file will immediately be excluded, and any later exclusions will not be considered against that particular file. Any duly-excluded files will be reported (including which particular exclusion matched in each case).
+An exclusions file will be automatically detected and loaded at build time if it has the default filename =exclusions.tsv=, or else can be specified explicitly via the =--exclusions-file= argument. It should be a *tab-separated* text file, using the format detailed below. The exclusions feature as a whole can also be disabled with the =--no=run-exclusions= argument.
+
+Exclusions will be processed in order (arguments take precedence over the file), and exclusions are /final/; i.e. if a file matches a given exclusion, that file will immediately be excluded, and any later exclusions will not be considered against that particular file. Any duly-excluded files will be reported (including which particular exclusion matched in each case) if verbose mode is enabled.
 
 Here is an example of an exclusions file:
 
@@ -324,9 +328,11 @@ Placeholder modes are mutually exclusive, but the chosen mode can be used togeth
 :CUSTOM_ID: transformations
 :END:
 
-For /very/ advanced needs, such as your Markdown content needing to be cleaned up or otherwise modified before being sent through the placeholders system, an optional and implicit feature exists: transformations. In brief, this allows your collated master Markdown file to be transformed via a series of regular expressions, /before/ the placeholders system is applied. It works as follows.
+For /very/ advanced needs, such as your Markdown content needing to be cleaned up or otherwise modified before being sent through the placeholders system, an optional feature exists: /transformations/. In brief, this allows your collated master Markdown file to be transformed via a series of regular expressions, /before/ the placeholders system is applied. It works as follows.
 
-If a file named =transformations.tsv= exists in the same directory as your metadata JSON file, it will be read by the build script. This file should contain lines with *tab-separated values*. The first value on each line should be the search expression, and the second value should be the replacement expression (which can be empty, and can also use capture groups from the search expression, as you'd expect). Optionally, a third value on a given line will be treated as a comment or description of what the regular expression does.
+If a file named =transformations.tsv= exists in the same directory as your metadata JSON file, it will be read by the build script automatically; if you prefer to use a different filename, the file can be specified implicitly via the =--transformations-file= argument. The transformations feature can also be disabled entirely with the =--no-run-transformations= argument.
+
+This file should contain lines with *tab-separated values*. The first value on each line should be the search expression, and the second value should be the replacement expression (which can be empty, and can also use capture groups from the search expression, as you'd expect). Optionally, a third value on a given line will be treated as a comment or description of what the regular expression does.
 
 These entries are [[https://docs.python.org/3/library/re.html#regular-expression-syntax][Python-compatible regular expressions]], and are applied in order. Here are some examples:
 
