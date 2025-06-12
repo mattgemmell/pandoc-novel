@@ -170,7 +170,7 @@ Below is some additional information on getting things looking and working the w
 :CUSTOM_ID: exclusions
 :END:
 
-You may wish to exclude certain Markdown files within the input folder structure from being included in your books, and you can readily do so via the exclusions feature. Exclusions are specified as regular expressions, and they can be specified in two different ways (which can be used separately or together).
+You may wish to exclude certain Markdown files within the input folder structure from being included in your books, and you can readily do so via the exclusions feature. Exclusions are specified as regular expressions, and they can be supplied in two different ways (which can be used separately or together).
 
 1. Specify exclusion patterns as one or more space-separated values for the =--exclude= argument when invoking the build script. An example of such an argument follows: =--exclude "^_" "(?i)\bnotes\.[^.]+"= (this would exclude filenames beginning with an underscore, and filenames with the case-insensitive word "notes" just before the file-extension).
 
