@@ -411,7 +411,7 @@ ALERT: SYSTEM BREACH
 "Time to go," Greenwood said.
 #+END_SRC
 
-Note that the attributes line should be immediately before the relevant paragraph, without any blank lines between.
+Note that the attributes line should be immediately before the relevant paragraph, without any blank lines in between.
 
 *** How can I pre-process my Markdown content before publishing?
 
