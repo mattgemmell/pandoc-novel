@@ -177,7 +177,7 @@ Below is some additional information on getting things looking and working the w
 :CUSTOM_ID: exclusions
 :END:
 
-You may wish to exclude certain Markdown files within the input folder structure from being included in your books, and you can readily do so via the exclusions feature. Exclusions are specified as regular expressions, and they can be supplied in two different ways (which can be used separately or together).
+You may wish to exclude certain Markdown files within the input folder structure from being included in your books, and you can readily do so via the exclusions feature. Exclusions are specified as [[https://docs.python.org/3/library/re.html#regular-expression-syntax][Python-compatible]] regular expressions, and they can be supplied in two different ways (which can be used separately or together).
 
 1. Specify exclusion patterns as one or more space-separated values for the =--exclude= argument when invoking the build script. An example of such an argument follows: =--exclude "^_" "(?i)\bnotes\.[^.]+"= (this would exclude filenames beginning with an underscore, and filenames with the case-insensitive word "notes" just before the file-extension).
 
@@ -336,12 +336,21 @@ For /very/ advanced needs, such as your Markdown content needing to be cleaned u
 
 If a file named =transformations.tsv= exists in the same directory as your metadata JSON file, it will be read by the build script automatically; if you prefer to use a different filename, the file can be specified implicitly via the =--transformations-file= argument. The transformations feature can also be disabled entirely with the =--no-run-transformations= argument.
 
-This file should contain lines with *tab-separated values*. The first value on each line should be the search expression, and the second value should be the replacement expression (which can be empty, and can also use capture groups from the search expression, as you'd expect). Optionally, a third value on a given line will be treated as a comment or description of what the regular expression does.
+This file should contain lines with *tab-separated values*. Its format is as follows.
 
-These entries are [[https://docs.python.org/3/library/re.html#regular-expression-syntax][Python-compatible regular expressions]], and are applied in order. Here are some examples:
+- Transformations are specified one per line, with fields separated by tab characters. Multiple tab characters can be used for readability; they will be collapsed before processing.
+- The first field on each line should be a comment or description of what the regular expression does (which should not contain tabs, can be empty, but still must be followed by at least one tab character even if empty).
+- The second field should be the search expression.
+- The third field should be the replacement expression (which can be empty, and can also use capture groups from the search expression, as you'd expect). The replacement expression field is optional, and if absent the matches will be replaced with nothing; i.e. simply deleted.
+- Any lines which don't conform to this format (i.e. which don't have at least two tab-separated fields) are ignored, and can be used for comments or whitespacing. It's best if such comments don't contain tabs themselves, to avoid ambiguity.
 
-: \[([^\]]+?)\]\([^\)]*\)	\1	Remove Markdown links, leaving anchor text behind
-: ^(#+\s*)[\d.,]+:?\s(.+)$	\1\2	Strip numeric prefix from Markdown headings
+The regular expressions use [[https://docs.python.org/3/library/re.html#regular-expression-syntax][Python's format]], and are applied in order. Here are some examples:
+
+#+BEGIN_SRC
+Clean up Markdown files for print:
+Remove links, leaving anchor text			\[([^\]]+?)\]\([^\)]*\)			\1
+Strip numeric prefix from headings		^(#+\s*)[\d.,]+:?\s(.+)$		\1\2
+#+END_SRC
 
 Keep in mind that the transformations will be run on the concatenated master document of your book, with its *entire contents in a single Markdown file*. This may have implications for the specific regular expressions you use (in particular, you will probably want to use /multi-line mode/, by prefixing appropriate search patterns with =(?m)=).
 

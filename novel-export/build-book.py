@@ -301,12 +301,17 @@ if run_transformations:
 		try:
 			# Read the transformations file.
 			transformations_file = open(full_transformations_path, 'r')
-			for line in transformations_file:
+			for line in transformations_file:		
+				line = re.sub(r"\t+", "\t", line) # Collapse tab-runs
 				components = line.strip('\n').split(tsv_delimiter)
 				if len(components) > 1:
-					transformation = {search_key: components[0], replace_key: components[1]}
+					transformation = {search_key: components[1]}
+					if components[0] != "":
+						transformation[comment_key] = components[0]
 					if len(components) > 2:
-						transformation[comment_key] = tsv_delimiter.join(components[2:]).rstrip()
+						transformation[replace_key] = components[2]
+					else:
+						transformation[replace_key] = ""
 					transformations.append(transformation)
 			transformations_file.close()
 		except IOError as e:
