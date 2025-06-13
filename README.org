@@ -348,8 +348,8 @@ The regular expressions use [[https://docs.python.org/3/library/re.html#regular-
 
 #+BEGIN_SRC
 Clean up Markdown files for print:
-Remove links, leaving anchor text			\[([^\]]+?)\]\([^\)]*\)			\1
-Strip numeric prefix from headings		^(#+\s*)[\d.,]+:?\s(.+)$		\1\2
+Remove links, leaving anchor text		\[([^\]]+?)\]\([^\)]*\)		\1
+Strip numeric prefix from headings	^(#+\s*)[\d.,]+:?\s(.+)$	\1\2
 #+END_SRC
 
 Keep in mind that the transformations will be run on the concatenated master document of your book, with its *entire contents in a single Markdown file*. This may have implications for the specific regular expressions you use (in particular, you will probably want to use /multi-line mode/, by prefixing appropriate search patterns with =(?m)=).
