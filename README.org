@@ -348,7 +348,7 @@ The regular expressions use [[https://docs.python.org/3/library/re.html#regular-
 
 #+BEGIN_SRC
 Clean up Markdown files for print:
-Remove links, leaving anchor text		\[([^\]]+?)\]\([^\)]*\)		\1
+Remove links, leaving anchor text	\[([^\]]+?)\]\([^\)]*\)		\1
 Strip numeric prefix from headings	^(#+\s*)[\d.,]+:?\s(.+)$	\1\2
 #+END_SRC
 
