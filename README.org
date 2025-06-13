@@ -157,16 +157,16 @@ Instead of specifying arguments (parameters) for the build script on the command
 
 : python novel-export/build-book.py @myargs.txt
 
-You can specify any of the available parameters or flags (listed above) in args files, one per line, with argument names and values separated by either a space or an equals-sign. Here's the contents of an example args file:
+You can specify any of the available parameters or flags (listed above) in args files, one per line, with argument names and values separated by whitespace. Here's the contents of an example args file:
 
 #+BEGIN_SRC
 --verbose
 --input-folder My Great Book
 --formats epub
---replacement-mode=templite
+--replacement-mode templite
 #+END_SRC
 
-Empty lines or lines consisting entirely of whitespace will be ignored, as will lines prefixed with a =#= symbol.
+Empty lines or lines consisting entirely of whitespace will be ignored, as will lines prefixed with a =#= symbol. If you are specifying extra arguments for pandoc in this way, note that some of pandoc's arguments /require/ an equals-sign as a separator instead (notably including its =metadata= argument), and you should use one if needed.
 
 This allows for convenient per-book customisation without having to remember which parameters to use for the build script in each case. You can combine both methods of specifying arguments as you wish; the default =args.txt= file will be loaded first if it exists in the current directory, then any further command-line arguments will be considered in order (including any explicitly-specified args files). In general, later arguments override earlier ones.
 

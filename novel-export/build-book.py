@@ -67,8 +67,9 @@ class MGArgumentParser(argparse.ArgumentParser):
 		if (re.match(r"^[\s]*#", arg_line) or 
 				re.match(r"^[\s]*$", arg_line)):
 			return []
-		# Split on first space or equals-sign to allow full arg+vals per line.
-		return re.split(r"[ =]", arg_line, maxsplit=1)
+		# Split on first whitespace to allow full arg+vals per line.
+		#return re.split(r"[ =]", arg_line, maxsplit=1)
+		return re.split(r"\s+", arg_line, maxsplit=1)
 
 # --- Main script begins ---
 
@@ -287,6 +288,15 @@ except IOError as e:
 # Add dynamically-generated extra metadata.
 json_contents['date'] = meta_date
 json_contents['date-year'] = meta_date_year
+
+# Add any metadata specified as arguments in extra_args.
+if args[1] and len(args[1]) > 0:
+	metadata_arg_expr = r"(?:--metadata[ =]|-M )([^ =:]+)[=:](['\"].+?['\"]|\S+)"
+	# Find all matches in extra_args, then trim any single or double quotes around values.
+	for this_arg in re.finditer(metadata_arg_expr, extra_args):
+		meta_key, meta_val = this_arg.group(1), this_arg.group(2)
+		meta_val = meta_val[1:-1] if len(meta_val) > 2 and meta_val[0] in ['"', "'"] else meta_val
+		json_contents[meta_key] = meta_val
 
 # Process transformations.
 if run_transformations:
