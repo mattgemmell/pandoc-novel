@@ -237,6 +237,8 @@ At build time, the pattern above will automatically be rewritten. If the book's 
 
 This can be useful for a book series, where each volume will commonly include back-matter pages promoting each of the other instalments in the series. Using metadata-replacement in an exclusion rule, the whole series can use the same folder of back-matter, containing a promotional page for every instalment, and automatically exclude the page for the book currently being built (if desired).
 
+If verbose mode is enabled, rewritten patterns will be logged with their original and rewritten forms. In all cases, if a metadata key is requested which has no corresponding value in the book's metadata, the exclusion rule will be ignored entirely, and a warning will be emitted. Rule processing, and the build in general, will then continue as usual.
+
 ** Markdown formatting
 :PROPERTIES:
 :CUSTOM_ID: markdown-formatting
