@@ -143,6 +143,34 @@ if not os.path.isfile(full_metadata_path):
 	inform("Path to JSON metadata file isn't a file.", severity="error")
 	sys.exit(1)
 
+# Prepare extra metadata.
+now = datetime.datetime.now()
+meta_date = now.strftime("%Y-%m-%d")
+meta_date_year = now.strftime("%Y")
+
+# Read the JSON metadata file.
+json_contents = None
+try:
+	json_file = open(full_metadata_path, 'r')
+	json_contents = json.load(json_file)
+	json_file.close()
+except IOError as e:
+		inform(f"Couldn't read JSON metadata file: {e}", severity="error")
+		sys.exit(1)
+
+# Add dynamically-generated extra metadata.
+json_contents['date'] = meta_date
+json_contents['date-year'] = meta_date_year
+
+# Add any metadata specified as arguments in extra_args.
+if args[1] and len(args[1]) > 0:
+	metadata_arg_expr = r"(?:--metadata[ =]|-M )([^ =:]+)[=:](['\"].+?['\"]|\S+)"
+	# Find all matches in extra_args, then trim any single or double quotes around values.
+	for this_arg in re.finditer(metadata_arg_expr, extra_args):
+		meta_key, meta_val = this_arg.group(1), this_arg.group(2)
+		meta_val = meta_val[1:-1] if len(meta_val) > 2 and meta_val[0] in ['"', "'"] else meta_val
+		json_contents[meta_key] = meta_val
+
 # Validate placeholder mode.
 if placeholder_mode not in valid_placeholder_modes:
 	inform(f"Invalid placeholder mode ({placeholder_mode}); should be {', '.join(valid_modes)} or none.", severity="error")
@@ -177,6 +205,9 @@ elif run_exclusions:
 	try:
 		# Read the exclusions file.
 		exclusions_file = open(full_exclusions_path, 'r')
+		pattern_metadata_flag = "M"
+		pattern_metadata_flag_regex = rf"^\(\?[a-zA-Z]*({pattern_metadata_flag})[^\)]*\)"
+		pattern_metadata_key_regex = rf"\%([^\%]+?)\%"
 		inform(f"Exclusions file found. Processing.")
 		for line in exclusions_file:
 			line = re.sub(r"\t+", "\t", line) # Collapse tab-runs
@@ -197,7 +228,31 @@ elif run_exclusions:
 					elif exclusion[exclusion_scope_key] == scope_c:
 						exclusion[exclusion_scope_key] = scope_contents
 					
-					exclusions_map.append(exclusion)
+					# Consider metadata-substitution flag, if present.
+					valid_rule = True
+					flag_match = re.match(pattern_metadata_flag_regex, exclusion[search_key])
+					if flag_match:
+						inform(f"Metadata pattern flag (?{pattern_metadata_flag}) detected. Processing.")
+						this_pattern = exclusion[search_key]
+						# Remove the pattern_metadata_flag from this_pattern.
+						this_pattern = this_pattern[:flag_match.start(1)] + this_pattern[flag_match.end(1):]
+						token_match = re.search(pattern_metadata_key_regex, this_pattern)
+						while token_match:
+							meta_key = token_match.group(1)
+							if meta_key in json_contents:
+								meta_val = json_contents[meta_key]
+								this_pattern = this_pattern[:token_match.start()] + meta_val + this_pattern[token_match.end():]
+							else:
+								inform(f"Requested key '{meta_key}' not found in metadata. Ignoring this exclusion.", severity="warning")
+								valid_rule = False
+								break
+							token_match = re.search(pattern_metadata_key_regex, this_pattern)
+						if valid_rule:
+							print(f"- Rewrote rule pattern '{exclusion[search_key]}' as '{this_pattern}'.")
+							exclusion[search_key] = this_pattern
+					
+					if valid_rule:
+						exclusions_map.append(exclusion)
 					
 		exclusions_file.close()
 	except IOError as e:
@@ -269,34 +324,6 @@ if check_tks:
 
 # Concatenate master file.
 master_contents = "\n".join(master_documents)
-
-# Prepare extra metadata.
-now = datetime.datetime.now()
-meta_date = now.strftime("%Y-%m-%d")
-meta_date_year = now.strftime("%Y")
-
-# Read the JSON metadata file.
-json_contents = None
-try:
-	json_file = open(full_metadata_path, 'r')
-	json_contents = json.load(json_file)
-	json_file.close()
-except IOError as e:
-		inform(f"Couldn't read JSON metadata file: {e}", severity="error")
-		sys.exit(1)
-
-# Add dynamically-generated extra metadata.
-json_contents['date'] = meta_date
-json_contents['date-year'] = meta_date_year
-
-# Add any metadata specified as arguments in extra_args.
-if args[1] and len(args[1]) > 0:
-	metadata_arg_expr = r"(?:--metadata[ =]|-M )([^ =:]+)[=:](['\"].+?['\"]|\S+)"
-	# Find all matches in extra_args, then trim any single or double quotes around values.
-	for this_arg in re.finditer(metadata_arg_expr, extra_args):
-		meta_key, meta_val = this_arg.group(1), this_arg.group(2)
-		meta_val = meta_val[1:-1] if len(meta_val) > 2 and meta_val[0] in ['"', "'"] else meta_val
-		json_contents[meta_key] = meta_val
 
 # Process transformations.
 if run_transformations:

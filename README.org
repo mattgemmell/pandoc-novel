@@ -223,6 +223,20 @@ Thus, in the example file above, there are four rules in total, with the followi
 
 This is a very powerful feature, and with judicious use it can achieve sophisticated customisations.
 
+*** Exclusions based on metadata
+
+If you need to exclude certain Markdown files based on your book's metadata, this is possible by using a proprietary flag in the regular expression pattern of an exclusion rule. The flag is =M= (in uppercase), and it indicates to the exclusions feature that you wish to have the pattern implicitly rewritten before being applied, replacing any metadata keys with their values.
+
+The keys should be delimited by percent-symbols, like this: =%title%=, and you can have as many as required in the same pattern. Here is an example exclusion rule which will exclude any Markdown files whose filename contains the book's title, as defined in the metadata JSON file (or in a =--metadata= argument).
+
+: exclude	filename	*	(?iM)%title%
+
+At build time, the pattern above will automatically be rewritten. If the book's metadata has a =title= key with the value =Jinx=, the pattern will become:
+
+: exclude	filename	*	(?i)Jinx
+
+This can be useful for a book series, where each volume will commonly include back-matter pages promoting each of the other instalments in the series. Using metadata-replacement in an exclusion rule, the whole series can use the same folder of back-matter, containing a promotional page for every instalment, and automatically exclude the page for the book currently being built (if desired).
+
 ** Markdown formatting
 :PROPERTIES:
 :CUSTOM_ID: markdown-formatting
