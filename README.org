@@ -225,7 +225,7 @@ This is a very powerful feature, and with judicious use it can achieve sophistic
 
 *** Exclusions based on metadata
 
-If you need to exclude certain Markdown files based on your book's metadata, this is possible by using a proprietary flag in the regular expression pattern of an exclusion rule. The flag is =M= (in uppercase; not to be confused with =m= which means multi-line mode), and it indicates to the exclusions feature that you wish to have the pattern implicitly rewritten before being applied, replacing any metadata keys with their values.
+If you need to exclude certain Markdown files based on your book's metadata, this is possible by using a proprietary flag in the regular expression pattern of an exclusion rule. The flag is =M= (in uppercase; not to be confused with lowercase =m= which means multi-line mode), and it indicates to the exclusions feature that you wish to have the pattern /implicitly rewritten/ before being applied, replacing any metadata keys with their values.
 
 The keys should be delimited by percent-symbols, like this: =%title%=, and you can have as many as required in the same pattern. Here is an example exclusion rule which will exclude any Markdown files whose filename contains the book's title, as defined in the metadata JSON file (or in a =--metadata= argument).
 
