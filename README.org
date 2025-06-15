@@ -213,6 +213,8 @@ The example file above is formatted as follows:
 
 As is hopefully implied, the =filename= scope matches filenames, the =filepath= scope matches file paths (not including filenames), and the =contents= scope matches file contents. More interesting is the =mode= field. The =exclude= mode operates just like argument-type exclusions, and simply excludes any file which matches the rule from the build. The =include= scope inverts this functionality: /only/ files which match the rule will be /included/ in the build.
 
+Path filters select which files will be *considered against a rule*, for either inclusion or exclusion; all other files (those which do /not/ match the relevant path-filter) will be unaffected; i.e. they will still be included in the build.
+
 *Take heed:* /exclusion/ patterns can only exclude files which match them, but /inclusion/ patterns will *EXCLUDE* all files which do *NOT* match, even those in any front- or back-matter sections. Use this feature with care, and remember the path-filter option to narrow the effects of such patterns.
 
 Thus, in the example file above, there are four rules in total, with the following effects:
@@ -240,9 +242,9 @@ Rewriting will be done for the path-filter pattern as well as the actual search 
 
 This can be useful for a book series, where each volume will commonly include back-matter pages promoting each of the other instalments in the series. Using metadata-replacement in an exclusion rule, the whole series can use the same folder of back-matter, containing a promotional page for every instalment, and automatically exclude the page for the book currently being built (if desired). The example shown above with accomplish this, assuming that the back-matter promotional pages have filenames containing the titles of the respective books.
 
-It's also possible to use this feature to enable keeping all books in a series within subdirectories of the same folder, all sharing a single front-matter and back-matter directory. Just create an exclusions file for each instalment in the series, which uses a path-filter to exclude any files contained in /directories/ whose name doesn't (for example) end with the title of the book currently being built, regardless of their filename, as shown below:
+It's also possible to use this feature to enable keeping all books in a series within subdirectories of the same folder, all sharing a single front-matter and back-matter directory. Just create an exclusions file for each instalment in the series, which uses a path-filter to exclude any files contained in /directories/ whose path doesn't (for example) include the title of the book currently being built, regardless of their individual filenames, as shown below:
 
-: exclude	filename	(?iM)(?<!%title%)$	.+	Exclude other books
+: include	filepath	books/	(?iM)%title%	Exclude other books
 
 If verbose mode is enabled, rewritten patterns will be logged with their original and rewritten forms. In all cases, if a metadata key is requested which has no corresponding value in the book's metadata, the exclusion rule will be ignored entirely, and a warning will be emitted. Rule processing, and the build in general, will then continue as usual.
 
