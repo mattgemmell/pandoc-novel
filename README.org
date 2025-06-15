@@ -213,7 +213,7 @@ The example file above is formatted as follows:
 
 As is hopefully implied, the =filename= scope matches filenames, the =filepath= scope matches file paths (not including filenames), and the =contents= scope matches file contents. More interesting is the =mode= field. The =exclude= mode operates just like argument-type exclusions, and simply excludes any file which matches the rule from the build. The =include= scope inverts this functionality: /only/ files which match the rule will be /included/ in the build.
 
-Path filters select which files will be *considered against a rule*, for either inclusion or exclusion; all other files (those which do /not/ match the relevant path-filter) will be unaffected; i.e. they will still be included in the build.
+Path-filters select which files will be *considered against a rule*, for either inclusion or exclusion; all other files (those which do /not/ match the relevant path-filter) will be unaffected; i.e. they will still be included in the build.
 
 *Take heed:* /exclusion/ patterns can only exclude files which match them, but /inclusion/ patterns will *EXCLUDE* all files which do *NOT* match, even those in any front- or back-matter sections. Use this feature with care, and remember the path-filter option to narrow the effects of such patterns.
 
