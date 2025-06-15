@@ -306,7 +306,7 @@ try:
 						message = f"{excl[comment_key]}"
 					else:
 						message = f"\"{excl[search_key]}\""
-					inform(f"- File excluded, as requested: {filename} ({'filename' if excl[exclusion_scope_key] == scope_filename else 'contents'} {'matched' if found_match else 'did not match'} {'exclusion' if excl[exclusion_mode_key] == mode_exclude else 'inclusion'}: {message})")
+					inform(f"- File excluded, as requested: {file} ({'filename' if excl[exclusion_scope_key] == scope_filename else 'contents'} {'matched' if found_match else 'did not match'} {'exclusion' if excl[exclusion_mode_key] == mode_exclude else 'inclusion'}: {message})")
 					break
 		
 		if not excluded:

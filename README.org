@@ -238,7 +238,11 @@ At build time, the pattern above will automatically be rewritten. If the book's 
 
 Rewriting will be done for the path-filter pattern as well as the actual search pattern. If either one is rewritten, and an optional comment field is present for the rule, the comment will also be rewritten if it contains any appropriate metadata keys.
 
-This can be useful for a book series, where each volume will commonly include back-matter pages promoting each of the other instalments in the series. Using metadata-replacement in an exclusion rule, the whole series can use the same folder of back-matter, containing a promotional page for every instalment, and automatically exclude the page for the book currently being built (if desired).
+This can be useful for a book series, where each volume will commonly include back-matter pages promoting each of the other instalments in the series. Using metadata-replacement in an exclusion rule, the whole series can use the same folder of back-matter, containing a promotional page for every instalment, and automatically exclude the page for the book currently being built (if desired). The example shown above with accomplish this, assuming that the back-matter promotional pages have filenames containing the titles of the respective books.
+
+It's also possible to use this feature to enable keeping all books in a series within subdirectories of the same folder, all sharing a single front-matter and back-matter directory. Just create an exclusions file for each instalment in the series, which uses a path-filter to exclude any files contained in /directories/ whose name doesn't (for example) end with the title of the book currently being built, regardless of their filename, as shown below:
+
+: exclude	filename	(?iM)(?<!%title%)$	.+	Exclude other books
 
 If verbose mode is enabled, rewritten patterns will be logged with their original and rewritten forms. In all cases, if a metadata key is requested which has no corresponding value in the book's metadata, the exclusion rule will be ignored entirely, and a warning will be emitted. Rule processing, and the build in general, will then continue as usual.
 
