@@ -188,8 +188,8 @@ tsv_delimiter = "\t"
 exclusion_mode_key, exclusion_scope_key, path_key, search_key, replace_key, comment_key = "mode", "scope", "path", "search", "replace", "comment"
 mode_exclude, mode_e, mode_include, mode_i = "exclude", "e", "include", "i"
 valid_exclusion_modes = [mode_exclude, mode_e, mode_include, mode_i]
-scope_filename, scope_f, scope_filepath, scope_p, scope_contents, scope_c = "filename", "f", "filepath", "p", "contents", "c"
-valid_exclusion_scopes = [scope_filename, scope_f, scope_filepath, scope_p, scope_contents, scope_c]
+scope_filename, scope_f, scope_filepath, scope_p, scope_fullpath, scope_u, scope_contents, scope_c = "filename", "f", "filepath", "p", "fullpath", "u", "contents", "c"
+valid_exclusion_scopes = [scope_filename, scope_f, scope_filepath, scope_p, scope_fullpath, scope_u, scope_contents, scope_c]
 path_any = "*"
 
 exclusions_map = []
@@ -227,6 +227,8 @@ elif run_exclusions:
 						exclusion[exclusion_scope_key] = scope_filename
 					elif exclusion[exclusion_scope_key] == scope_p:
 						exclusion[exclusion_scope_key] = scope_filepath
+					elif exclusion[exclusion_scope_key] == scope_u:
+						exclusion[exclusion_scope_key] = scope_fullpath
 					elif exclusion[exclusion_scope_key] == scope_c:
 						exclusion[exclusion_scope_key] = scope_contents
 					
@@ -304,6 +306,9 @@ try:
 				if excl[exclusion_scope_key] == scope_filepath:
 					target_scope = file_path
 					target_desc = "file path"
+				elif excl[exclusion_scope_key] == scope_fullpath:
+					target_scope = file
+					target_desc = "entire path"
 				elif excl[exclusion_scope_key] == scope_contents:
 					target_scope = text_contents
 					target_desc = "contents"
