@@ -228,29 +228,51 @@ elif run_exclusions:
 					elif exclusion[exclusion_scope_key] == scope_c:
 						exclusion[exclusion_scope_key] = scope_contents
 					
-					# Consider metadata-substitution flag, if present.
+					# Consider metadata-substitution flags, if present.
 					valid_rule = True
-					flag_match = re.match(pattern_metadata_flag_regex, exclusion[search_key])
-					if flag_match:
-						inform(f"Metadata pattern flag (?{pattern_metadata_flag}) detected. Processing.")
-						this_pattern = exclusion[search_key]
-						# Remove the pattern_metadata_flag from this_pattern.
-						this_pattern = this_pattern[:flag_match.start(1)] + this_pattern[flag_match.end(1):]
-						token_match = re.search(pattern_metadata_key_regex, this_pattern)
-						while token_match:
-							meta_key = token_match.group(1)
-							if meta_key in json_contents:
-								meta_val = json_contents[meta_key]
-								this_pattern = this_pattern[:token_match.start()] + meta_val + this_pattern[token_match.end():]
+					log_delim = "  "
+					orig_rule = log_delim.join(exclusion.values())
+					rule_rewritten = False
+					for this_key in [search_key, path_key, comment_key]:
+						should_rewrite = False
+						this_value = exclusion[this_key] if this_key in exclusion else None
+						
+						if this_key == comment_key and rule_rewritten and comment_key in exclusion:
+							# We already rewrote search and/or path, and we have a comment field. Rewrite it too.
+							should_rewrite = True
+							
+						else:
+							flag_match = re.match(pattern_metadata_flag_regex, this_value)
+							if flag_match:
+								should_rewrite = True
+								#inform(f"Metadata pattern flag (?{pattern_metadata_flag}) detected. Processing.")
+								# Remove the pattern_metadata_flag from this pattern.
+								this_value = this_value[:flag_match.start(1)] + this_value[flag_match.end(1):]
+								rule_rewritten = True
+							
+						if should_rewrite and this_value:
+							# Process token replacement.
+							token_match = re.search(pattern_metadata_key_regex, this_value)
+							while token_match:
+								meta_key = token_match.group(1)
+								if meta_key in json_contents:
+									meta_val = json_contents[meta_key]
+									this_value = this_value[:token_match.start()] + meta_val + this_value[token_match.end():]
+								else:
+									inform(f"Requested key '{meta_key}' not found in metadata. Ignoring this exclusion.", severity="warning")
+									valid_rule = False
+									break
+								token_match = re.search(pattern_metadata_key_regex, this_value)
+							if valid_rule:
+								delim = "  "
+								exclusion[this_key] = this_value
 							else:
-								inform(f"Requested key '{meta_key}' not found in metadata. Ignoring this exclusion.", severity="warning")
-								valid_rule = False
+								# Break from loop over exclusions keys
 								break
-							token_match = re.search(pattern_metadata_key_regex, this_pattern)
-						if valid_rule:
-							print(f"- Rewrote rule pattern '{exclusion[search_key]}' as '{this_pattern}'.")
-							exclusion[search_key] = this_pattern
 					
+					if rule_rewritten:
+						inform(f"- Rewrote rule pattern:\n  {orig_rule}\n  as:\n  {log_delim.join(exclusion.values())}.")
+
 					if valid_rule:
 						exclusions_map.append(exclusion)
 					

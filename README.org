@@ -207,7 +207,8 @@ The example file above is formatted as follows:
 - The first field on a line should be either the word =exclude= or =include= (or the abbreviated versions =e= or =i=), all in lowercase. This is the /mode/ of the rule.
 - The second field should be either =filename= or =contents= (or =f= or =c= respectively), in lowercase. This is the /scope/ of the rule.
 - The third field is the /path-filter/, and can be either =*= (for any path), or a regular expression which will be matched against the full path of each Markdown file, not including the filename.
-- Finally, and optionally, the fourth field can be a comment or description of the rule, which is not required. It can contain tab characters if necessary.
+- The fourth field is the search pattern, which is a regular expression.
+- Finally, and optionally, the fifth field can be a comment or description of the rule, which is not required. It can contain tab characters if necessary.
 - Any lines which don't conform to this format are ignored, and can be used for comments or whitespacing. In particular, prefixing an otherwise-valid rule line with any non-whitespace character will disable it, effectively commenting it out.
 
 As is hopefully implied, the =filename= scope matches filenames, and the =contents= scope matches file contents. More interesting is the =mode= field. The =exclude= mode operates just like argument-type exclusions, and simply excludes any file which matches the rule from the build. The =include= scope inverts this functionality: /only/ files which match the rule will be /included/ in the build.
@@ -225,7 +226,7 @@ This is a very powerful feature, and with judicious use it can achieve sophistic
 
 *** Exclusions based on metadata
 
-If you need to exclude certain Markdown files based on your book's metadata, this is possible by using a proprietary flag in the regular expression pattern of an exclusion rule. The flag is =M= (in uppercase; not to be confused with lowercase =m= which means multi-line mode), and it indicates to the exclusions feature that you wish to have the pattern /implicitly rewritten/ before being applied, replacing any metadata keys with their values.
+If you need to exclude certain Markdown files based on your book's metadata, this is possible by using a proprietary flag in the regular expression patterns of an exclusion rule (the search pattern, path-filter pattern, or both). The flag is =M= (in uppercase; not to be confused with lowercase =m= which means multi-line mode), and it indicates to the exclusions feature that you wish to have the pattern /implicitly rewritten/ before being applied, replacing any metadata keys with their values.
 
 The keys should be delimited by percent-symbols, like this: =%title%=, and you can have as many as required in the same pattern. Here is an example exclusion rule which will exclude any Markdown files whose filename contains the book's title, as defined in the metadata JSON file (or in a =--metadata= argument).
 
@@ -234,6 +235,8 @@ The keys should be delimited by percent-symbols, like this: =%title%=, and you c
 At build time, the pattern above will automatically be rewritten. If the book's metadata has a =title= key with the value =Jinx=, the pattern will become:
 
 : exclude	filename	*	(?i)Jinx
+
+Rewriting will be done for the path-filter pattern as well as the actual search pattern. If either one is rewritten, and an optional comment field is present for the rule, the comment will also be rewritten if it contains any appropriate metadata keys.
 
 This can be useful for a book series, where each volume will commonly include back-matter pages promoting each of the other instalments in the series. Using metadata-replacement in an exclusion rule, the whole series can use the same folder of back-matter, containing a promotional page for every instalment, and automatically exclude the page for the book currently being built (if desired).
 
