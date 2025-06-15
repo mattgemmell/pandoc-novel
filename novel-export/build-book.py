@@ -188,8 +188,8 @@ tsv_delimiter = "\t"
 exclusion_mode_key, exclusion_scope_key, path_key, search_key, replace_key, comment_key = "mode", "scope", "path", "search", "replace", "comment"
 mode_exclude, mode_e, mode_include, mode_i = "exclude", "e", "include", "i"
 valid_exclusion_modes = [mode_exclude, mode_e, mode_include, mode_i]
-scope_filename, scope_f, scope_contents, scope_c = "filename", "f", "contents", "c"
-valid_exclusion_scopes = [scope_filename, scope_f, scope_contents, scope_c]
+scope_filename, scope_f, scope_filepath, scope_p, scope_contents, scope_c = "filename", "f", "filepath", "p", "contents", "c"
+valid_exclusion_scopes = [scope_filename, scope_f, scope_filepath, scope_p, scope_contents, scope_c]
 path_any = "*"
 
 exclusions_map = []
@@ -225,6 +225,8 @@ elif run_exclusions:
 					
 					if exclusion[exclusion_scope_key] == scope_f:
 						exclusion[exclusion_scope_key] = scope_filename
+					elif exclusion[exclusion_scope_key] == scope_p:
+						exclusion[exclusion_scope_key] = scope_filepath
 					elif exclusion[exclusion_scope_key] == scope_c:
 						exclusion[exclusion_scope_key] = scope_contents
 					
@@ -297,7 +299,16 @@ try:
 						continue
 				
 				# Run regexp search.
-				found_match = re.search(excl[search_key], (filename if excl[exclusion_scope_key] == scope_filename else text_contents))
+				target_scope = filename
+				target_desc = "filename"
+				if excl[exclusion_scope_key] == scope_filepath:
+					target_scope = file_path
+					target_desc = "file path"
+				elif excl[exclusion_scope_key] == scope_contents:
+					target_scope = text_contents
+					target_desc = "contents"
+				
+				found_match = re.search(excl[search_key], target_scope)
 				if (found_match and excl[exclusion_mode_key] == mode_exclude) or (not found_match and excl[exclusion_mode_key] == mode_include):
 					excluded = True
 					num_exclusions = num_exclusions + 1
@@ -306,7 +317,7 @@ try:
 						message = f"{excl[comment_key]}"
 					else:
 						message = f"\"{excl[search_key]}\""
-					inform(f"- File excluded, as requested: {file} ({'filename' if excl[exclusion_scope_key] == scope_filename else 'contents'} {'matched' if found_match else 'did not match'} {'exclusion' if excl[exclusion_mode_key] == mode_exclude else 'inclusion'}: {message})")
+					inform(f"- File excluded, as requested: {file} ({target_desc} {'matched' if found_match else 'did not match'} {'exclusion' if excl[exclusion_mode_key] == mode_exclude else 'inclusion'}: {message})")
 					break
 		
 		if not excluded:

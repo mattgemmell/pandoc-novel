@@ -8,4 +8,3 @@
 
 {.book-author}
 %author%
-

@@ -205,13 +205,13 @@ The example file above is formatted as follows:
 
 - Exclusions are specified one per line, with fields separated by tab characters. Multiple tab characters can be used for readability; they will be collapsed before processing.
 - The first field on a line should be either the word =exclude= or =include= (or the abbreviated versions =e= or =i=), all in lowercase. This is the /mode/ of the rule.
-- The second field should be either =filename= or =contents= (or =f= or =c= respectively), in lowercase. This is the /scope/ of the rule.
+- The second field should be either =filename=, =filepath=, or =contents= (or =f=, =p=, or =c= respectively), in lowercase. This is the /scope/ of the rule.
 - The third field is the /path-filter/, and can be either =*= (for any path), or a regular expression which will be matched against the full path of each Markdown file, not including the filename.
 - The fourth field is the search pattern, which is a regular expression.
 - Finally, and optionally, the fifth field can be a comment or description of the rule, which is not required. It can contain tab characters if necessary.
 - Any lines which don't conform to this format are ignored, and can be used for comments or whitespacing. In particular, prefixing an otherwise-valid rule line with any non-whitespace character will disable it, effectively commenting it out.
 
-As is hopefully implied, the =filename= scope matches filenames, and the =contents= scope matches file contents. More interesting is the =mode= field. The =exclude= mode operates just like argument-type exclusions, and simply excludes any file which matches the rule from the build. The =include= scope inverts this functionality: /only/ files which match the rule will be /included/ in the build.
+As is hopefully implied, the =filename= scope matches filenames, the =filepath= scope matches file paths (not including filenames), and the =contents= scope matches file contents. More interesting is the =mode= field. The =exclude= mode operates just like argument-type exclusions, and simply excludes any file which matches the rule from the build. The =include= scope inverts this functionality: /only/ files which match the rule will be /included/ in the build.
 
 *Take heed:* /exclusion/ patterns can only exclude files which match them, but /inclusion/ patterns will *EXCLUDE* all files which do *NOT* match, even those in any front- or back-matter sections. Use this feature with care, and remember the path-filter option to narrow the effects of such patterns.
 
