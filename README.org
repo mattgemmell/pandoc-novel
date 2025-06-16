@@ -269,7 +269,7 @@ Its effect would be that any Markdown files within the front-matter folder's 'de
 :CUSTOM_ID: markdown-formatting
 :END:
 
-Here are some notes on formatting your book's Markdown content files so they'll look their best when exported as books.
+Here are some notes on formatting your book's Markdown content files so they'll look their best when exported.
 
 H1 headings in Markdown begin a chapter, part, or a front- or back-matter section. See the included examples. Notably, front-matter sections use an empty H1 (whose content is just an HTML comment, rather than actual text).
 
