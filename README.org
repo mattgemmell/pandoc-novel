@@ -3,7 +3,7 @@
 :CUSTOM_ID: pandoc-novel-export
 :END:
 
-This is a configuration for [[https://pandoc.org][pandoc]], the universal markup converter, intended to make it easy to publish novels or other fiction written in [[https://commonmark.org][Markdown]]. It supports ePub3 ebooks, and PDF for print in 5x8-inch or 6x9-inch paperback/hardback format.
+This is a wrapper and configuration for [[https://pandoc.org][pandoc]], the universal markup converter, intended to make it easy to publish novels or other fiction written in [[https://commonmark.org][Markdown]]. It adds significant functionality for customisation and convenience, and supports ePub3 ebooks, and PDF for print in 5x8-inch or 6x9-inch paperback/hardback format.
 
 For a quick-start on setup and usage, [[#setup-usage-and-customisation][see this section]].
 
