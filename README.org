@@ -222,7 +222,7 @@ Thus, in the example file above, there are four rules in total, with the followi
 1. Exclude files whose filename begins with an underscore.
 2. Exclude files whose filename has the word 'notes' just before the file-extension.
 3. Exclude files whose /contents/ contain at least one occurrence of TK (or TKTK, etc) as a separate word.
-4. Exclude /all/ files which do *not* contain the '#genre-scifi' hashtag, but only those with file-paths which end in 'stories' (files without such a path are unaffected, and will still be included).
+4. Exclude /any/ files which do *not* contain the '#genre-scifi' hashtag, but /only/ those with file-paths which end in 'stories' (files without such a path are unaffected, and will still be included).
 
 Exclusion rules can be explained as follows, using the previous example rule:
 
