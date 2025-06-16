@@ -445,6 +445,10 @@ This illustrates a general point: pandoc is tolerant of being supplied with mult
 
 The default 5x8-inch size was chosen because it is the smallest generally-available trim size for print-on-demand and self-publishing services, and is one of the most popular trim sizes for paperbacks presently. If you wish to create a book of some other size instead, this is possible via a trivial CSS override of the existing =pdf.css= stylesheet, and a 6x9-inch example is included in the =pdf-6x9.css= file. See the previous question for how to apply such a stylesheet to a given book.
 
+*** How can I supply different custom styles for each format of a book, such as epub versus PDF?
+
+Invoke the build script once for each format, supplying the =--formats= argument and [[#setup-usage-and-customisation][any other desired arguments]] and/or metadata. You can also create [[#args-files-support][an args file]] for each format, to simplify the process.
+
 *** How can I have the book's subtitle in the running heads of PDF verso pages, instead of the title?
 
 Generally, see [[#how-can-i-customise-the-appearance-or-layout-of-a-given-book][the question above]] regarding customising a book's appearance. In this particular case, the override CSS file should contain the following CSS:
@@ -460,6 +464,8 @@ You can also use =book-author= instead of =book-title= or =book-subtitle=, if de
 *** How can I use the same front- or back-matter for different books?
 
 Linking such files or directories in the file-system as symlinks will work (for macOS users, note that Finder aliases will /not/ be sufficient; see the =ln= utility in the Terminal instead). In order to make the contents adapt to the particular book being built, consider making use of the [[#metadata-and-placeholders][placeholders]] or [[#templating-systems][templating systems]] feature of this configuration.
+
+To automatically include or exclude certain files based on metadata, see [[#exclusions-based-on-metadata][exclusions based on metadata]].
 
 *** How can I centre/center a given paragraph within the main prose sections of the book?
 :PROPERTIES:
