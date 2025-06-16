@@ -256,6 +256,14 @@ It's also possible to use this feature to enable keeping all books in a series w
 
 If verbose mode is enabled, rewritten patterns will be logged with their original and rewritten forms. In all cases, if a metadata key is requested which has no corresponding value in the book's metadata, the exclusion rule will be ignored entirely, and a warning will be emitted. Rule processing, and the build in general, will then continue as usual.
 
+*** Negation
+
+Exclusion patterns – the search pattern, the path filter pattern, or both – can be /negated/, causing them to only select a given file if the relevant pattern does /not/ match. This can be very useful, since regular expressions syntax does not support overall negation in this way. To use negation, just apply the proprietary =N= (in uppercase) flag to the relevant expression. This flag can be used in conjunction with any other flags, both from normal regular expressions syntax and the previously-mentioned proprietary metadata flag. Here's an example:
+
+: exclude	filename	(?i)front matter/description	(?iMN)%title%
+
+Its effect would be that any Markdown files within the front-matter folder's 'description' sub-folder would be excluded if their filenames did /not/ contain the title of the book currently being built, irrespective of case.
+
 ** Markdown formatting
 :PROPERTIES:
 :CUSTOM_ID: markdown-formatting

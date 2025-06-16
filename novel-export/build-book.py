@@ -23,6 +23,10 @@ tk_pattern = r"(?i)\b(TK)+\b"
 valid_placeholder_modes = ["basic", "templite", "jinja2"] # or "none"
 valid_output_formats = ["epub", "pdf", "pdf-6x9"] # or "all"
 verbose_mode = False
+pattern_metadata_flag = "M"
+pattern_negate_flag = "N"
+pattern_flag_regex = r"^\(\?[a-zA-Z]*({pattern_flag})[^\)]*\)"
+pattern_metadata_key_regex = rf"\%([^\%]+?)\%"
 
 # --- Functions ---
 
@@ -39,6 +43,16 @@ def inform(msg, severity="normal", force=False):
 			case _:
 				out = msg
 		print(out)
+
+def pattern_has_flag(patt, flag):
+	return re.match(f"{pattern_flag_regex.format(pattern_flag = flag)}", patt)
+
+def pattern_strip_flag(patt, flag):
+	# Remove the pattern flag from this pattern.
+	flag_match = pattern_has_flag(patt, flag)
+	if flag_match:
+		return patt[:flag_match.start(1)] + patt[flag_match.end(1):]
+	return patt
 
 def sorted_alphanumeric(data):
 	# Sorts lexicographically; natural numeric then alphabetical.
@@ -185,7 +199,7 @@ num_exclusions = 0
 
 # Normalise exclusions and try to load additional patterns from a file.
 tsv_delimiter = "\t"
-exclusion_mode_key, exclusion_scope_key, path_key, search_key, replace_key, comment_key = "mode", "scope", "path", "search", "replace", "comment"
+exclusion_mode_key, exclusion_scope_key, path_key, search_key, replace_key, comment_key, negation_key = "mode", "scope", "path", "search", "replace", "comment", "negated"
 mode_exclude, mode_e, mode_include, mode_i = "exclude", "e", "include", "i"
 valid_exclusion_modes = [mode_exclude, mode_e, mode_include, mode_i]
 scope_filename, scope_f, scope_filepath, scope_p, scope_fullpath, scope_u, scope_contents, scope_c = "filename", "f", "filepath", "p", "fullpath", "u", "contents", "c"
@@ -205,9 +219,6 @@ elif run_exclusions:
 	try:
 		# Read the exclusions file.
 		exclusions_file = open(full_exclusions_path, 'r')
-		pattern_metadata_flag = "M"
-		pattern_metadata_flag_regex = rf"^\(\?[a-zA-Z]*({pattern_metadata_flag})[^\)]*\)"
-		pattern_metadata_key_regex = rf"\%([^\%]+?)\%"
 		inform(f"Exclusions file found. Processing.")
 		for line in exclusions_file:
 			line = re.sub(r"\t+", "\t", line) # Collapse tab-runs
@@ -245,15 +256,15 @@ elif run_exclusions:
 							# We already rewrote search and/or path, and we have a comment field. Rewrite it too.
 							should_rewrite = True
 							
-						else:
-							flag_match = re.match(pattern_metadata_flag_regex, this_value)
+						elif this_value:
+							flag_match = pattern_has_flag(this_value, pattern_metadata_flag)
 							if flag_match:
 								should_rewrite = True
-								#inform(f"Metadata pattern flag (?{pattern_metadata_flag}) detected. Processing.")
+								inform(f"- Metadata pattern flag (?{pattern_metadata_flag}) detected. Processing:")
 								# Remove the pattern_metadata_flag from this pattern.
-								this_value = this_value[:flag_match.start(1)] + this_value[flag_match.end(1):]
+								this_value = pattern_strip_flag(this_value, pattern_metadata_flag)
 								rule_rewritten = True
-							
+						
 						if should_rewrite and this_value:
 							# Process token replacement.
 							token_match = re.search(pattern_metadata_key_regex, this_value)
@@ -275,7 +286,20 @@ elif run_exclusions:
 								break
 					
 					if rule_rewritten:
-						inform(f"- Rewrote rule pattern:\n  {orig_rule}\n  as:\n  {log_delim.join(exclusion.values())}.")
+						inform(f"- Rewrote rule metadata pattern:\n  {orig_rule}\n  as:\n  {log_delim.join(exclusion.values())}.")
+					
+					# Consider negation flag.
+					for this_key in [search_key, path_key]:
+						this_value = exclusion[this_key]
+						flag_match = pattern_has_flag(this_value, pattern_negate_flag)
+						if flag_match:
+							inform(f"- Negation pattern flag (?{pattern_negate_flag}) detected in {this_key} pattern. Processing.")
+							if negation_key not in exclusion:
+								exclusion[negation_key] = []
+							exclusion[negation_key].append(this_key)
+							# Remove the pattern_negate_flag from this pattern.
+							this_value = pattern_strip_flag(this_value, pattern_negate_flag)
+							exclusion[this_key] = this_value
 
 					if valid_rule:
 						exclusions_map.append(exclusion)
@@ -297,7 +321,12 @@ try:
 			for excl in exclusions_map:
 				# Heed path filter if specified.
 				if excl[path_key] != path_any:
-					if not re.search(excl[path_key], file_path):
+					filter_matched = re.search(excl[path_key], file_path)
+					# Consider negation.
+					if negation_key in excl and path_key in excl[negation_key]:
+						filter_matched = not filter_matched
+					if not filter_matched:
+						# This file doesn't match this exclusion's path filter; skip to next exclusion.
 						continue
 				
 				# Run regexp search.
@@ -314,6 +343,10 @@ try:
 					target_desc = "contents"
 				
 				found_match = re.search(excl[search_key], target_scope)
+				# Consider negation.
+				if negation_key in excl and search_key in excl[negation_key]:
+					found_match = not found_match
+				
 				if (found_match and excl[exclusion_mode_key] == mode_exclude) or (not found_match and excl[exclusion_mode_key] == mode_include):
 					excluded = True
 					num_exclusions = num_exclusions + 1
@@ -322,6 +355,12 @@ try:
 						message = f"{excl[comment_key]}"
 					else:
 						message = f"\"{excl[search_key]}\""
+						if negation_key in excl and search_key in excl[negation_key]:
+							message = f"{message} (negated)"
+						if excl[path_key] != path_any:
+							message = f"{message}, path filter \"{excl[path_key]}\""
+							if negation_key in excl and path_key in excl[negation_key]:
+								message = f"{message} (negated)"
 					inform(f"- File excluded, as requested: {file} ({target_desc} {'matched' if found_match else 'did not match'} {'exclusion' if excl[exclusion_mode_key] == mode_exclude else 'inclusion'}: {message})")
 					break
 		
