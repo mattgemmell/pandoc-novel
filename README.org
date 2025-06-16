@@ -258,7 +258,7 @@ If verbose mode is enabled, rewritten patterns will be logged with their origina
 
 *** Negation
 
-Exclusion patterns – the search pattern, the path filter pattern, or both – can be /negated/, causing them to only select a given file if the relevant pattern does /not/ match. This can be very useful, since regular expressions syntax does not support overall negation in this way. To use negation, just apply the proprietary =N= (in uppercase) flag to the relevant expression. This flag can be used in conjunction with any other flags, both from normal regular expressions syntax and the previously-mentioned proprietary metadata flag. Here's an example:
+Exclusion patterns – the search pattern, the path-filter pattern, or both – can be /negated/, causing them to only select a given file if the relevant pattern does /not/ match. This can be very useful, since regular expressions syntax does not support overall negation in this way. To use negation, just apply the proprietary =N= (in uppercase) flag to the relevant expression. This flag can be used in conjunction with any other flags, both from normal regular expressions syntax and the previously-mentioned proprietary metadata flag. Here's an example:
 
 : exclude	filename	(?i)front matter/description	(?iMN)%title%
 
