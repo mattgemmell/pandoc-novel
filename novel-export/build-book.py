@@ -194,6 +194,7 @@ if placeholder_mode not in valid_placeholder_modes:
 files = sorted_alphanumeric([p for p in glob.glob(f"{full_folder_path}/**/*", recursive=True) if os.path.isfile(p) and p.endswith((".md", ".markdown", ".mdown"))])
 
 master_documents = []
+included_file_paths = []
 files_with_tks = []
 num_exclusions = 0
 
@@ -366,6 +367,7 @@ try:
 		
 		if not excluded:
 			master_documents.append(text_contents)
+			included_file_paths.append(file)
 		else:
 			continue
 		
@@ -386,6 +388,9 @@ inform(f"{len(master_documents)} Markdown files read{msg_excluded}.", force=verb
 if len(master_documents) == 0:
 	inform(f"No files selected for building. Not continuing.", severity="error")
 	sys.exit(1)
+elif verbose_mode:
+	for f in included_file_paths:
+		inform(f"- {f}")
 
 if check_tks:
 	num_tks = len(files_with_tks)
