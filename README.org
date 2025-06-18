@@ -104,13 +104,13 @@ Book information is defined in a simple [[https://en.wikipedia.org/wiki/JSON][JS
 :CUSTOM_ID: setup-usage-and-customisation
 :END:
 
-In all cases please refer to the included example novel project, and the various configuration files in the =novel-export= folder, as your primary reference. In brief, to use the configuration, you should:
+In all cases please refer to the included example novel project, and the various configuration files in the =publish= folder, as your primary reference. In brief, to use the configuration, you should:
 
 1. Ensure that the required software packages are installed, [[#requirements][as detailed above]].
 
 2. Prepare your novel using the structure and format of the included example project, in particular the =metadata.json= file. (Your project can live anywhere; it doesn't need to be within this configuration's folder.)
 
-3. In the terminal, *change to the directory containing your book's metadata JSON file*, and execute the =build-book.py= Python script (inside the =novel-export= folder), passing it the following parameter as a minimum:
+3. In the terminal, *change to the directory containing your book's metadata JSON file*, and execute the =build-book.py= Python script (inside the =publish= folder), passing it the following parameter as a minimum:
 
 | =--input-folder= | Path to the folder containing all of your book's Markdown files. |
 
@@ -118,7 +118,7 @@ In all cases please refer to the included example novel project, and the various
 
 Your generated books will be created in the same directory you called the build script from. Here's an example invocation:
 
-: python novel-export/build-book.py --input-folder=book/
+: python ../publish/build-book.py --input-folder=book/
 
 You may also supply any of the following optional parameters with suitable values, if desired:
 
@@ -155,7 +155,7 @@ If you don't wish to specify the output basename explicitly, one will be supplie
 
 Instead of specifying arguments (parameters) for the build script on the command line, you can also store them in an /args file/. The build script will automatically look in whatever directory you invoke it from, checking for the existence of a file named =args.txt= by default, and will load that file if found. You can also explicitly specify one or more args files by passing their filenames to the build script as bare arguments, each prefixed by an =@= symbol. Here's an example invocation:
 
-: python novel-export/build-book.py @myargs.txt
+: python ../publish/build-book.py @myargs.txt
 
 You can specify any of the available parameters or flags (listed above) in args files, one per line, with argument names and values separated by whitespace. Here's the contents of an example args file:
 
