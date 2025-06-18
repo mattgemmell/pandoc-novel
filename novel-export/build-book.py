@@ -31,7 +31,7 @@ pattern_metadata_key_regex = rf"\%([^\%]+?)\%"
 # --- Functions ---
 
 def inform(msg, severity="normal", force=False):
-	should_echo = (force or verbose_mode or severity=="error")
+	should_echo = (force or verbose_mode or severity=="warning" or severity=="error")
 	if should_echo:
 		out = ""
 		match severity:
@@ -453,10 +453,18 @@ if run_transformations:
 
 # Process placeholders.
 if placeholder_mode == "basic":
+	placeholder_delim = "%"
 	# Replace all occurrences of metadata placeholders in master_contents.
 	for key, value in json_contents.items():
 		#print(f"{key}: {value} [{type(value)}]")
-		master_contents = master_contents.replace(f"%{key}%", str(value))
+		master_contents = master_contents.replace(f"{placeholder_delim}{key}{placeholder_delim}", str(value))
+	
+	# Identify and warn about any remaining placeholders, i.e. for missing metadata keys.
+	placeholder_pattern = rf"\W{placeholder_delim}([^{placeholder_delim}]+?){placeholder_delim}\W"
+	for placeholder_match in re.finditer(placeholder_pattern, master_contents):
+		meta_key = placeholder_match.group(1)
+		if meta_key not in json_contents:
+			inform(f"Can't replace placeholder '{meta_key}', because it has no value in metadata. Ignoring.", severity="warning")
 
 elif placeholder_mode == "templite":
 	try:
