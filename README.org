@@ -52,9 +52,9 @@ You can also, of course, use this as an example of a ready-made and detailed con
 
 You'll need a very basic familiarity with using the terminal. If you're doing extensive customisation, some CSS knowledge will help too, but isn't required. You'll also need the following free and open source software packages, shown with the versions most recently tested on:
 
-- [[https://pandoc.org][pandoc]] (3.7.0.1 at time of writing, in May 2025)
+- [[https://pandoc.org][pandoc]] (3.7.0.2 at time of writing, in June 2025)
 - [[https://weasyprint.org][weasyprint]] (65.1 〃)
-- [[https://www.python.org][python]] (3.13.3 〃)
+- [[https://www.python.org][python]] (3.13.5 〃)
 
 These are all readily available via almost any package manager, or directly as installers or source code. If you're on macOS, they're all available via [[https://brew.sh][homebrew]], and I highly recommend it to you.
 
@@ -503,4 +503,4 @@ Best wishes, \\
 Matt Gemmell
 
 /Edinburgh, Scotland/ \\
-/8th June, 2025/
+/18th June, 2025/
