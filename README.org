@@ -1,6 +1,6 @@
-* pandoc novel export
+* pandoc publish
 :PROPERTIES:
-:CUSTOM_ID: pandoc-novel-export
+:CUSTOM_ID: pandoc-publish
 :END:
 
 This is a wrapper and configuration for [[https://pandoc.org][pandoc]], the universal markup converter, intended to make it easy to publish novels or other fiction written in [[https://commonmark.org][Markdown]]. It adds significant functionality for customisation and convenience, and supports ePub3 ebooks, and PDF for print in 5x8-inch or 6x9-inch paperback/hardback format.
@@ -290,7 +290,7 @@ Each distinct front- or back-matter page (author information, accolades, title p
 
 Most sections will be part of the manuscript, and thus formatted as fiction — but there are exceptions. Front matter pages, for example, will usually be formatted in a non-fiction style, without indented (and indeed justified) paragraphs, and some of them will be centered (notably the title, copyright, and dedication pages).
 
-This configuration treats all Markdown files as CommonMark, which is an enhanced version of Markdown offering some additional features. In particular, CommonMark formatting allows applying /attributes/ to Markdown headings or blocks, by placing the attributes within braces after the heading itself. This configuration uses such attributes (or annotations) to indicate which style of page a given section will use. The example project shows this in action many times. Here's an example of the syntax:
+This configuration treats all Markdown files as CommonMark_x (CommonMark with Extensions), which is an enhanced version of Markdown offering some additional features. In particular, CommonMark formatting allows applying /attributes/ to Markdown headings or blocks, by placing the attributes within braces after the heading itself. This configuration uses such attributes (or annotations) to indicate which style of page a given section will use. The example project shows this in action many times. Here's an example of the syntax:
 
 : # Afterword {.unlisted .recto}
 
@@ -472,7 +472,7 @@ To automatically include or exclude certain files based on metadata, see [[#excl
 :CUSTOM_ID: centering-text
 :END:
 
-CommonMark attributes work well for this purpose, as shown below:
+CommonMark extended attributes work well for this purpose, as shown below:
 
 #+BEGIN_SRC markdown
 The terminal made a sound as ominous as the text that appeared on it, flashing in crimson.
