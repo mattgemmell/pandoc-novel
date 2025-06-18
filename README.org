@@ -185,7 +185,7 @@ You may wish to exclude certain Markdown files within the input folder structure
 
 Exclusions specified as arguments to the build script are always treated as matching against filenames, where a match indicates that the file should be excluded from the build. Exclusions specified via a file, however, are considerably more flexible.
 
-An exclusions file will be automatically detected and loaded at build time if it has the default filename =exclusions.tsv=, or else can be specified explicitly via the =--exclusions-file= argument. It should be a *tab-separated* text file, using the format detailed below. The exclusions feature as a whole can also be disabled with the =--no=run-exclusions= argument.
+An exclusions file will be automatically detected and loaded at build time if it has the default filename =exclusions.tsv=, or else can be specified explicitly via the =--exclusions-file= argument. It should be a *tab-separated* text file, using the format detailed below. The exclusions feature as a whole can also be disabled with the =--no-run-exclusions= argument.
 
 Exclusions will be processed in order (arguments take precedence over the file), and exclusions are /final/; i.e. if a file matches a given exclusion, that file will immediately be excluded, and any later exclusions will not be considered against that particular file. Any duly-excluded files will be reported (including which particular exclusion matched in each case) if verbose mode is enabled.
 
