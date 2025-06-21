@@ -395,7 +395,8 @@ elif verbose_mode:
 if check_tks:
 	num_tks = len(files_with_tks)
 	if num_tks > 0:
-		inform(f"TKs are present in the following files:\n{'\n'.join(['- ' + f for f in files_with_tks])}", severity="warning", force=check_tks)
+		files_with_tks_string = '\n'.join(['- ' + f for f in files_with_tks])
+		inform(f"TKs are present in the following files:\n{files_with_tks_string}", severity="warning", force=check_tks)
 		if stop_on_tks:
 			inform("TKs were found and you requested to stop on TKs. Not continuing.", severity="error")
 			sys.exit(1)
