@@ -111,6 +111,7 @@ parser.add_argument('--formats', '-f', help=f"[optional] Output formats to creat
 parser.add_argument('--retain-collated-master', '-c', help="[optional] Keeps the collated master Markdown file after generating books, instead of deleting it.", action="store_true", default=False)
 parser.add_argument('--pandoc-verbose', '-V', help="[optional] Tell pandoc to enable its own verbose logging", action="store_true", default=False)
 parser.add_argument('--show-pandoc-commands', '-p', help="[optional] Display the actual pandoc commands and arguments when invoking them for each format", action="store_true", default=False)
+parser.add_argument('--lang', '-l', help="[optional] Define the language for the book being generated(this will overwrite the lang option in the metadata file)", type=str, default="")
 args=parser.parse_known_args()
 
 # Obtain configuration parameters
@@ -128,6 +129,7 @@ stop_on_tks = (args[0].stop_on_tks == True)
 run_transformations = (args[0].run_transformations == True)
 run_exclusions = (args[0].run_exclusions == True)
 output_formats = args[0].formats
+lang= args[0].lang
 if isinstance(output_formats, list):
 	# Uniquify
 	output_formats = list(dict.fromkeys(output_formats))
@@ -189,6 +191,16 @@ if args[1] and len(args[1]) > 0:
 if placeholder_mode not in valid_placeholder_modes:
 	inform(f"Invalid placeholder mode ({placeholder_mode}); should be {', '.join(valid_modes)} or none.", severity="error")
 	sys.exit(1)
+
+# Substitute 'title' and 'subtitle' with the correct translation (if any)
+if lang and lang != "":
+    json_contents['lang'] = lang
+    title_key = f"title_{lang}"
+    subtitle_key = f"subtitle_{lang}"
+    if title_key in json_contents:
+        json_contents['title'] = json_contents[title_key]
+    if subtitle_key in json_contents:
+        json_contents['subtitle'] = json_contents[subtitle_key]
 
 # Obtain all Markdown files, sorted sensibly.
 files = sorted_alphanumeric([p for p in glob.glob(f"{full_folder_path}/**/*", recursive=True) if os.path.isfile(p) and p.endswith((".md", ".markdown", ".mdown"))])
