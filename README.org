@@ -178,9 +178,9 @@ This allows for convenient per-book customisation without having to remember whi
 :CUSTOM_ID: localisation
 :END:
 
-The optional =--lang= argument specifies the language of the book being built, and will override a key of the same name in the metadata file, with the additional effect of searching the metadata for language-specific versions of the =title= and =subtitle= keys. For example, passing the =--lang fr= argument will cause the build script to look for =title_fr= and =subtitle_fr= keys, and use their values as the title and subtitle respectively when performing placeholder replacement, preparing ePub metadata, and so on.
+The optional =--lang= argument specifies the language of the book being built, and will override a key of the same name in the metadata file, with the additional effect of searching the metadata for language-specific versions of the =title=, =subtitle=, and =cover-image= keys. For example, passing the =--lang fr= argument will cause the build script to look for =title_fr=, =subtitle_fr=, and =cover-image_fr= keys, and use their values as the title, subtitle, and cover image respectively when performing placeholder replacement, preparing ePub metadata, and so on.
 
-This is a convenience feature to allow localisation without having to duplicate otherwise-identical metadata values between languages. Alternatively, this could be accomplished by having a single metadata file and overriding the =title= and =subtitle= values at build time using suitable =--metadata= arguments for each language.
+This is a convenience feature to allow localisation without having to duplicate otherwise-identical metadata values between languages. Alternatively, this could be accomplished by having a single metadata file and overriding the relevant values at build time using suitable =--metadata= arguments for each language.
 
 Below is some additional information on getting things looking and working the way you want them to.
 
