@@ -105,6 +105,7 @@ parser.add_argument('--output-basename', '-o', help=f"[optional] Output filename
 parser.add_argument('--verbose', '-v', help="[optional] Enable verbose logging", action="store_true", default=False)
 parser.add_argument('--check-tks', help="[optional] Check for TKs in Markdown files (default: enabled), or disable with --no-check-tks", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--stop-on-tks', '-k', help="[optional] Treat TKs as errors and stop", action="store_true", default=False)
+parser.add_argument('--process-figuremark', help=f"[optional] Rewrite any FigureMark-formatted blocks as HTML figures. See documentation.", action=argparse.BooleanOptionalAction, default=False)
 parser.add_argument('--run-transformations', help=f"[optional] Perform any transformations found in default or specified transformations file (default: enabled), or disable with --no-run-transformations", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--run-exclusions', help=f"[optional] Process any exclusions from --exclude arguments, or in the default or specified exclusions file (default: enabled), or disable with --no-run-exclusions", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--formats', '-f', help=f"[optional] Output formats to create (as many as required), from: {', '.join(valid_output_formats)}, or all (default 'epub pdf')", action='store', nargs='+', choices=valid_output_formats + ["all"], default=["epub", "pdf"])
@@ -126,6 +127,7 @@ output_basename = args[0].output_basename
 verbose_mode = (args[0].verbose == True)
 check_tks = (args[0].check_tks == True)
 stop_on_tks = (args[0].stop_on_tks == True)
+process_figuremark = (args[0].process_figuremark == True)
 run_transformations = (args[0].run_transformations == True)
 run_exclusions = (args[0].run_exclusions == True)
 output_formats = args[0].formats
@@ -422,6 +424,59 @@ if check_tks:
 
 # Concatenate master file.
 master_contents = "\n".join(master_documents)
+
+# Process Figuremark.
+if process_figuremark:
+	figure_block_pattern = r"(?m)^%{3,}\s*([^\{]*?)\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n%{3,}\s*?$"
+	figure_span_pattern = r"\[([^\]]+)\]\{([^\}]+?)\}|\{(\d+)\}"
+	shared_css_class = "figuremark"
+	marks_map = {	"+": "insert",
+								"-": "remove",
+								"/": "comment",
+								">": "result",
+								"!": "highlight"}
+	figure_number = 0
+	
+	# Find any code blocks needing rewritten.
+	block_match = re.search(figure_block_pattern, master_contents)
+	while block_match:
+		block_title = block_match.group(1)
+		block_classes = block_match.group(2) 
+		processed_block = block_match.group(3)
+		
+		# Process any embedded figure-marking spans.
+		span_match = re.search(figure_span_pattern, processed_block)
+		while span_match:
+			processed_span = ""
+			if span_match.group(3):
+				# Reference number without bracketed span.
+				ref_num = span_match.group(3)
+				processed_span = f'<span class="{shared_css_class} reference reference-{ref_num}">{ref_num}</span>'
+				
+			elif span_match.group(2) in marks_map:
+				# Known directive span.
+				css_class = marks_map[span_match.group(2)]
+				processed_span = f'<span class="{shared_css_class} {css_class}">{span_match.group(1)}</span>'
+				
+			else:
+				# Assumed to be a CSS class list.
+				class_string = re.sub(r"\s*\.", " ", span_match.group(2)).strip()
+				processed_span = f'<span class="{shared_css_class} {class_string}">{span_match.group(1)}</span>'
+			
+			processed_block = processed_block[:span_match.start()] + processed_span + processed_block[span_match.end():]
+			span_match = re.search(figure_span_pattern, processed_block)
+		
+		# Assemble a suitable pre-formatted figure block.
+		figure_number += 1
+		if block_title:
+			processed_block = f"<figcaption><span class=\"figure-number\">Fig. {figure_number}</span>{block_title}</figcaption>\n{processed_block}"
+		figure_classes = ""
+		if block_classes:
+			class_string = re.sub(r"\s*\.", " ", block_classes).strip()
+			figure_classes = f" class=\"{class_string}\""
+		processed_block = f"<a name=\"figure-{figure_number}\" />\n<figure{figure_classes}>{processed_block}</figure>"
+		master_contents = master_contents[:block_match.start()] + processed_block + master_contents[block_match.end():]
+		block_match = re.search(figure_block_pattern, master_contents)
 
 # Process transformations.
 if run_transformations:
