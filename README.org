@@ -24,6 +24,8 @@ This configuration was made by Matt Gemmell. You can find me online at [[https:/
 
 I'm a novelist, with a background in software, so this was all probably inevitable. You can [[https://mattgemmell.scot/books/][find my books here]], or [[https://ko-fi.com/mattgemmell][buy me a coffee]].
 
+Additional contributions by [[https://github.com/fdigiugno][Filippo Digiugno]].
+
 
 * Goals
 :PROPERTIES:
@@ -127,6 +129,7 @@ You may also supply any of the following optional parameters with suitable value
 | =--exclusions-file= | Path to a file of [[#exclusions][exclusions]] rules to apply. |
 | =--output-basename= | Output filename without extension. Default is automatic based on metadata; see below. |
 | =--formats= | Output formats to create books in. A space-separated list of options from "epub", "pdf", and "pdf-6x9". Use "all" to build all supported formats. Default is "epub pdf". |
+| =--lang= | Two-letter language code (e.g. en, fr, it) of the book being built; see [[#localisation][localisation]]. |
 | =--replacement-mode= | The placeholder-replacement mode to use. See the [[#metadata-and-placeholders][metadata and placeholders]] section. Should be one of: "basic" (default), "templite", "jinja2", or "none". |
 | =--transformations-file= | Path to a file of [[#transformations][transformations]] to perform. |
 | (Other arguments) | Any remaining arguments will be passed as-is to pandoc when building each format. |
@@ -169,6 +172,12 @@ You can specify any of the available parameters or flags (listed above) in args 
 Empty lines or lines consisting entirely of whitespace will be ignored, as will lines prefixed with a =#= symbol. If you are specifying extra arguments for pandoc in this way, note that some of pandoc's arguments /require/ an equals-sign as a separator instead (notably including its =metadata= argument), and you should use one if needed.
 
 This allows for convenient per-book customisation without having to remember which parameters to use for the build script in each case. You can combine both methods of specifying arguments as you wish; the default =args.txt= file will be loaded first if it exists in the current directory, then any further command-line arguments will be considered in order (including any explicitly-specified args files). In general, later arguments override earlier ones.
+
+** Localisation
+
+The optional =--lang= argument specifies the language of the book being built, and will override a key of the same name in the metadata file, with the additional effect of searching the metadata for language-specific versions of the `title` and `subtitle` keys. For example, passing the =--lang fr= argument will cause the build script to look for `title_fr` and `subtitle_fr` keys, and use their values as the title and subtitle respectively when performing placeholder replacement, preparing ePub metadata, and so on.
+
+This is a convenience feature to allow localisation without having to duplicate otherwise-identical metadata values between languages. Alternatively, this could be accomplished by having a single metadata file and overriding the `title` and `subtitle` values at build time using suitable =--metadata= arguments for each language.
 
 Below is some additional information on getting things looking and working the way you want them to.
 
