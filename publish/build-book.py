@@ -197,10 +197,13 @@ if lang and lang != "":
 	json_contents['lang'] = lang
 	title_key = f"title_{lang}"
 	subtitle_key = f"subtitle_{lang}"
+	cover_key= f"cover-image_{lang}"
 	if title_key in json_contents:
 		json_contents['title'] = json_contents[title_key]
 	if subtitle_key in json_contents:
 		json_contents['subtitle'] = json_contents[subtitle_key]
+	if cover_key in json_contents:
+		json_contents['cover-image'] = json_contents[cover_key]
 
 # Obtain all Markdown files, sorted sensibly.
 files = sorted_alphanumeric([p for p in glob.glob(f"{full_folder_path}/**/*", recursive=True) if os.path.isfile(p) and p.endswith((".md", ".markdown", ".mdown"))])
