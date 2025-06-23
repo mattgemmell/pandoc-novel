@@ -192,7 +192,7 @@ if placeholder_mode not in valid_placeholder_modes:
 	inform(f"Invalid placeholder mode ({placeholder_mode}); should be {', '.join(valid_modes)} or none.", severity="error")
 	sys.exit(1)
 
-# Substitute 'title' and 'subtitle' with the correct translation (if any)
+# Substitute 'title' and 'subtitle' with the correct translation (if any).
 if lang and lang != "":
 	json_contents['lang'] = lang
 	title_key = f"title_{lang}"
