@@ -526,7 +526,7 @@ if process_figuremark:
 			attrs['id'] = f"figure-{figure_number}"
 		if not 'pairs' in attrs:
 			attrs['pairs'] = []
-		attrs['pairs'].append(('data-fignum', f'"{figure_number}"'))
+		attrs['pairs'].append(('data-fignum', f'{figure_number}'))
 		figure_attrs_string = attributes_as_string(attrs)
 		processed_block = f"<figure{figure_attrs_string}>{processed_block}</figure>"
 		last_fig_end = block_match.start() + len(processed_block)
