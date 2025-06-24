@@ -1,0 +1,151 @@
+@page {
+	size: 7.5in 9.5in;
+	@top-center { font-family: Helvetica, sans-serif; font-weight: bold; }
+	@bottom-center { font-family: Helvetica, sans-serif; font-weight: bold; }
+}
+
+body {
+	font-family: Helvetica, sans-serif;
+	font-size: 12pt;
+}
+
+section:not(.unindented) p, section:not(.unindented) p + p {
+	text-indent: 0em;
+	text-align: left;
+}
+
+section:not(.unindented) * + p {
+	margin-top: 1rem;
+}
+
+h1, h1:has(+ section) {
+	margin-top: 50pt;
+	color: rebeccapurple;
+	text-decoration: underline;
+	text-decoration-thickness: 0.2rem;
+	text-decoration-color: rebeccapurple;
+	text-underline-offset: 0.5rem;
+}
+
+h3, h4 {
+	margin-top: 2rem;
+}
+
+code {
+	font-family: Menlo, Geneva, Courier, monospace;
+	color: #04f;
+}
+
+a:link {
+	color: blue;
+	text-decoration: underline;
+}
+
+pre {
+	font-size: 0.8rem;
+}
+
+ul, ol {
+	padding-left: 1.1rem;
+}
+
+li {
+	margin-top: 0.5rem;
+}
+
+hr {
+	margin: 1.5rem 0;
+}
+
+hr:after {
+	content: "\010AF1";
+	font-weight: bold;
+	font-size: 1.5rem;
+	color: rebeccapurple;
+}
+
+hr, hr:after {
+	height: 1.6rem;
+}
+
+figure {
+	font-family: Menlo, Geneva, Courier, monospace;
+	margin: 2rem 0 2rem 0;
+	font-size: 0.8rem;
+	line-height: 1.3rem;
+}
+
+.figure-content {
+	white-space: pre;
+	hyphens: none;
+}
+
+figcaption {
+	font-family: sans-serif;
+	font-weight: bold;
+	display: inline-block;
+	width: 100%;
+	padding-bottom: 0.2rem;
+	margin-bottom: 1rem;
+}
+
+.figure-number {
+	float: right;
+}
+
+figure.example figcaption {
+	color: rebeccapurple;
+}
+
+figure.example, figure.example figcaption {
+	border-bottom: 2px solid rebeccapurple;
+}
+
+figure figcaption:not(:has(.figure-title)) {
+	/* display: none; */
+}
+
+figure.example {
+	padding-bottom: 1rem;
+}
+
+.insert {
+	color: green;
+	font-weight: bold;
+}
+
+.remove {
+	color: red;
+	text-decoration: line-through;
+}
+
+.result {
+	background-color: #eee;
+	color: #444;
+	display: inline-block;
+	width: 100%;
+	margin: 0.5rem 0;
+	white-space: pre-wrap;
+}
+
+.result:before {
+	content: " > ";
+}
+
+.comment {
+	font-style: italic;
+	color: #999;
+	padding-left: 0.2rem;
+}
+
+.highlight {
+	color: #06f;
+	font-weight: bold;
+}
+
+.reference {
+	color: white;
+	background-color: orange;
+	border-radius: 0.3rem;
+	padding: 0.2rem 0.4rem;
+}

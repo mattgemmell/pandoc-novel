@@ -467,6 +467,7 @@ master_contents = "\n".join(master_documents)
 
 # Process Figuremark.
 if process_figuremark:
+	inform(f"FigureMark processing enabled.")
 	figure_block_pattern = r"(?m)^%{3,}\s*([^\{]*?)\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n%{3,}\s*?$"
 	figure_span_pattern = r"\[(.+?)\]\{([^\}]+?)\}|\{([\d.-]+)\}"
 	shared_css_class = "figuremark"
@@ -476,6 +477,7 @@ if process_figuremark:
 								">": "result",
 								"!": "highlight"}
 	figure_number = 0
+	figs_processed = 0
 	
 	# Find any FigureMark blocks needing rewritten.
 	block_match = re.search(figure_block_pattern, master_contents)
@@ -531,7 +533,11 @@ if process_figuremark:
 		processed_block = f"<figure{figure_attrs_string}>{processed_block}</figure>"
 		last_fig_end = block_match.start() + len(processed_block)
 		master_contents = master_contents[:block_match.start()] + processed_block + master_contents[block_match.end():]
+		figs_processed += 1
 		block_match = re.search(figure_block_pattern, master_contents)
+	
+	if figs_processed > 0:
+		inform(f"Processed {figs_processed} FigureMark blocks.")
 
 # Process transformations.
 if run_transformations:

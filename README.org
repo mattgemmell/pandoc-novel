@@ -140,6 +140,7 @@ Additionally, there are several flags (without values) which tailor the script's
 | =--verbose= | Enable verbose logging. Disabled by default. |
 | =--check-tks= | Check for TKs in the input Markdown files. Enabled by default. [[#tks][Found TKs will be reported]], but will not prevent books being built. Disable with =--no-check-tks=. |
 | =--stop-on-tks= | Treat TKs as errors, and abort the build process after reporting them. Disabled by default. |
+| =--process-figuremark= | Enable the processing of [[https://github.com/mattgemmell/pandoc-publish/blob/main/demo-nonfiction/figuremark.pdf][FigureMark]] blocks. Disabled by default. |
 | =--run-transformations= | Perform any transformations found in [[#transformations][a transformations file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-run-transformations=. |
 | =--run-exclusions= | Process any exclusions from =--exclude= arguments, or in [[#exclusions][an exclusions file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-run-exclusions=. |
 | =--retain-collated-master= | Keeps the collated master Markdown file after generating books, instead of deleting it (default is to delete). |
