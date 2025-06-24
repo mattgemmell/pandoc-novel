@@ -75,6 +75,51 @@ def string_to_slug(text):
     # Return in lowercase
     return text.lower()
 
+def parse_attributes(s):
+	# Parse attribute string like '.class #id key=val'.
+
+	id_attr = None
+	classes = []
+	pairs = []
+
+	# Regex to match: .class, #id, or key=val (optionally quoted)
+	pattern = re.compile(r'([.#][\w-]+|\w+=(?:"[^"]*"|\'[^\']*\'|[^\s]+))')
+	for match in pattern.findall(s):
+		item = match
+		if item.startswith('.'):
+			classes.append(item[1:])
+		elif item.startswith('#'):
+			id_attr = item[1:]
+		else:
+			key, _, val = item.partition('=')
+			val = val or ""
+			# Handle surrounding single or double quotes.
+			if (val.startswith("'") and val.endswith("'")) or (val.startswith('"') and val.endswith('"')):
+				val_out = val
+			else:
+				val_out = f'"{val}"'
+			pairs.append((key, val_out))
+
+	attrs = {}
+	if id_attr:
+		attrs['id'] = id_attr
+	if classes:
+		attrs['classes'] = classes
+	if pairs:
+		attrs['pairs'] = pairs
+	return attrs
+
+def attributes_as_string(attrs):
+	attr_str = ""
+	if 'id' in attrs:
+		attr_str += f' id="{attrs["id"]}"'
+	if 'classes' in attrs:
+		attr_str += f' class="{" ".join(attrs["classes"])}"'
+	if 'pairs' in attrs:
+		for k, v in attrs['pairs']:
+			attr_str += f' {k}={v}'
+	return attr_str
+
 class MGArgumentParser(argparse.ArgumentParser):
 	def convert_arg_line_to_args(self, arg_line):
 		# Ignore whitespace or #-commented lines
@@ -428,7 +473,7 @@ master_contents = "\n".join(master_documents)
 # Process Figuremark.
 if process_figuremark:
 	figure_block_pattern = r"(?m)^%{3,}\s*([^\{]*?)\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n%{3,}\s*?$"
-	figure_span_pattern = r"\[([^\]]+)\]\{([^\}]+?)\}|\{(\d+)\}"
+	figure_span_pattern = r"\[(.+?)\]\{([^\}]+?)\}|\{(\d+)\}"
 	shared_css_class = "figuremark"
 	marks_map = {	"+": "insert",
 								"-": "remove",
@@ -437,11 +482,12 @@ if process_figuremark:
 								"!": "highlight"}
 	figure_number = 0
 	
-	# Find any code blocks needing rewritten.
+	# Find any FigureMark blocks needing rewritten.
 	block_match = re.search(figure_block_pattern, master_contents)
+	last_fig_end = 0
 	while block_match:
 		block_title = block_match.group(1)
-		block_classes = block_match.group(2) 
+		block_attributes = block_match.group(2) 
 		processed_block = block_match.group(3)
 		
 		# Process any embedded figure-marking spans.
@@ -466,15 +512,29 @@ if process_figuremark:
 			processed_block = processed_block[:span_match.start()] + processed_span + processed_block[span_match.end():]
 			span_match = re.search(figure_span_pattern, processed_block)
 		
-		# Assemble a suitable pre-formatted figure block.
+		# Sync figure number with any intervening non-FigureMark figures.
+		other_figures = re.findall(r"(?sm)<figure[^>]*>.+?</figure>", master_contents[last_fig_end:block_match.start()])
+		if other_figures:
+			figure_number += len(other_figures)
 		figure_number += 1
+		
+		# Assemble a suitable pre-formatted figure block.
+		figure_title = ""
+		processed_block = f"<div class=\"figure-content\">{processed_block}</div>"
 		if block_title:
-			processed_block = f"<figcaption><span class=\"figure-number\">Fig. {figure_number}</span>{block_title}</figcaption>\n{processed_block}"
-		figure_classes = ""
-		if block_classes:
-			class_string = re.sub(r"\s*\.", " ", block_classes).strip()
-			figure_classes = f" class=\"{class_string}\""
-		processed_block = f"<a name=\"figure-{figure_number}\" />\n<figure{figure_classes}>{processed_block}</figure>"
+			figure_title = f"<span class=\"figure-title\">{block_title}</span>"
+		processed_block = f"<figcaption><span class=\"figure-number\">Fig. {figure_number}</span>{figure_title}</figcaption>\n{processed_block}"
+		attrs = {}
+		if block_attributes:
+			attrs = parse_attributes(block_attributes)
+		if not 'id' in attrs:
+			attrs['id'] = f"figure-{figure_number}"
+		if not 'pairs' in attrs:
+			attrs['pairs'] = []
+		attrs['pairs'].append(('data-fignum', f'"{figure_number}"'))
+		figure_attrs_string = attributes_as_string(attrs)
+		processed_block = f"<figure{figure_attrs_string}>{processed_block}</figure>"
+		last_fig_end = block_match.start() + len(processed_block)
 		master_contents = master_contents[:block_match.start()] + processed_block + master_contents[block_match.end():]
 		block_match = re.search(figure_block_pattern, master_contents)
 
@@ -531,7 +591,7 @@ if placeholder_mode == "basic":
 		master_contents = master_contents.replace(f"{placeholder_delim}{key}{placeholder_delim}", str(value))
 	
 	# Identify and warn about any remaining placeholders, i.e. for missing metadata keys.
-	placeholder_pattern = rf"\W{placeholder_delim}([^{placeholder_delim}]+?){placeholder_delim}\W"
+	placeholder_pattern = rf"(?<!{placeholder_delim})\W{placeholder_delim}([^{placeholder_delim}]+?){placeholder_delim}\W"
 	for placeholder_match in re.finditer(placeholder_pattern, master_contents):
 		meta_key = placeholder_match.group(1)
 		if meta_key not in json_contents:
