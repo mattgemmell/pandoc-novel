@@ -14,31 +14,31 @@ FigureMark is extremely simple in functionality, easy to understand, and hopeful
 
 Here's the source of a given figure, using the FigureMark syntax:
 
-	%%% Demo of FigureMark {.example #first}
+	```figuremark Demo of FigureMark {.example #first}
 	regular text
 	[removed text]{-} [// comment]{/}
 	existing text {1}
 	[inserted text]{+}
 	[result which presumably has a long screed of stuff]{>}
 	text {2.1} with [highlighted]{!} span
-	%%%
+	```
 
 And the result, after processing and with suitable CSS:
 
-%%% Demo of FigureMark {.example #first}
+```figuremark Demo of FigureMark {.example #first}
 regular text
 [removed text]{-} [// comment]{/}
 existing text {1}
 [inserted text]{+}
 [result which presumably has a long screed of stuff]{>}
 text {2.1} with [highlighted]{!} span
-%%%
+```
 
 There are several notable features of the syntax, as described below.
 
 ### Figure block delimiters and attributes
 
-Figures begin and end with lines which start with at least 3 `%` symbols. The closing line should have no other content. The opening line may also have, in order:
+Figures begin and end with lines which start with at least 3 `` ` `` (backtick) symbols followed by `figuremark`. The closing line should have no other content. The opening line may also have, in order:
 
 1. A title, which if provided will become the figure's caption.
 2. An _attributes block_, inside `{braces}`. This can contain any number and combination of:
@@ -50,7 +50,7 @@ The title and attributes block may have whitespace between or around them. Key-v
 
 The figure's caption will automatically gain a `figure-number` span containing `Fig. 1` or such, which can readily be hidden or moved via CSS. The figure's number is automatically calculated on a global basis, and takes into account both FigureMark figures and _also_ any pre-existing HTML `<figure>` blocks. If a title was specified for the figure, it will be within a `figure-title` span inside the caption.
 
-Figures can be linked-to via their `id` attribute, which will be of the form `figure-1` unless overridden in the attributes block as described above. If multiple IDs are specified in the attributes block, only the final one will be used.
+Figures can be [linked to](#first) via their `id` attribute, which will be of the form `figure-1` unless overridden in the attributes block as described above. If multiple IDs are specified in the attributes block, only the final one will be used.
 
 The resulting figure tag will also automatically gain a `data-fignum` attribute, containing the figure number. The figure's entire content, _excluding_ any caption, will be within a `div` with the `figure-content` class applied.
 

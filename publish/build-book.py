@@ -468,7 +468,7 @@ master_contents = "\n".join(master_documents)
 # Process Figuremark.
 if process_figuremark:
 	inform(f"FigureMark processing enabled.")
-	figure_block_pattern = r"(?m)^%{3,}\s*([^\{]*?)\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n%{3,}\s*?$"
+	figure_block_pattern = r"(?mi)^`{3,}\s*figuremark(\s+[^\{]+?)?\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n`{3,}\s*?$"
 	figure_span_pattern = r"\[(.+?)\]\{([^\}]+?)\}|\{([\d.-]+)\}"
 	shared_css_class = "figuremark"
 	marks_map = {	"+": "insert",
