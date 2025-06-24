@@ -38,7 +38,7 @@ There are several notable features of the syntax, as described below.
 
 ### Figure block delimiters and attributes
 
-Figures begin and end with lines which start with at least 3 `` ` `` (backtick) symbols followed by `figuremark`. The closing line should have no other content. The opening line may also have, in order:
+Figures begin and end with lines which start with at least 3 `` ` `` (backtick) symbols followed by `figuremark`. You can use `~` tildes instead of backticks if you wish. The closing line should have no other content. The opening line may also have, in order:
 
 1. A title, which if provided will become the figure's caption.
 2. An _attributes block_, inside `{braces}`. This can contain any number and combination of:

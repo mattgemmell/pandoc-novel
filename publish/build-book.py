@@ -468,7 +468,7 @@ master_contents = "\n".join(master_documents)
 # Process Figuremark.
 if process_figuremark:
 	inform(f"FigureMark processing enabled.")
-	figure_block_pattern = r"(?mi)^`{3,}\s*figuremark(\s+[^\{]+?)?\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n`{3,}\s*?$"
+	figure_block_pattern = r"(?mi)^(`{3,}|~{3,})\s*figuremark(\s+[^\{]+?)?\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n\1\s*?$"
 	figure_span_pattern = r"\[(.+?)\]\{([^\}]+?)\}|\{([\d.-]+)\}"
 	shared_css_class = "figuremark"
 	marks_map = {	"+": "insert",
@@ -483,9 +483,9 @@ if process_figuremark:
 	block_match = re.search(figure_block_pattern, master_contents)
 	last_fig_end = 0
 	while block_match:
-		block_title = block_match.group(1)
-		block_attributes = block_match.group(2) 
-		processed_block = block_match.group(3)
+		block_title = block_match.group(2)
+		block_attributes = block_match.group(3) 
+		processed_block = block_match.group(4)
 		
 		# Process any embedded figure-marking spans.
 		span_match = re.search(figure_span_pattern, processed_block)
