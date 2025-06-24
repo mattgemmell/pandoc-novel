@@ -93,12 +93,7 @@ def parse_attributes(s):
 		else:
 			key, _, val = item.partition('=')
 			val = val or ""
-			# Handle surrounding single or double quotes.
-			if (val.startswith("'") and val.endswith("'")) or (val.startswith('"') and val.endswith('"')):
-				val_out = val
-			else:
-				val_out = f'"{val}"'
-			pairs.append((key, val_out))
+			pairs.append((key, val.strip('"\'')))
 
 	attrs = {}
 	if id_attr:
@@ -117,7 +112,7 @@ def attributes_as_string(attrs):
 		attr_str += f' class="{" ".join(attrs["classes"])}"'
 	if 'pairs' in attrs:
 		for k, v in attrs['pairs']:
-			attr_str += f' {k}={v}'
+			attr_str += f' {k}="{v}"'
 	return attr_str
 
 class MGArgumentParser(argparse.ArgumentParser):
