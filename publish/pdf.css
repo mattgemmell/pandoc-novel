@@ -130,3 +130,7 @@ hr {
 hr, hr:after {
 	height: 15pt;
 }
+
+figure {
+	break-inside: avoid;
+}
