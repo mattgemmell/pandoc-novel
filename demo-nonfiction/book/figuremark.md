@@ -102,7 +102,7 @@ The following questions are anticipated, and answers provided.
 
 #### Is there a reference implementation of a FigureMark parser?
 
-As a trivial markup format, implementation should be very straightforward in any language supporting regular expressions. The only current implementation I'm aware of is my own, in Python, as part of my [pandoc-publish](https://github.com/mattgemmell/pandoc-publish/) project.
+There is [a Python implementation here](https://github.com/mattgemmell/pandoc-publish/blob/main/publish/figuremark/figuremark.py). As a trivial markup format, implementation should be very straightforward in any language supporting regular expressions.
 
 #### How can I annotate an example of FigureMark syntax using FigureMark?
 
