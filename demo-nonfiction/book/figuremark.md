@@ -14,24 +14,24 @@ FigureMark is extremely simple in functionality, easy to understand, and hopeful
 
 Here's the source of a given figure, using the FigureMark syntax:
 
-	```figuremark Demo of FigureMark {.example #first}
-	regular text
-	[removed text]{-} [// comment]{/}
-	existing text {1}
+	```figuremark Demo of FigureMark {.example #demo}
+	normal text
 	[inserted text]{+}
-	[result which presumably has a long screed of stuff]{>}
-	text {2.1} with [highlighted]{!} span
+	[removed text]{-} [// comment]{/}
+	text with a reference {1}
+	[result of something]{>}
+	text with reference {2.1} and a [highlight]{!}
 	```
 
 And the result, after processing and with suitable CSS:
 
-```figuremark Demo of FigureMark {.example #first}
-regular text
-[removed text]{-} [// comment]{/}
-existing text {1}
+```figuremark Demo of FigureMark {.example #demo}
+normal text
 [inserted text]{+}
-[result which presumably has a long screed of stuff]{>}
-text {2.1} with [highlighted]{!} span
+[removed text]{-} [// comment]{/}
+text with a reference {1}
+[result of something]{>}
+text with reference {2.1} and a [highlight]{!}
 ```
 
 There are several notable features of the syntax, as described below.
@@ -50,9 +50,17 @@ The title and attributes block may have whitespace between or around them. Key-v
 
 The figure's caption will automatically gain a `figure-number` span containing `Fig. 1` or such, which can readily be hidden or moved via CSS. The figure's number is automatically calculated on a global basis, and takes into account both FigureMark figures and _also_ any pre-existing HTML `<figure>` blocks. If a title was specified for the figure, it will be within a `figure-title` span inside the caption.
 
-Figures can be [linked to](#first) via their `id` attribute, which will be of the form `figure-1` unless overridden in the attributes block as described above. If multiple IDs are specified in the attributes block, only the final one will be used.
+Figures can be [linked to](#demo) via their `id` attribute, which will be of the form `figure-1` unless overridden in the attributes block as described above. If multiple IDs are specified in the attributes block, only the final one will be used.
 
 The resulting figure tag will also automatically gain a `data-fignum` attribute, containing the figure number. The figure's entire content, _excluding_ any caption, will be within a `div` with the `figure-content` class applied.
+
+### Escaping
+
+Since the FigureMark marking syntax (described below) makes use of square brackets and curly braces, it may be necessary to escape those characters in the figure's content, if you do not wish them to be interpreted as marks.
+
+This can be achieved by prefixing any literal brackets and braces with a backslash (like this: `\[`). Any such backslashes will be removed when the block is processed. If you wish to have a literal backslash before a bracket or brace, use two backslashes instead of one; only one will remain after processing.
+
+Escaping these characters is especially important when [annotating FigureMark syntax examples](#inception) using FigureMark.
 
 ### Mark types
 
@@ -68,7 +76,7 @@ References are the only standalone mark, with all of the remaining marks spannin
 
 #### 2. Spanning short marks
 
-Short marks are single-character marks, which decorate the spanned section of content within a line. There are five predefined short marks, as detailed below, with their syntax all following the same form: `[content to annotate]{type}`.
+Short marks are single-character marks, which decorate the spanned section of content within a line. There are five predefined short marks, as detailed below, with their syntax all following the same form: `[content to annotate]{type}`. Any occurrences of square brackets or curly braces within the bracketed content can be escaped with backslashes.
 
 The defined types are:
 
@@ -96,9 +104,32 @@ The following questions are anticipated, and answers provided.
 
 As a trivial markup format, implementation should be very straightforward in any language supporting regular expressions. The only current implementation I'm aware of is my own, in Python, as part of my [pandoc-publish](https://github.com/mattgemmell/pandoc-publish/) project.
 
+#### How can I annotate an example of FigureMark syntax using FigureMark?
+
+To avoid ambiguity for the parser, follow these two rules:
+
+1. The outer FigureMark block should either use a different number of backticks/tildes for its opening and closing lines than the inner example block does, or the outer and inner blocks should use different delimiters (for example, use tildes on the outer block and backticks on the inner).
+
+2. Within the example block, escape each square bracket and curly brace with a backslash if they would otherwise be interpreted as FigureMark syntax. Any such backslashes will be removed when the block is processed.
+
+This will allow FigureMark samples to be annotated, as shown below.
+
+~~~figuremark FigureMark Syntax {.example #inception}
+[```figuremark]{!} Example of FigureMark [{.example}]{!}
+Some [\[]{!}marked up[\]{!}]{!} text. [{1}]{!} [\[]{!}// comment[\]{/}]{!}
+[```]{!}
+~~~
+
 #### How can I move the caption to below the figure, instead of above?
 
-CSS can be used for this purpose. For example, setting the `figure` tag to `display: flex` and `flex-direction: column`, and the `figcaption` tag to `order: 1`, will achieve this effect (depending on your other CSS).
+CSS can be used for this purpose. For example:
+
+```css
+figure { display: flex; flex-direction: column; }
+figcaption { order: 1; }
+```
+
+The actual result will of course depend on your other CSS.
 
 #### What's the fancy divider symbol between this document's sections?
 

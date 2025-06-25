@@ -469,7 +469,7 @@ master_contents = "\n".join(master_documents)
 if process_figuremark:
 	inform(f"FigureMark processing enabled.")
 	figure_block_pattern = r"(?mi)^(`{3,}|~{3,})\s*figuremark(\s+[^\{]+?)?\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n\1\s*?$"
-	figure_span_pattern = r"\[(.+?)\]\{([^\}]+?)\}|\{([\d.-]+)\}"
+	figure_span_pattern = r"(?<!\\)\[(.+?)(?<!\\)\]\{([^\}]+?)\}|\{([\d.-]+)\}"
 	shared_css_class = "figuremark"
 	marks_map = {	"+": "insert",
 								"-": "remove",
@@ -480,17 +480,22 @@ if process_figuremark:
 	figs_processed = 0
 	
 	# Find any FigureMark blocks needing rewritten.
-	block_match = re.search(figure_block_pattern, master_contents)
+	block_pattern_obj = re.compile(figure_block_pattern)
+	span_pattern_obj = re.compile(figure_span_pattern)
 	last_fig_end = 0
+	
+	block_match = block_pattern_obj.search(master_contents, last_fig_end)
 	while block_match:
 		block_title = block_match.group(2)
 		block_attributes = block_match.group(3) 
 		processed_block = block_match.group(4)
 		
 		# Process any embedded figure-marking spans.
-		span_match = re.search(figure_span_pattern, processed_block)
+		last_span_end = 0
+		span_match = span_pattern_obj.search(processed_block, last_span_end)
 		while span_match:
 			processed_span = ""
+			bracketed_text = span_match.group(1) if span_match.group(1) else ""
 			if span_match.group(3):
 				# Reference number without bracketed span.
 				ref_num = span_match.group(3)
@@ -499,15 +504,16 @@ if process_figuremark:
 			elif span_match.group(2) in marks_map:
 				# Known directive span.
 				css_class = marks_map[span_match.group(2)]
-				processed_span = f'<span class="{shared_css_class} {css_class}">{span_match.group(1)}</span>'
+				processed_span = f'<span class="{shared_css_class} {css_class}">{bracketed_text}</span>'
 				
 			else:
 				# Assumed to be a CSS class list.
 				class_string = re.sub(r"\s*\.", " ", span_match.group(2)).strip()
-				processed_span = f'<span class="{shared_css_class} {class_string}">{span_match.group(1)}</span>'
+				processed_span = f'<span class="{shared_css_class} {class_string}">{bracketed_text}</span>'
 			
+			last_span_end = span_match.start() + len(processed_span)
 			processed_block = processed_block[:span_match.start()] + processed_span + processed_block[span_match.end():]
-			span_match = re.search(figure_span_pattern, processed_block)
+			span_match = span_pattern_obj.search(processed_block, last_span_end)
 		
 		# Sync figure number with any intervening non-FigureMark figures.
 		other_figures = re.findall(r"(?sm)<figure[^>]*>.+?</figure>", master_contents[last_fig_end:block_match.start()])
@@ -517,6 +523,8 @@ if process_figuremark:
 		
 		# Assemble a suitable pre-formatted figure block.
 		figure_title = ""
+		# Remove escaping backslashes from brackets and braces.
+		processed_block = re.sub(r"(?<!\\)\\([\[\]\{\}\\])", r"\1", processed_block)
 		processed_block = f"<div class=\"figure-content\">{processed_block}</div>"
 		if block_title:
 			figure_title = f"<span class=\"figure-title\">{block_title}</span>"
@@ -534,7 +542,7 @@ if process_figuremark:
 		last_fig_end = block_match.start() + len(processed_block)
 		master_contents = master_contents[:block_match.start()] + processed_block + master_contents[block_match.end():]
 		figs_processed += 1
-		block_match = re.search(figure_block_pattern, master_contents)
+		block_match = block_pattern_obj.search(master_contents, last_fig_end)
 	
 	if figs_processed > 0:
 		inform(f"Processed {figs_processed} FigureMark blocks.")
@@ -614,9 +622,12 @@ elif placeholder_mode == "jinja2":
 	except ImportError as e:
 		inform(f"Couldn't find jinja2 for python3: {e}", severity="warning")
 
-# Save master file with timestamp.
-timestamp = now.strftime("%Y%m%d-%H%M%S-%f")
-master_filename = f"{master_basename}-{timestamp}.md"
+# Save master file with timestamp, or without if we're retaining it.
+if retain_collated_master:
+	master_filename = f"{master_basename}.md"
+else:
+	timestamp = now.strftime("%Y%m%d-%H%M%S-%f")
+	master_filename = f"{master_basename}-{timestamp}.md"
 try:
 	inform(f"Saving collated master file: {master_filename}")
 	master_file = open(master_filename, 'w')

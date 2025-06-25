@@ -143,7 +143,7 @@ Additionally, there are several flags (without values) which tailor the script's
 | =--process-figuremark= | Enable the processing of [[https://github.com/mattgemmell/pandoc-publish/blob/main/demo-nonfiction/figuremark.pdf][FigureMark]] blocks. Disabled by default. |
 | =--run-transformations= | Perform any transformations found in [[#transformations][a transformations file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-run-transformations=. |
 | =--run-exclusions= | Process any exclusions from =--exclude= arguments, or in [[#exclusions][an exclusions file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-run-exclusions=. |
-| =--retain-collated-master= | Keeps the collated master Markdown file after generating books, instead of deleting it (default is to delete). |
+| =--retain-collated-master= | Keeps the collated master Markdown file after generating books, instead of deleting it (default is to delete). Enabling this option will omit the timestamp from the collated master filename, giving it a stable name for easy of debugging between builds. |
 | =--show-pandoc-commands= | Display the actual pandoc commands and arguments when invoking them for each format. Disabled by default. |
 | =--pandoc-verbose= | Tell pandoc to enable its own verbose logging. Disabled by default. |
 
