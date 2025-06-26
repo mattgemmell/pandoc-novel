@@ -20,7 +20,7 @@ def convert(text):
 	
 	block_match = block_pattern_obj.search(text, last_fig_end)
 	while block_match:
-		block_title = block_match.group(2)
+		block_title = block_match.group(2).strip()
 		block_attributes = block_match.group(3) 
 		processed_block = block_match.group(4)
 		
@@ -41,9 +41,12 @@ def convert(text):
 				processed_span = f'<span class="{shared_css_class} {css_class}">{bracketed_text}</span>'
 				
 			else:
-				# Assumed to be a CSS class list.
-				class_string = re.sub(r"\s*\.", " ", span_match.group(2)).strip()
-				processed_span = f'<span class="{shared_css_class} {class_string}">{bracketed_text}</span>'
+				# Parse as an attribute list.
+				span_attrs = parse_attributes(span_match.group(2))
+				if not 'classes' in span_attrs:
+					span_attrs['classes'] = []
+				span_attrs['classes'].append(shared_css_class)	
+				processed_span = f'<span{attributes_as_string(span_attrs)}>{bracketed_text}</span>'
 			
 			last_span_end = span_match.start() + len(processed_span)
 			processed_block = processed_block[:span_match.start()] + processed_span + processed_block[span_match.end():]
@@ -56,13 +59,10 @@ def convert(text):
 		figure_number += 1
 		
 		# Assemble a suitable pre-formatted figure block.
-		figure_title = ""
+		
 		# Remove escaping backslashes from brackets and braces.
 		processed_block = re.sub(r"(?<!\\)\\([\[\]\{\}\\])", r"\1", processed_block)
 		processed_block = f"<div class=\"figure-content\">{processed_block}</div>"
-		if block_title:
-			figure_title = f"<span class=\"figure-title\">{block_title}</span>"
-		processed_block = f"<figcaption><span class=\"figure-number\">Fig. {figure_number}</span>{figure_title}</figcaption>\n{processed_block}"
 		attrs = {}
 		if block_attributes:
 			attrs = parse_attributes(block_attributes)
@@ -71,7 +71,43 @@ def convert(text):
 		if not 'pairs' in attrs:
 			attrs['pairs'] = []
 		attrs['pairs'].append(('data-fignum', f'{figure_number}'))
+		
+		fignum_format = f"Fig. {figure_number}"
+		add_empty_caption = True
+		caption_before = True
+		link_caption = "num" # | title | all | none
+		new_pairs = []
+		
+		# Process and strip any directives.
+		for key, val in attrs['pairs']:
+			if key.startswith(":"):
+				if key.endswith("fig-num-format"):
+					fignum_format = val.replace("#", str(figure_number))
+				elif key.endswith("empty-captions"):
+					add_empty_caption = (val == "true")
+				elif key.endswith("caption-before"):
+					caption_before = (val == "true")
+				elif key.endswith("link-caption"):
+					link_caption = val
+			else:
+				new_pairs.append((key, val))
+		attrs['pairs'] = new_pairs
+		
 		figure_attrs_string = attributes_as_string(attrs)
+		if block_title != "" or add_empty_caption:
+			link_tag = f"<a href=\"#{attrs['id']}\">"
+			caption_string = f"<figcaption><span class=\"figure-number\">{link_tag}{fignum_format}</a></span><span class=\"figure-title\">{block_title}</span></figcaption>"
+			if link_caption == "title":
+				caption_string = f"<figcaption><span class=\"figure-number\">{fignum_format}</span><span class=\"figure-title\">{link_tag}{block_title}</a></span></figcaption>"
+			elif link_caption == "all":
+				caption_string = f"<figcaption>{link_tag}<span class=\"figure-number\">{fignum_format}</span><span class=\"figure-title\">{block_title}</span></a></figcaption>"
+			elif link_caption == "none":
+				caption_string = f"<figcaption><span class=\"figure-number\">{fignum_format}</span><span class=\"figure-title\">{block_title}</span></figcaption>"
+			
+			if caption_before:
+				processed_block = f"{caption_string}\n{processed_block}"
+			else:
+				processed_block = f"{processed_block}\n{caption_string}"
 		processed_block = f"<figure{figure_attrs_string}>{processed_block}</figure>"
 		last_fig_end = block_match.start() + len(processed_block)
 		text = text[:block_match.start()] + processed_block + text[block_match.end():]
@@ -94,7 +130,7 @@ def parse_attributes(s):
 	pairs = []
 
 	# Regex to match: .class, #id, or key=val (optionally quoted)
-	pattern = re.compile(r'([.#][\w-]+|\w+=(?:"[^"]*"|\'[^\']*\'|[^\s]+))')
+	pattern = re.compile(r'([.#][\w-]+|[\w:-]+=(?:"[^"]*"|\'[^\']*\'|[^\s]+))')
 	for match in pattern.findall(s):
 		item = match
 		if item.startswith('.'):

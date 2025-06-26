@@ -25,7 +25,7 @@ Here's the source of a given figure, using the FigureMark syntax:
 
 And the result, after processing and with suitable CSS:
 
-<figure id="demo" class="example" data-fignum="1"><figcaption><span class="figure-number">Fig. 1</span><span class="figure-title"> Demo of FigureMark</span></figcaption>
+<figure id="demo" class="example" data-fignum="1"><figcaption><span class="figure-number"><a href="#demo">Fig. 1</a></span><span class="figure-title">Demo of FigureMark</span></figcaption>
 <div class="figure-content">normal text
 <span class="figuremark insert">inserted text</span>
 <span class="figuremark remove">removed text</span> <span class="figuremark comment">// comment</span>
@@ -113,7 +113,7 @@ To avoid ambiguity for the parser, follow these two rules:
 
 This will allow FigureMark samples to be annotated, as shown below.
 
-<figure id="inception" class="example" data-fignum="2"><figcaption><span class="figure-number">Fig. 2</span><span class="figure-title"> FigureMark Syntax</span></figcaption>
+<figure id="inception" class="example" data-fignum="2"><figcaption><span class="figure-number"><a href="#inception">Fig. 2</a></span><span class="figure-title">FigureMark Syntax</span></figcaption>
 <div class="figure-content"><span class="figuremark highlight">```figuremark</span> Example of FigureMark <span class="figuremark highlight">{.example}</span>
 Some <span class="figuremark highlight">[</span>marked up<span class="figuremark highlight">]{!}</span> text. <span class="figuremark highlight">{1}</span> <span class="figuremark highlight">[</span>// comment<span class="figuremark highlight">]{/}</span>
 <span class="figuremark highlight">```</span></div></figure>
