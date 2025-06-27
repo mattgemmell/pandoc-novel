@@ -2,7 +2,7 @@ import re
 
 
 def convert(text):
-	figure_block_pattern = r"(?mi)^(`{3,}|~{3,})\s*figuremark(\s+[^\{]+?)?\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n\1\s*?$"
+	figure_block_pattern = r"(?mi)(?<!<!--\n)^(`{3,}|~{3,})\s*figuremark(\s+[^\{]+?)?\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n\1\s*?$"
 	figure_span_pattern = r"(?<!\\)\[(.+?)(?<!\\)\]\{([^\}]+?)\}|\{([\d.-]+)\}"
 	shared_css_class = "figuremark"
 	marks_map = {	"+": "insert",
@@ -76,6 +76,7 @@ def convert(text):
 		add_empty_caption = True
 		caption_before = True
 		link_caption = "num" # | title | all | none
+		retain_block = "none" # | comment | indent
 		new_pairs = []
 		
 		# Process and strip any directives.
@@ -89,6 +90,8 @@ def convert(text):
 					caption_before = (val == "true")
 				elif key.endswith("link-caption"):
 					link_caption = val
+				elif key.endswith("retain-block"):
+					retain_block = val
 			else:
 				new_pairs.append((key, val))
 		attrs['pairs'] = new_pairs
@@ -108,7 +111,14 @@ def convert(text):
 				processed_block = f"{caption_string}\n{processed_block}"
 			else:
 				processed_block = f"{processed_block}\n{caption_string}"
+				
 		processed_block = f"<figure{figure_attrs_string}>{processed_block}</figure>"
+		
+		if retain_block == "comment":
+			processed_block = f"<!--\n{block_match[0]}\n-->\n\n{processed_block}"
+		elif retain_block == "indent":
+			processed_block = f"{'\t'.join(('\t'+block_match[0].lstrip()).splitlines(True))}\n\n{processed_block}"
+			
 		last_fig_end = block_match.start() + len(processed_block)
 		text = text[:block_match.start()] + processed_block + text[block_match.end():]
 		figs_processed += 1

@@ -18,7 +18,7 @@ Jekyll::Hooks.register [:documents, :pages], :pre_render do |doc|
 	next unless proceed
 	
   def convert(doc)
-		figure_block_pattern = /^(`{3,}|~{3,})\s*figuremark(\s+[^\{]+?)?\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n\1\s*?$/mi
+		figure_block_pattern = /(?<!<!--\n)^(`{3,}|~{3,})\s*figuremark(\s+[^\{]+?)?\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n\1\s*?$/mi
 		figure_span_pattern = /(?<!\\)\[(.+?)(?<!\\)\]\{([^\}]+?)\}|\{([\d.-]+)\}/
 		shared_css_class = "figuremark"
 		marks_map = {
@@ -91,6 +91,7 @@ Jekyll::Hooks.register [:documents, :pages], :pre_render do |doc|
 			add_empty_caption = true
 			caption_before = true
 			link_caption = "num" # | title | all | none
+			retain_block = "none" # | comment | indent
 			new_pairs = []
 			
 			# Process and strip any directives.
@@ -104,6 +105,8 @@ Jekyll::Hooks.register [:documents, :pages], :pre_render do |doc|
 						caption_before = (val == "true")
 					elsif key.end_with?("link-caption")
 						link_caption = val
+					elsif key.end_with?("retain-block")
+						retain_block = val
 					end
 				else
 					new_pairs << [key, val]
@@ -129,7 +132,20 @@ Jekyll::Hooks.register [:documents, :pages], :pre_render do |doc|
 					processed_block = %Q{#{processed_block}\n#{caption_string}}
 				end
 			end
+			
 			processed_block = %Q{<figure#{figure_attrs_string}>#{processed_block}</figure>}
+			
+			if retain_block == "comment"
+				processed_block = %Q{<!--\n#{match[0]}\n-->\n\n#{processed_block}}
+			elsif retain_block == "indent"
+				lines = match[0].split(/\n/)
+				lines.each do |line|
+					line = %Q{\t#{line}}
+				end
+				indented = lines.join("\n")
+				processed_block = %Q{#{indented}\n\n#{processed_block}}
+			end
+			
 			last_fig_end = match.begin(0) + processed_block.length
 			text = text[0...match.begin(0)] + processed_block + text[match.end(0)..-1]
 			figs_processed += 1
