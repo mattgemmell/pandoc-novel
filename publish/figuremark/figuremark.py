@@ -112,7 +112,7 @@ class FMAttributes:
 
 
 def convert(text):
-	fm_globals_pattern = r"(?mi)^\s*?(?:\{figuremark\s*([^\}]*)\})\s*?$"
+	fm_globals_pattern = r"(?mi)^(?:\{figuremark\s*([^\}]*)\})\s*?$"
 	figure_block_pattern = r"(?mi)(?<!<!--\n)^(`{3,}|~{3,})\s*figuremark(\s+[^\{]+?)?\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n\1\s*?$"
 	figure_span_pattern = r"(?<!\\)\[(.+?)(?<!\\)\]\{([^\}]+?)\}|\{([\d.-]+)\}"
 	marks_map = {	"+": "insert",

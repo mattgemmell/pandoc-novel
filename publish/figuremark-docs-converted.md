@@ -125,8 +125,9 @@ Any other (unrecognised) directives will be removed.
 
 It can be useful to set document-global default values of attributes (including CSS classes, key=value pairs, and directives) on a global basis, so that all subsequent FigureMark blocks will use those attributes unless they specify their own overrides. This can be achieved with a _FigureMark globals block_. Here's an example:
 
+	{figuremark :caption-before=false :fig-num-format="Figure #." :link-caption=title .poetry}
 
-A globals block should occur on a line of its own, and consists of an opening brace immediately followed by `figuremark`, then the usual space-delimited string of attributes followed by a closing brace. More than one globals block can be used, and then will be processed in order, with the specified attributes being applied to all FigureMark figure blocks which occur later in the document.
+A globals block should occur on a line of its own, without any leading whitespace, and consists of an opening brace immediately followed by `figuremark`, then the usual space-delimited string of attributes followed by a closing brace. More than one globals block can be used, and then will be processed in order, with the specified attributes being applied to all FigureMark figure blocks which occur later in the document.
 
 Globals blocks can include `:directives`, CSS `.classes`, `key=value` pairs, and even CSS `#ids` (even though it doesn't make much sense to globally apply the same ID to multiple elements). Some advanced functionality is available:
 
@@ -201,10 +202,10 @@ To avoid ambiguity for the parser, follow these two rules:
 
 This will allow FigureMark samples to be annotated, as shown below.
 
-<figure id="inception" class="figuremark example poetry" data-fignum="5"><div class="figure-content"><span class="figuremark highlight">```figuremark</span> Example of FigureMark <span class="figuremark highlight">{.example}</span>
+<figure id="inception" class="figuremark example" data-fignum="5"><figcaption><span class="figure-number"><a href="#inception">Fig. 5</a></span><span class="figure-title">FigureMark Syntax</span></figcaption>
+<div class="figure-content"><span class="figuremark highlight">```figuremark</span> Example of FigureMark <span class="figuremark highlight">{.example}</span>
 Some <span class="figuremark highlight">[</span>marked up<span class="figuremark highlight">]{!}</span> text. <span class="figuremark highlight">{1}</span> <span class="figuremark highlight">[</span>// comment<span class="figuremark highlight">]{/}</span>
-<span class="figuremark highlight">```</span></div>
-<figcaption><span class="figure-number">Figure 5.</span><span class="figure-title"><a href="#inception">FigureMark Syntax</a></span></figcaption></figure>
+<span class="figuremark highlight">```</span></div></figure>
 
 #### Can I have more than one type of (numeric) reference marks?
 

@@ -131,7 +131,7 @@ It can be useful to set document-global default values of attributes (including 
 
 	{figuremark :caption-before=false :fig-num-format="Figure #." :link-caption=title .poetry}
 
-A globals block should occur on a line of its own, and consists of an opening brace immediately followed by `figuremark`, then the usual space-delimited string of attributes followed by a closing brace. More than one globals block can be used, and then will be processed in order, with the specified attributes being applied to all FigureMark figure blocks which occur later in the document.
+A globals block should occur on a line of its own, without any leading whitespace, and consists of an opening brace immediately followed by `figuremark`, then the usual space-delimited string of attributes followed by a closing brace. More than one globals block can be used, and then will be processed in order, with the specified attributes being applied to all FigureMark figure blocks which occur later in the document.
 
 Globals blocks can include `:directives`, CSS `.classes`, `key=value` pairs, and even CSS `#ids` (even though it doesn't make much sense to globally apply the same ID to multiple elements). Some advanced functionality is available:
 
