@@ -65,11 +65,11 @@ class FMAttributes:
 			self.tag_id = new_attrs.tag_id
 		
 		for new_class in new_attrs.classes:
-			if new_class.startswith(FMAttributes.remove_token):
+			if new_class == FMAttributes.remove_token:
+				self.classes.clear()
+			elif new_class.startswith(FMAttributes.remove_token):
 				if new_class[len(FMAttributes.remove_token):] in self.classes:
 					self.classes.remove(new_class[len(FMAttributes.remove_token):])
-			elif new_class == FMAttributes.remove_token:
-				self.classes.empty()
 			elif not new_class in self.classes:
 				self.classes.append(new_class)
 		
@@ -130,7 +130,9 @@ def convert(text):
 	# Find any FigureMark blocks needing rewritten.
 	block_match = block_pattern_obj.search(text, last_fig_end)
 	while block_match:
-		block_title = block_match.group(2).strip()
+		block_title = block_match.group(2)
+		if block_title:
+			block_title = block_title.strip()
 		block_attributes = block_match.group(3) 
 		processed_block = block_match.group(4)
 		

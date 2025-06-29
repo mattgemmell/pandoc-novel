@@ -67,10 +67,10 @@ class FMAttributes
     end
 
     new_attrs.classes.each do |new_class|
-      if new_class.start_with?(REMOVE_TOKEN)
-        @classes.delete(new_class[REMOVE_TOKEN.length..-1])
-      elsif new_class == REMOVE_TOKEN
+      if new_class == REMOVE_TOKEN
         @classes.clear
+      elsif new_class.start_with?(REMOVE_TOKEN)
+        @classes.delete(new_class[REMOVE_TOKEN.length..-1])
       elsif !@classes.include?(new_class)
         @classes << new_class
       end
