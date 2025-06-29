@@ -20,7 +20,7 @@ While working on my [pandoc-based Markdown publishing system](https://github.com
 
 Syntax-highlighting systems are ubiquitous, but they apply only to code listings and certain related textual data, and they use the _mechanics_ of the language, rather than _explaining_ or _focusing_ on the content. Manual tagging with HTML and CSS is of course possible, but is tedious and lacks automation.
 
-My aim was to provide a 70-80% solution, allowing the annotation of a document's figures in a semantic shorthand which is easily parsed and extended, with some functional conveniences included. The result is FigureMark.
+My aim was to provide an 80% solution, allowing the annotation of a document's figures in a semantic shorthand which is easily parsed and extended, with some functional conveniences included. The result is FigureMark.
 
 FigureMark is intended to be useful in the creation of non-fiction works, particularly those on technical matters, such as learning a programming language, discussing complex concepts which benefit from detailed examples, and so on. Its focus is on simplicity, and meeting a set of common needs without complexity, at the expense of comprehensiveness.
 
@@ -90,14 +90,14 @@ There are several notable features of the FigureMark syntax and parser, as descr
 
 ### Figure blocks
 
-Figures begin and end with lines which start with at least 3 `` ` `` (backtick) symbols followed by `figuremark`. You can use `~` tildes instead of backticks if you wish. The closing line should have no other content. The opening line may also have, in order:
+Figures begin and end with lines which start with at least 3 `` ` `` (backtick) symbols followed by `figuremark` (or just `figure`). You can use `~` tildes instead of backticks if you wish. The closing line should have no other content. The opening line may also have, in order:
 
 1. A title, which if provided will become the figure's caption.
 2. An _attributes list_, inside `{braces}`. This can contain any number and combination of:
 	- An `#id` for the figure tag, e.g. `#chp1-example1`
 	- CSS `.classes` for the figure tag, e.g. `.example`
 	- `Key=value` pairs for the figure tag, e.g. `data-foo="baz"`
-	- **Directives**, which are `:key=value` pairs whose key is prefixed with a `:` colon. See below.
+	- **Directives**, which are `:key=value` pairs whose key is prefixed with a `:` colon. [See below](#directives).
 
 The title and attributes list may have whitespace between or around them. Key-value pairs may have the values in single-quotes, double-quotes, or neither, but all values will be double-quoted in the resulting HTML.
 
@@ -127,22 +127,24 @@ Any other (unrecognised) directives will be removed.
 
 #### Global attributes
 
-It can be useful to set document-global default values of attributes (including CSS classes, key=value pairs, and directives) on a global basis, so that all subsequent FigureMark blocks will use those attributes unless they specify their own overrides. This can be achieved with a _FigureMark globals block_. Here's an example:
+It can be useful to set document-wide default values of figure block attributes, so that all subsequent FigureMark blocks will use those attributes unless they specify their own overrides. This can be achieved with a _FigureMark globals block_. Here's an example:
 
-	{figuremark :caption-before=false :fig-num-format="Figure #." :link-caption=title .poetry}
+	{figuremark :caption-before=false :fig-num-format="Figure #." .poetry}
 
-A globals block should occur on a line of its own, without any leading whitespace, and consists of an opening brace immediately followed by `figuremark`, then the usual space-delimited string of attributes followed by a closing brace. More than one globals block can be used, and then will be processed in order, with the specified attributes being applied to all FigureMark figure blocks which occur later in the document.
+A globals block should occur on a line of its own, without any leading whitespace, and consists of an opening brace immediately followed by `figuremark` (or just `figure`), then the usual space-delimited [string of attributes](#figure-blocks) followed by a closing brace. More than one globals block can be provided, and they will be processed in order, with the specified attributes being applied to all FigureMark figure blocks which occur later in the document.
 
 Globals blocks can include `:directives`, CSS `.classes`, `key=value` pairs, and even CSS `#ids` (even though it doesn't make much sense to globally apply the same ID to multiple elements). Some advanced functionality is available:
 
-1. Globals blocks and figure blocks are processed in strict order, meaning that (for example) you can _redefine_ globals part-way through the document, allowing them to affect only the figures in certain sections. A concrete application of this feature would be to define certain global attributes for FigureMark blocks in a book's front-matter, and then define a different set of globals for the manuscript.
+1. Globals blocks and figure blocks are processed in strict order of appearance in the document, meaning that (for example) you can _redefine_ globals part-way through the document, allowing them to affect only the figures in certain sections. A concrete application of this feature would be to define certain global attributes for FigureMark blocks in a book's front-matter, and then define a different set of globals for the manuscript portion.
 
-2. Each type of global attribute can also be _deleted_, either individually or as a group, by using the special _remove token_ `-:` in a globals block. It works as follows:  
+2. Each type of global attribute can also be _deleted_, either individually or as a group, by using the special _remove token_ (`-:`) in a globals block. It works as follows:  
   
   - `#-:foo` will cause the global ID `foo` to be deleted (if set). `#-:` will delete _any_ globally-set ID.
   - `.-:foo` will cause the global CSS class `foo` to be deleted (if set). `.-:` will delete _all_ globally-set CSS classes.
-  - `foo=-:` will cause the global key-value pair for the key `foo` to be deleted (if set). `-:=` will delete _all_ globally-set key=value pairs.
+  - `foo=-:` will cause the global key=value pair for the key `foo` to be deleted (if set). `-:=` will delete _all_ globally-set key=value pairs.
   - `:link-caption=-:` will cause the global directive `:link-caption` to be deleted (if set). `:-:=` will delete _all_ globally-set directives.
+
+This can be judiciously used to achieve the toggling on or off of certain sets of global attributes according to the flow of the document.
 
 ### Escaping
 

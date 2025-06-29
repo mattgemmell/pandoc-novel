@@ -123,8 +123,8 @@ Jekyll::Hooks.register [:documents, :pages], :pre_render do |doc|
 	def convert(doc)
 		text = doc.content
 		
-		fm_globals_pattern = /(?mi)^\{figuremark\s*([^\}]*)\}\s*?$/
-		figure_block_pattern = /(?mi)(?<!<!--\n)^(`{3,}|~{3,})\s*figuremark(\s+[^\{]+?)?\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n\1\s*?$/
+		fm_globals_pattern = /(?mi)^\{figure(?:mark)?\s*([^\}]*)\}\s*?$/
+		figure_block_pattern = /(?mi)(?<!<!--\n)^(`{3,}|~{3,})\s*figure(?:mark)?(\s+[^\{]+?)?\s*(?:\{([^\}]*?)\})?\s*$\n([\s\S\n]*?)\n\1\s*?$/
 		figure_span_pattern = /(?<!\\)\[(.+?)(?<!\\)\]\{([^\}]+?)\}|\{([\d.-]+)\}/
 		marks_map = {
 			"+" => "insert",
