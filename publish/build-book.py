@@ -11,7 +11,7 @@ import sys
 import datetime
 import json
 import subprocess
-from figuremark import figuremark
+
 
 # --- Globals ---
 
@@ -428,6 +428,9 @@ master_contents = "\n".join(master_documents)
 
 # Process Figuremark.
 if process_figuremark:
+	figuremark_lib_path = os.path.join(os.path.dirname(this_script_path), "FigureMark/src/python/")
+	sys.path.append(figuremark_lib_path)
+	from figuremark import figuremark
 	inform(f"FigureMark processing enabled.")
 	master_contents = figuremark.convert(master_contents)
 
