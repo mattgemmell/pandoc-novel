@@ -60,6 +60,8 @@ You'll need a very basic familiarity with using the terminal. If you're doing ex
 
 These are all readily available via almost any package manager, or directly as installers or source code. If you're on macOS, they're all available via [[https://brew.sh][homebrew]], and I highly recommend it to you.
 
+Note that this project makes use of [[https://github.com/mattgemmell/FigureMark/][the FigureMark project]], configured as a git submodule. You shouldn't need to do anything special to make that work, but there's some useful [[https://git-scm.com/book/en/v2/Git-Tools-Submodules][information on git submodules]] here.
+
 
 * Features
 :PROPERTIES:
