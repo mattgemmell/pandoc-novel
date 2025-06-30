@@ -1,0 +1,3 @@
+[submodule "publish/FigureMark"]
+	path = publish/FigureMark
+	url = https://github.com/mattgemmell/FigureMark
