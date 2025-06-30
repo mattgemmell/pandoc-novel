@@ -26,14 +26,14 @@ class FMAttributes:
 		
 		if raw_string:
 			# Parse attribute string like '.class #id key=val'.
-			pattern = re.compile(r'([.#][\w:-]+|[\w:-]+=(?:"[^"]*"|\'[^\']*\'|[^\s]*))')
+			pattern = re.compile(r'([.#][\w:-]+|[\w:-]+=(?:"[^"]*"|\'[^\']*\'|[^\s]*)|[\w\-\.]+)')
 			for match in pattern.findall(raw_string):
 				item = match
 				if item.startswith('.') and not item[1:] in self.classes:
 					self.classes.append(item[1:])
 				elif item.startswith('#'):
 					self.tag_id = item[1:]
-				else:
+				elif "=" in item:
 					key, _, val = item.partition('=')
 					val = val or ""
 					dest = self.tag_attrs
@@ -43,6 +43,11 @@ class FMAttributes:
 						# Trim off the directive_prefix.
 						this_key = this_key[len(FMAttributes.directive_prefix):]
 					dest[this_key] = val.strip('"\'')
+				else:
+					split_classes = item.split(".")
+					for this_class in split_classes:
+						if not this_class in self.classes:
+							self.classes.append(this_class)
 	
 	def __str__(self):
 		attr_str = ""

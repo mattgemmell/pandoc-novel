@@ -27,13 +27,13 @@ class FMAttributes
 
     if raw_string
       # Parse attribute string like '.class #id key=val'.
-      pattern = /([.#][\w:-]+|[\w:-]+=(?:"[^"]*"|'[^']*'|[^\s]*))/
+      pattern = /([.#][\w:-]+|[\w:-]+=(?:"[^"]*"|'[^']*'|[^\s]*)|[\w\-\.]+)/
       raw_string.scan(pattern).flatten.each do |item|
         if item.start_with?('.') && !@classes.include?(item[1..-1])
           @classes << item[1..-1]
         elsif item.start_with?('#')
           @tag_id = item[1..-1]
-        else
+        elsif item.include? "="
           key, val = item.split('=', 2)
           val ||= ""
           dest = @tag_attrs
@@ -43,6 +43,13 @@ class FMAttributes
             this_key = this_key[DIRECTIVE_PREFIX.length..-1]
           end
           dest[this_key] = val.gsub(/\A['"]|['"]\z/, '')
+        else
+        	split_classes = item.split(".")
+        	split_classes.each do |this_class|
+        		if !@classes.include?(this_class)
+        			@classes << this_class
+        		end
+        	end
         end
       end
     end

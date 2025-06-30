@@ -178,11 +178,11 @@ Styling of these is up to your CSS, using the mapped classes mentioned above.
 
 #### 3. Attributed marks
 
-Similar to the second group, the final type of mark is an attributed mark, whose annotation is simply interpreted as a list of attributes to apply to the resulting span, in the same way as for the figure block itself (detailed above).
+Similar to the second group, the final type of mark is an attributed mark, whose annotation is simply interpreted as a list of attributes to apply to the resulting span, in the same way as for the figure block itself (detailed above). The same attributes are supported in attributed marks as in the figure block's attributes list, with the exception of directives.
 
 For example, the syntax `[some text]{.big title='This!'}` will result in a FigureMark span with the `big` CSS class applied, and with a `title` attribute which has the value `"This!"`.
 
-The same attributes are supported in attributed marks as in the figure block's attributes list, with the exception of directives.
+As a convenience, there is a special case: if the entire attributes string has no prefix and no whitespace, it will be treated as a dot-separated list of one or more CSS classes. Thus, both of these are equivalent: `[text]{.big}` and `[text]{big}`, and you can apply the CSS classes `one`, `two`, and `three` like this: `[text]{one.two.three}`. This essentially allows applying custom short marks, with suitable CSS styles defined.
 
 ---
 
