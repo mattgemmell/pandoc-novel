@@ -2,7 +2,7 @@
 
 Here's the table of contents!
 
-{toc depth=4}
+{toc depth=3}
 
 
 
@@ -16,7 +16,7 @@ Features requests, bug reports, and general discussion are welcomed; you can [fi
 
 ---
 
-### Introduction
+## Introduction
 
 FigureMark is extremely simple in functionality, easy to understand, and hopefully not too burdensome to use. Let's begin with an example.
 
@@ -44,7 +44,7 @@ text with reference {2.1} and a [highlight]{!}
 
 There are several notable features of the syntax, as described below.
 
-### Figure block delimiters and attributes
+## Figure block delimiters and attributes
 
 Figures begin and end with lines which start with at least 3 `` ` `` (backtick) symbols followed by `figuremark`. You can use `~` tildes instead of backticks if you wish. The closing line should have no other content. The opening line may also have, in order:
 
@@ -62,7 +62,7 @@ Figures can be [linked to](#demo) via their `id` attribute, which will be of the
 
 The resulting figure tag will also automatically gain a `data-fignum` attribute, containing the figure number. The figure's entire content, _excluding_ any caption, will be within a `div` with the `figure-content` class applied.
 
-### Escaping
+## Escaping
 
 Since the FigureMark marking syntax (described below) makes use of square brackets and curly braces, it may be necessary to escape those characters in the figure's content, if you do not wish them to be interpreted as marks.
 
@@ -70,19 +70,19 @@ This can be achieved by prefixing any literal brackets and braces with a backsla
 
 Escaping these characters is especially important when [annotating FigureMark syntax examples](#inception) using FigureMark.
 
-### Mark types
+## Mark types
 
 There are 7 types of marks available to decorate content, reflecting commonly-needed kinds of annotations when illustrating material for discursive or educational purposes. They are split into three groups, detailed below.
 
 All marks are transformed into `<span>` tags, each with their own classes as described. Additionally, every mark will have the `figuremark` class. The exact rendering of the marks is of course determined by the CSS applied to the document.
 
-#### 1. Reference marks
+### 1. Reference marks
 
 Reference marks are simply numerical call-outs, inserted on their own so that the text can refer to them. The syntax is `{1}` for example, with full-stops/periods/dots and dashes/hyphens also permitted. The resulting spans will have the `reference` class, and _also_ a class of the form `reference-1` etc.
 
 References are the only standalone mark, with all of the remaining marks spanning some content.
 
-#### 2. Spanning short marks
+### 2. Spanning short marks
 
 Short marks are single-character marks, which decorate the spanned section of content within a line. There are five predefined short marks, as detailed below, with their syntax all following the same form: `[content to annotate]{type}`. Any occurrences of square brackets or curly braces within the bracketed content can be escaped with backslashes.
 
@@ -96,7 +96,7 @@ The defined types are:
 
 Styling of these is up to your CSS, using the mapped classes mentioned above.
 
-#### 3. Class marks
+### 3. Class marks
 
 Similar to the second group, the final type of mark is a class mark, whose annotation is simply interpreted as a list of CSS classes to apply to the resulting span. For example, the syntax `[some important text]{important}` will result in a FigureMark span with the `important` CSS class applied.
 
@@ -104,15 +104,15 @@ One or more classes can be specified, with or without the leading `.` dots in ea
 
 ---
 
-### Questions
+## Questions
 
 The following questions are anticipated, and answers provided.
 
-#### Is there a reference implementation of a FigureMark parser?
+### Is there a reference implementation of a FigureMark parser?
 
 There is [a Python implementation here](https://github.com/mattgemmell/pandoc-publish/blob/main/publish/figuremark/figuremark.py). As a trivial markup format, implementation should be very straightforward in any language supporting regular expressions.
 
-#### How can I annotate an example of FigureMark syntax using FigureMark?
+### How can I annotate an example of FigureMark syntax using FigureMark?
 
 To avoid ambiguity for the parser, follow these two rules:
 
@@ -128,7 +128,7 @@ Some [\[]{!}marked up[\]{!}]{!} text. [{1}]{!} [\[]{!}// comment[\]{/}]{!}
 [```]{!}
 ~~~
 
-#### How can I move the caption to below the figure, instead of above?		{.one}
+### How can I move the caption to below the figure, instead of above?		{.one}
 
 CSS can be used for this purpose. For example:
 
@@ -139,7 +139,7 @@ figcaption { order: 1; }
 
 The actual result will of course depend on your other CSS.
 
-#### What's the fancy divider symbol between this document's sections?
+### What's the fancy divider symbol between this document's sections?
 
 It's a [Manichaean fleuron](https://en.wikipedia.org/wiki/Manichaean_script). Thank you for noticing.
 
@@ -147,4 +147,4 @@ It's a [Manichaean fleuron](https://en.wikipedia.org/wiki/Manichaean_script). Th
 
 # Index	{.unlisted}
 
-{toc all .index}
+{toc all depth=2 .index}

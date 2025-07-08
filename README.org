@@ -434,12 +434,12 @@ If you wish to annotate textual figures in your book, for example to explain or 
 :CUSTOM_ID: tables-of-contents
 :END:
 
-To provide a table of contents, simply insert the ={toc}= placeholder anywhere in your book's Markdown content, on a line of its own and without any leading whitespace. The placeholder will be replaced at build time with a hierarchical table of contents of all the Markdown headers in your book, using nested ordered lists (=OL= tags). The following nuances are noteworthy:
+To provide a table of contents, simply insert the ={toc}= placeholder anywhere in your book's Markdown content, on a line of its own and without any leading whitespace. The placeholder will be replaced at build time with a hierarchical table of contents of all the Markdown headers in your book, using nested unordered lists in Markdown. The following nuances are noteworthy:
 
 - The entire table of contents will be contained within a =DIV= with the CSS class =toc=.
-- The generated list items (=LI= tags) will have CSS classes corresponding to the level of header they link to, for example =level-2=.
 - Each list item will contain two link =A= tags: one with class =section-title= containing the heading's text, and one with class =page-number= containing the destination page number, if appropriate (i.e. in paginated/printable formats such as PDF).
 - You may have multiple tables of contents in a book, in any location.
+- Because the generated list is in Markdown format, your headings must be *strictly hierarchical*; in particular, they cannot "skip levels" when /increasing/ in depth, i.e. jump from level 2 directly to level 4 (the opposite, when /decreasing/ in depth, is of course acceptable).
 
 If you wish to exclude a given heading from the table of contents (such as the heading for your table of contents page itself), decorate that heading with an attributes string using the CSS class =unlisted=, as shown below. You can also use the class =no-toc= for the same purpose.
 

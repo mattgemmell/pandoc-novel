@@ -78,21 +78,17 @@ def string_to_slug(text):
 	return text.lower()
 
 def markdown_toc(markdown_text, depth=3, classes=[]):
-	# Generate a hierarchical HTML table of contents (using <ol> lists) for Markdown headings
+	# Generate a hierarchical Markdown table of contents for headings.
 	
-	# Find all headings: groups are (level, text)
+	# Find all headings.
 	headings = re.findall(rf'^(#{{1,{depth}}})\s+(.+)', markdown_text, re.MULTILINE)
 	if not headings:
 		return ""
-
-	html = []
-	stack = []  # stack of (level, list_tag) for open <ol>s
-
+	
+	toc_lines = []
 	prev_level = 0
-
+	
 	for hashes, title in headings:
-		level = len(hashes)
-
 		# Remove any Markdown formatting from title (e.g. inline code, emphasis, links)
 		clean_title = re.sub(r'[_*`#]', '', title)
 		# Remove Markdown links, keep text
@@ -101,31 +97,21 @@ def markdown_toc(markdown_text, depth=3, classes=[]):
 		clean_title = re.sub(r'{[^\}]+}\s*$', '', clean_title).strip()
 		# Generate anchor by turning title into slug
 		slug = string_to_slug(clean_title)
+		
+		# Skip headings marked with .no-toc or .unlisted
 		if re.search(r"(?i)\.(no-?toc|unlisted)\b", title):
 			continue
-
-		if level > prev_level:
-			for _ in range(level - prev_level):
-				html.append('<ol>')
-				stack.append('ol')
-		elif level < prev_level:
-			for _ in range(prev_level - level):
-				if stack and stack[-1] == 'ol':
-					html.append('</ol>')
-					stack.pop()
-		# else: same level, close previous <li> if needed
-
-		html.append(f'<li class="level-{level}"><a class="section-title" href="#{slug}">{clean_title}</a><a class="page-number" href="#{slug}"></a></li>')
+		
+		level = len(hashes)
+		indent = "\t" * (level - 1)
+		toc_lines.append(f"{indent}- [{clean_title}](#{slug}){{.section-title}}[](#{slug}){{.page-number}}")
 		prev_level = level
-
-	# Close any remaining open lists
-	while stack:
-		html.append('</ol>')
-		stack.pop()
 	
 	classes.append("toc")
+	toc = f"{{.{' .'.join(classes)}}}\n{'\n'.join(toc_lines)}\n"
+	#print(f"###\n{toc}###\n")
 	
-	return f'<div class="{" ".join(classes)}">\n{'\n'.join(html)}\n</div>\n'
+	return toc
 
 def toc_replace(the_match):
 	start = the_match.end()
