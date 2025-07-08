@@ -68,85 +68,21 @@ hr, hr:after {
 	height: 1.6rem;
 }
 
-figure {
-	break-inside: avoid;
-	font-family: Menlo, Geneva, Courier, monospace;
-	margin: 2rem 0 2rem 0;
-	font-size: 0.8rem;
-	line-height: 1.3rem;
+div.toc li > a.page-number::before {
+	/* content: target-text(attr(href)); */
 }
 
-.figure-content {
-	white-space: pre;
-	hyphens: none;
-}
-
-figcaption {
-	font-family: sans-serif;
-	font-weight: bold;
-	display: inline-block;
-	width: 100%;
-	padding-bottom: 0.2rem;
-	margin-bottom: 1rem;
-}
-
-.figure-number {
+div.toc li > a.page-number::after {
+	content: target-counter(attr(href), page);
 	float: right;
-}
-
-figure.example figcaption {
-	color: rebeccapurple;
-}
-
-figure.example, figure.example figcaption {
-	border-bottom: 2px solid rebeccapurple;
-}
-
-figure figcaption:not(:has(.figure-title)) {
-	/* display: none; */
-}
-
-figure.example {
-	padding-bottom: 1rem;
-}
-
-.insert {
-	color: green;
-	font-weight: bold;
-}
-
-.remove {
-	color: red;
-	text-decoration: line-through;
-}
-
-.result {
-	background-color: #eee;
-	color: #444;
-	display: inline-block;
-	width: 100%;
-	margin: 0.5rem 0;
-	white-space: pre-wrap;
-}
-
-.result:before {
-	content: " > ";
-}
-
-.comment {
-	font-style: italic;
-	color: #999;
-	padding-left: 0.2rem;
-}
-
-.highlight {
 	color: #06f;
-	font-weight: bold;
 }
 
-.reference {
-	color: white;
-	background-color: orange;
-	border-radius: 0.3rem;
-	padding: 0.2rem 0.4rem;
+div.toc ol ol {
+	padding-left: 0.5rem;
+}
+
+div.toc li > a.section-title {
+	display: inline-block;
+	max-width: 80%;
 }

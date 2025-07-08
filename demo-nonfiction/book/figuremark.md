@@ -1,3 +1,11 @@
+# Contents	{.unlisted}
+
+Here's the table of contents!
+
+{toc depth=4}
+
+
+
 # FigureMark
 
 This is the documentation for **FigureMark**, a trivial syntax for marking up _figures_ in Markdown documents (i.e. HTML `<figure>` blocks) for use in digital and printed books, or online. It was created by [Matt Gemmell](https://mattgemmell.scot).
@@ -120,7 +128,7 @@ Some [\[]{!}marked up[\]{!}]{!} text. [{1}]{!} [\[]{!}// comment[\]{/}]{!}
 [```]{!}
 ~~~
 
-#### How can I move the caption to below the figure, instead of above?
+#### How can I move the caption to below the figure, instead of above?		{.one}
 
 CSS can be used for this purpose. For example:
 
@@ -134,3 +142,9 @@ The actual result will of course depend on your other CSS.
 #### What's the fancy divider symbol between this document's sections?
 
 It's a [Manichaean fleuron](https://en.wikipedia.org/wiki/Manichaean_script). Thank you for noticing.
+
+---
+
+# Index	{.unlisted}
+
+{toc all .index}

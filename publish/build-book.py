@@ -22,7 +22,7 @@ default_transformations_filename = "transformations.tsv"
 master_basename = "collated-book-master"
 tk_pattern = r"(?i)\b(TK)+\b"
 valid_placeholder_modes = ["basic", "templite", "jinja2"] # or "none"
-valid_output_formats = ["epub", "pdf", "pdf-6x9"] # or "all"
+valid_output_formats = ["epub", "pdf", "pdf-6x9", "html"] # or "all"
 verbose_mode = False
 pattern_metadata_flag = "M"
 pattern_negate_flag = "N"
@@ -62,19 +62,86 @@ def sorted_alphanumeric(data):
 	return sorted(data, key=alphanum_key)
 
 def string_to_slug(text):
-		# Via: https://www.slingacademy.com/article/python-ways-to-convert-a-string-to-a-url-slug/
-		
-    # Remove non-alphanumeric characters
-    text = re.sub(r'\W+', ' ', text)
+	# Strip quotes
+	text = re.sub(r'[\'"“”‘’]+', '', text)
+	
+	# Replace non-alphanumeric characters with whitespace
+	text = re.sub(r'\W+', ' ', text)
+	
+	# Replace whitespace runs with single hyphens
+	text = re.sub(r'\s+', '-', text)
+	
+	# Remove leading and trailing hyphens
+	text = text.strip('-')
+	
+	# Return in lowercase
+	return text.lower()
 
-    # Replace whitespace runs with single hyphens
-    text = re.sub(r'\s+', '-', text)
+def markdown_toc(markdown_text, depth=3, classes=[]):
+	# Generate a hierarchical HTML table of contents (using <ol> lists) for Markdown headings
+	
+	# Find all headings: groups are (level, text)
+	headings = re.findall(rf'^(#{{1,{depth}}})\s+(.+)', markdown_text, re.MULTILINE)
+	if not headings:
+		return ""
 
-    # Remove leading and trailing hyphens
-    text = text.strip('-')
+	html = []
+	stack = []  # stack of (level, list_tag) for open <ol>s
 
-    # Return in lowercase
-    return text.lower()
+	prev_level = 0
+
+	for hashes, title in headings:
+		level = len(hashes)
+
+		# Remove any Markdown formatting from title (e.g. inline code, emphasis, links)
+		clean_title = re.sub(r'[_*`#]', '', title)
+		# Remove Markdown links, keep text
+		clean_title = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', clean_title).strip()
+		# Remove trailing attribute strings
+		clean_title = re.sub(r'{[^\}]+}\s*$', '', clean_title).strip()
+		# Generate anchor by turning title into slug
+		slug = string_to_slug(clean_title)
+		if re.search(r"(?i)\.(no-?toc|unlisted)\b", title):
+			continue
+
+		if level > prev_level:
+			for _ in range(level - prev_level):
+				html.append('<ol>')
+				stack.append('ol')
+		elif level < prev_level:
+			for _ in range(prev_level - level):
+				if stack and stack[-1] == 'ol':
+					html.append('</ol>')
+					stack.pop()
+		# else: same level, close previous <li> if needed
+
+		html.append(f'<li class="level-{level}"><a class="section-title" href="#{slug}">{clean_title}</a><a class="page-number" href="#{slug}"></a></li>')
+		prev_level = level
+
+	# Close any remaining open lists
+	while stack:
+		html.append('</ol>')
+		stack.pop()
+	
+	classes.append("toc")
+	
+	return f'<div class="{" ".join(classes)}">\n{'\n'.join(html)}\n</div>\n'
+
+def toc_replace(the_match):
+	start = the_match.end()
+	depth = 3
+	classes = []
+	
+	if the_match.group(1):
+		depth_match = re.search(r"(?i)depth=['\"]?(\d+)['\"]?", the_match.group(1))
+		if depth_match and depth_match.group(1):
+			depth = int(depth_match.group(1))
+		if re.search(r"(?i)\ball\b", the_match.group(1)):
+			start = 0
+		for this_class in re.finditer(r"\.(\S+)", the_match.group(1)):
+			classes.append(this_class.group(1))
+	
+	return markdown_toc(the_match.string[start:], depth=depth, classes=classes)
 
 class MGArgumentParser(argparse.ArgumentParser):
 	def convert_arg_line_to_args(self, arg_line):
@@ -107,6 +174,7 @@ parser.add_argument('--verbose', '-v', help="[optional] Enable verbose logging",
 parser.add_argument('--check-tks', help="[optional] Check for TKs in Markdown files (default: enabled), or disable with --no-check-tks", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--stop-on-tks', '-k', help="[optional] Treat TKs as errors and stop", action="store_true", default=False)
 parser.add_argument('--process-figuremark', help=f"[optional] Rewrite any FigureMark-formatted blocks as HTML figures. See documentation.", action=argparse.BooleanOptionalAction, default=False)
+parser.add_argument('--process-toc', help=f"[optional] Replace any table-of-contents placeholders with a suitable ToC. See documentation.", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--run-transformations', help=f"[optional] Perform any transformations found in default or specified transformations file (default: enabled), or disable with --no-run-transformations", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--run-exclusions', help=f"[optional] Process any exclusions from --exclude arguments, or in the default or specified exclusions file (default: enabled), or disable with --no-run-exclusions", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--formats', '-f', help=f"[optional] Output formats to create (as many as required), from: {', '.join(valid_output_formats)}, or all (default 'epub pdf')", action='store', nargs='+', choices=valid_output_formats + ["all"], default=["epub", "pdf"])
@@ -129,6 +197,7 @@ verbose_mode = (args[0].verbose == True)
 check_tks = (args[0].check_tks == True)
 stop_on_tks = (args[0].stop_on_tks == True)
 process_figuremark = (args[0].process_figuremark == True)
+process_toc = (args[0].process_toc == True)
 run_transformations = (args[0].run_transformations == True)
 run_exclusions = (args[0].run_exclusions == True)
 output_formats = args[0].formats
@@ -434,6 +503,11 @@ if process_figuremark:
 	inform(f"FigureMark processing enabled.")
 	master_contents = figuremark.convert(master_contents)
 
+# Process ToC / Table of Contents
+if process_toc:
+	toc_pattern = r"(?im)^{toc(?:\s+([^\}]+?)\s*)?}"
+	master_contents = re.sub(toc_pattern, toc_replace, master_contents)
+
 # Process transformations.
 if run_transformations:
 	# Check for any requested transformations.
@@ -585,9 +659,9 @@ for this_format in output_formats:
 				p = subprocess.run(format_command)
 				inform(f"Built {curr_format} format: {format_filename}")
 				
-			if this_format == "pdf" or all_formats:
-				format_filename = f"{output_basename}.pdf"
-				curr_format = "pdf"
+			if this_format == "pdf" or this_format == "html" or all_formats:
+				curr_format = "html" if this_format == "html" else "pdf"
+				format_filename = f"{output_basename}.{curr_format}"
 				inform(f"Building {curr_format} format with pandoc...")
 				yaml_pdf_path = os.path.join(os.path.dirname(this_script_path), "options-pdf.yaml")
 				format_command = pandoc_pre_args + [f'--defaults={yaml_pdf_path}', f'--output={format_filename}'] + pandoc_post_args

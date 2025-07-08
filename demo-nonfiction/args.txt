@@ -3,3 +3,4 @@
 --output-basename figuremark
 --process-figuremark
 --verbose
+--css=../publish/FigureMark/example/example.css
