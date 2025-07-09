@@ -2,7 +2,7 @@
 
 Here's the table of contents!
 
-{toc depth=3}
+{toc}
 
 
 

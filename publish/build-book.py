@@ -103,6 +103,12 @@ def markdown_toc(markdown_text, depth=3, classes=[]):
 			continue
 		
 		level = len(hashes)
+		if level > prev_level and level - prev_level > 1:
+			inform(f"ToC entry jumps from heading level {prev_level} to {level}: {clean_title}", severity="warning")
+			# We skipped levels. Fill in.
+			for x in range(prev_level + 1, level): # excludes final value
+				indent = "\t" * (x - 1)
+				toc_lines.append(f"{indent}- &nbsp;")
 		indent = "\t" * (level - 1)
 		toc_lines.append(f"{indent}- [{clean_title}](#{slug}){{.section-title}}[](#{slug}){{.page-number}}")
 		prev_level = level

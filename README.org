@@ -439,7 +439,6 @@ To provide a table of contents, simply insert the ={toc}= placeholder anywhere i
 - The entire table of contents will be contained within a =DIV= with the CSS class =toc=.
 - Each list item will contain two link =A= tags: one with class =section-title= containing the heading's text, and one with class =page-number= containing the destination page number, if appropriate (i.e. in paginated/printable formats such as PDF).
 - You may have multiple tables of contents in a book, in any location.
-- Because the generated list is in Markdown format, your headings must be *strictly hierarchical*; in particular, they cannot "skip levels" when /increasing/ in depth, i.e. jump from level 2 directly to level 4 (the opposite, when /decreasing/ in depth, is of course acceptable).
 
 If you wish to exclude a given heading from the table of contents (such as the heading for your table of contents page itself), decorate that heading with an attributes string using the CSS class =unlisted=, as shown below. You can also use the class =no-toc= for the same purpose.
 

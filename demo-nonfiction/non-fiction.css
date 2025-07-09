@@ -86,3 +86,8 @@ div.toc li > a.section-title {
 	display: inline-block;
 	max-width: 80%;
 }
+
+div.toc li:not(:has(> a)) {
+	margin-top: -15.5pt;
+	list-style-type: none;
+}
