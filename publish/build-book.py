@@ -77,7 +77,7 @@ def string_to_slug(text):
 	# Return in lowercase
 	return text.lower()
 
-def markdown_toc(markdown_text, depth=3, classes=[]):
+def markdown_toc(markdown_text, depth=3, classes=[], ordered=True):
 	# Generate a hierarchical Markdown table of contents for headings.
 	
 	# Find all headings.
@@ -87,6 +87,8 @@ def markdown_toc(markdown_text, depth=3, classes=[]):
 	
 	toc_lines = []
 	prev_level = 0
+	numbers_stack = [0]
+	list_marker = "-"
 	
 	for hashes, title in headings:
 		# Remove any Markdown formatting from title (e.g. inline code, emphasis, links)
@@ -103,14 +105,26 @@ def markdown_toc(markdown_text, depth=3, classes=[]):
 			continue
 		
 		level = len(hashes)
+		
 		if level > prev_level and level - prev_level > 1:
 			inform(f"ToC entry jumps from heading level {prev_level} to {level}: {clean_title}", severity="warning")
 			# We skipped levels. Fill in.
 			for x in range(prev_level + 1, level): # excludes final value
 				indent = "\t" * (x - 1)
 				toc_lines.append(f"{indent}- &nbsp;")
+		
 		indent = "\t" * (level - 1)
-		toc_lines.append(f"{indent}- [{clean_title}](#{slug}){{.section-title}}[](#{slug}){{.page-number}}")
+		if ordered:
+			if level == prev_level:
+				numbers_stack[-1] += 1
+			elif level > prev_level:
+				for x in range(prev_level, level):
+					numbers_stack.append(1)
+			else:
+				for x in range(level, prev_level):
+					numbers_stack.pop()
+			list_marker = f"{numbers_stack[-1]}."
+		toc_lines.append(f"{indent}{list_marker} [{clean_title}](#{slug}){{.section-title}}[](#{slug}){{.page-number}}")
 		prev_level = level
 	
 	classes.append("toc")
@@ -128,12 +142,12 @@ def toc_replace(the_match):
 		depth_match = re.search(r"(?i)depth=['\"]?(\d+)['\"]?", the_match.group(1))
 		if depth_match and depth_match.group(1):
 			depth = int(depth_match.group(1))
-		if re.search(r"(?i)\ball\b", the_match.group(1)):
+		if re.search(r"(?i)\b(?<!\.)all\b", the_match.group(1)):
 			start = 0
 		for this_class in re.finditer(r"\.(\S+)", the_match.group(1)):
 			classes.append(this_class.group(1))
 	
-	return markdown_toc(the_match.string[start:], depth=depth, classes=classes)
+	return markdown_toc(the_match.string[start:], depth=depth, classes=classes, ordered=True)
 
 class MGArgumentParser(argparse.ArgumentParser):
 	def convert_arg_line_to_args(self, arg_line):
