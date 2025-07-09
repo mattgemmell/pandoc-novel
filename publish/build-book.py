@@ -137,6 +137,7 @@ def toc_replace(the_match):
 	start = the_match.end()
 	depth = 3
 	classes = []
+	ordered = True
 	
 	if the_match.group(1):
 		depth_match = re.search(r"(?i)depth=['\"]?(\d+)['\"]?", the_match.group(1))
@@ -144,10 +145,12 @@ def toc_replace(the_match):
 			depth = int(depth_match.group(1))
 		if re.search(r"(?i)\b(?<!\.)all\b", the_match.group(1)):
 			start = 0
+		if re.search(r"(?i)\b(?<!\.)unordered\b", the_match.group(1)):
+			ordered = False
 		for this_class in re.finditer(r"\.(\S+)", the_match.group(1)):
 			classes.append(this_class.group(1))
 	
-	return markdown_toc(the_match.string[start:], depth=depth, classes=classes, ordered=True)
+	return markdown_toc(the_match.string[start:], depth=depth, classes=classes, ordered=ordered)
 
 class MGArgumentParser(argparse.ArgumentParser):
 	def convert_arg_line_to_args(self, arg_line):
