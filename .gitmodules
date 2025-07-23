@@ -1,3 +1,6 @@
 [submodule "publish/FigureMark"]
 	path = publish/FigureMark
 	url = https://github.com/mattgemmell/FigureMark
+[submodule "publish/TextIndex"]
+	path = publish/TextIndex
+	url = https://github.com/mattgemmell/TextIndex
