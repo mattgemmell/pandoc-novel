@@ -516,7 +516,7 @@ if process_figuremark:
 
 # Process TextIndex.
 if process_textindex:
-	figuremark_lib_path = os.path.join(os.path.dirname(this_script_path), "TextIndex/textindex/")
+	figuremark_lib_path = os.path.join(os.path.dirname(this_script_path), "TextIndex/")
 	sys.path.append(figuremark_lib_path)
 	from textindex import textindex
 	inform(f"TextIndex processing enabled.")
