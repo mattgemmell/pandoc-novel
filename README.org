@@ -60,7 +60,7 @@ You'll need a very basic familiarity with using the terminal. If you're doing ex
 
 These are all readily available via almost any package manager, or directly as installers or source code. If you're on macOS, they're all available via [[https://brew.sh][homebrew]], and I highly recommend it to you.
 
-Note that this project makes use of [[https://github.com/mattgemmell/FigureMark/][the FigureMark project]], configured as a git submodule. You shouldn't need to do anything special to make that work, but there's some useful [[https://git-scm.com/book/en/v2/Git-Tools-Submodules][information on git submodules]] here.
+Note that this project makes use of [[https://github.com/mattgemmell/FigureMark/][the FigureMark project]] and [[https://github.com/mattgemmell/TextIndex/][the TextIndex project]], configured as git submodules. You shouldn't need to do anything special to make that work, but there's some useful [[https://git-scm.com/book/en/v2/Git-Tools-Submodules][information on git submodules]] here.
 
 
 * Features
@@ -143,6 +143,7 @@ Additionally, there are several flags (without values) which tailor the script's
 | =--check-tks= | Check for TKs in the input Markdown files. Enabled by default. [[#tks][Found TKs will be reported]], but will not prevent books being built. Disable with =--no-check-tks=. |
 | =--stop-on-tks= | Treat TKs as errors, and abort the build process after reporting them. Disabled by default. |
 | =--process-figuremark= | Enable the processing of [[https://mattgemmell.scot/figuremark/][FigureMark]] blocks. Disabled by default. |
+| =--process-textindex= | Enable the processing of [[https://mattgemmell.scot/textindex/][TextIndex]] marks. Disabled by default. |
 | =--process-toc= | Enable the processing of [[#tables-of-contents-tocs][tables of contents]]. Enabled by default. |
 | =--run-transformations= | Perform any transformations found in [[#transformations][a transformations file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-run-transformations=. |
 | =--run-exclusions= | Process any exclusions from =--exclude= arguments, or in [[#exclusions][an exclusions file]] in the same directory as the book's metadata JSON file. Enabled by default. Disable with =--no-run-exclusions=. |
@@ -458,6 +459,13 @@ You may also add any number of CSS classes (prefixed with a =.= dot) to the plac
 - ={toc depth=2 .index .small}= lists headings after itself, at levels 1-2, and applies both =index= and =small= CSS classes to the container.
 
 If for any reason you wish to disable the processing of tables of contents entirely, use the =--no-process-toc= argument when invoking the build script.
+
+** Indexes
+:PROPERTIES:
+:CUSTOM_ID: indexes
+:END:
+
+If you wish to create an index for your book, you may wish to use the =--process-textindex= argument to enable the processing of [[https://mattgemmell.scot/textindex/][TextIndex]] marks. See the TextIndex documentation for details.
 
 * Questions
 :PROPERTIES:
