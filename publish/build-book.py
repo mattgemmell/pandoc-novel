@@ -183,6 +183,7 @@ parser.add_argument('--verbose', '-v', help="[optional] Enable verbose logging",
 parser.add_argument('--check-tks', help="[optional] Check for TKs in Markdown files (default: enabled), or disable with --no-check-tks", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--stop-on-tks', '-k', help="[optional] Treat TKs as errors and stop", action="store_true", default=False)
 parser.add_argument('--process-figuremark', help=f"[optional] Rewrite any FigureMark-formatted blocks as HTML figures. See documentation.", action=argparse.BooleanOptionalAction, default=False)
+parser.add_argument('--process-textindex', help=f"[optional] Processes TextIndex index marks to create a document index. See documentation.", action=argparse.BooleanOptionalAction, default=False)
 parser.add_argument('--process-toc', help=f"[optional] Replace any table-of-contents placeholders with a suitable ToC. See documentation.", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--run-transformations', help=f"[optional] Perform any transformations found in default or specified transformations file (default: enabled), or disable with --no-run-transformations", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument('--run-exclusions', help=f"[optional] Process any exclusions from --exclude arguments, or in the default or specified exclusions file (default: enabled), or disable with --no-run-exclusions", action=argparse.BooleanOptionalAction, default=True)
@@ -206,6 +207,7 @@ verbose_mode = (args[0].verbose == True)
 check_tks = (args[0].check_tks == True)
 stop_on_tks = (args[0].stop_on_tks == True)
 process_figuremark = (args[0].process_figuremark == True)
+process_textindex = (args[0].process_textindex == True)
 process_toc = (args[0].process_toc == True)
 run_transformations = (args[0].run_transformations == True)
 run_exclusions = (args[0].run_exclusions == True)
@@ -511,6 +513,15 @@ if process_figuremark:
 	from figuremark import figuremark
 	inform(f"FigureMark processing enabled.")
 	master_contents = figuremark.convert(master_contents)
+
+# Process TextIndex.
+if process_textindex:
+	figuremark_lib_path = os.path.join(os.path.dirname(this_script_path), "TextIndex/textindex/")
+	sys.path.append(figuremark_lib_path)
+	from textindex import textindex
+	inform(f"TextIndex processing enabled.")
+	index = textindex.TextIndex(master_contents)
+	master_contents = index.indexed_document()
 
 # Process ToC / Table of Contents
 if process_toc:
