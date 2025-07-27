@@ -77,16 +77,16 @@ def string_to_slug(text):
 	# Return in lowercase
 	return text.lower()
 
-def markdown_toc(markdown_text, depth=3, classes=[], ordered=True):
+def markdown_toc(markdown_text, depth=3, start=1, classes=[], ordered=True, plain=False):
 	# Generate a hierarchical Markdown table of contents for headings.
 	
 	# Find all headings.
-	headings = re.findall(rf'^(#{{1,{depth}}})\s+(.+)', markdown_text, re.MULTILINE)
+	headings = re.findall(rf'^(#{{{start},{depth}}})\s+(.+)', markdown_text, re.MULTILINE)
 	if not headings:
 		return ""
 	
 	toc_lines = []
-	prev_level = 0
+	prev_level = (start - 1) # indentation
 	numbers_stack = [0]
 	list_marker = "-"
 	
@@ -104,7 +104,7 @@ def markdown_toc(markdown_text, depth=3, classes=[], ordered=True):
 		if re.search(r"(?i)\.(no-?toc|unlisted)\b", title):
 			continue
 		
-		level = len(hashes)
+		level = len(hashes) - (start - 1)
 		
 		if level > prev_level and level - prev_level > 1:
 			inform(f"ToC entry jumps from heading level {prev_level} to {level}: {clean_title}", severity="warning")
@@ -124,33 +124,47 @@ def markdown_toc(markdown_text, depth=3, classes=[], ordered=True):
 				for x in range(level, prev_level):
 					numbers_stack.pop()
 			list_marker = f"{numbers_stack[-1]}."
-		toc_lines.append(f"{indent}{list_marker} [{clean_title}](#{slug}){{.section-title}}[](#{slug}){{.page-number}}")
+		if plain:
+			toc_lines.append(f"{indent}{list_marker} [{clean_title}](#{slug})")
+		else:
+			toc_lines.append(f"{indent}{list_marker} [{clean_title}](#{slug}){{.section-title}}[](#{slug}){{.page-number}}")
 		prev_level = level
 	
-	classes.append("toc")
-	toc = f"{{.{' .'.join(classes)}}}\n{'\n'.join(toc_lines)}\n"
+	toc = f"{'\n'.join(toc_lines)}"
+	if not plain:
+		classes.append("toc")
+		toc = f"{{.{' .'.join(classes)}}}\n{toc}"
 	#print(f"###\n{toc}###\n")
 	
 	return toc
 
+
 def toc_replace(the_match):
-	start = the_match.end()
+	start_pos = the_match.end()
 	depth = 3
+	start_depth = 1
 	classes = []
 	ordered = True
+	plain = False
 	
 	if the_match.group(1):
 		depth_match = re.search(r"(?i)depth=['\"]?(\d+)['\"]?", the_match.group(1))
 		if depth_match and depth_match.group(1):
 			depth = int(depth_match.group(1))
+		start_depth_match = re.search(r"(?i)start=['\"]?(\d+)['\"]?", the_match.group(1))
+		if start_depth_match and start_depth_match.group(1):
+			start_depth = int(start_depth_match.group(1))
+			start_depth = max(start_depth, 1)
 		if re.search(r"(?i)\b(?<!\.)all\b", the_match.group(1)):
-			start = 0
+			start_pos = 0
 		if re.search(r"(?i)\b(?<!\.)unordered\b", the_match.group(1)):
 			ordered = False
+		if re.search(r"(?i)\b(?<!\.)plain\b", the_match.group(1)):
+			plain = True
 		for this_class in re.finditer(r"\.(\S+)", the_match.group(1)):
 			classes.append(this_class.group(1))
 	
-	return markdown_toc(the_match.string[start:], depth=depth, classes=classes, ordered=ordered)
+	return markdown_toc(the_match.string[start_pos:], depth=depth, start=start_depth, classes=classes, ordered=ordered, plain=plain)
 
 class MGArgumentParser(argparse.ArgumentParser):
 	def convert_arg_line_to_args(self, arg_line):
