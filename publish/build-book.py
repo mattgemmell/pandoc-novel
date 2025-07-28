@@ -77,43 +77,91 @@ def string_to_slug(text):
 	# Return in lowercase
 	return text.lower()
 
-def markdown_toc(markdown_text, depth=3, start=1, classes=[], ordered=True, plain=False):
-	# Generate a hierarchical Markdown table of contents for headings.
+def generate_toc(markdown_text, start=1, depth=3, ordered=True, plain=False, output="markdown", classes=[]):
+	
+	# Generate a hierarchical table of contents for Markdown (atx-style, hash-prefixed) headings.
+	# 	markdown_text: full Markdown contents of document
+	# 	start: shallowest heading-level to include
+	# 	depth: deepest heading-level to include
+	# 	ordered: if True, ordered ("1." etc) list, else unordered ("-")
+	# 	plain: if True, omit all CSS classes, and the .page-number links for each entry
+	# 	output: "markdown" (nested list, uses attribute-list syntax for classes) or "html"
+	# 	classes: CSS classes (without leading period) to apply to overall list
+	
 	
 	# Find all headings.
-	headings = re.findall(rf'^(#{{{start},{depth}}})\s+(.+)', markdown_text, re.MULTILINE)
+	headings = re.findall(rf'^(#{{{int(start)},{int(depth)}}})\s+(.+)', markdown_text, re.MULTILINE)
 	if not headings:
 		return ""
 	
 	toc_lines = []
-	prev_level = (start - 1) # indentation
+	prev_level = 0
 	numbers_stack = [0]
-	list_marker = "-"
+	list_marker = "-" # fallback for Markdown-format level-jump compensation.
+	as_html = (output.lower() != "markdown")
+	tag_name = "ol" if ordered else "ul"
+	tag_start, tag_end = f"<{tag_name}>", f"</{tag_name}>"
+	i = 0
+	num_headings = len(headings)
 	
 	for hashes, title in headings:
-		# Remove any Markdown formatting from title (e.g. inline code, emphasis, links)
-		clean_title = re.sub(r'[_*`#]', '', title)
-		# Remove Markdown links, keep text
-		clean_title = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', clean_title).strip()
-		# Remove trailing attribute strings
-		clean_title = re.sub(r'{[^\}]+}\s*$', '', clean_title).strip()
-		# Generate anchor by turning title into slug
-		slug = string_to_slug(clean_title)
+		first = (i == 0)
+		last = (i == num_headings - 1)
 		
-		# Skip headings marked with .no-toc or .unlisted
+		# Try to extract an #id attribute.
+		id_match = re.search(r"\{.*?#(\S+).*?\}", title)
+		id_override = None
+		if id_match:
+			id_override = id_match.group(1)
+		
+		# Remove any Markdown formatting from title (e.g. inline code, emphasis, links).
+		clean_title = re.sub(r'[_*`#]', '', title)
+		# Remove Markdown links, keep text.
+		clean_title = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', clean_title).strip()
+		# Remove trailing attribute strings.
+		clean_title = re.sub(r'{[^\}]+}\s*$', '', clean_title).strip()
+		
+		# Generate anchor by turning title into slug.
+		slug = string_to_slug(clean_title)
+		if id_override:
+			slug = id_override
+		
+		# Skip headings marked with .no-toc or .unlisted class (presumably in an attribute string).
 		if re.search(r"(?i)\.(no-?toc|unlisted)\b", title):
 			continue
 		
-		level = len(hashes) - (start - 1)
+		level = len(hashes) - int(start) # root-level list items are level 0, etc.
+		indent = "\t" * level
 		
-		if level > prev_level and level - prev_level > 1:
-			inform(f"ToC entry jumps from heading level {prev_level} to {level}: {clean_title}", severity="warning")
+		if level > prev_level and (level - prev_level > 1 or first):
+			inform(f"ToC entry jumps from heading level {prev_level + 1} to {level + 1}: {clean_title}", severity="warning")
 			# We skipped levels. Fill in.
-			for x in range(prev_level + 1, level): # excludes final value
-				indent = "\t" * (x - 1)
-				toc_lines.append(f"{indent}- &nbsp;")
+			range_start = prev_level if first else prev_level + 1
+			for x in range(range_start, level): # ranges exclude the final value
+				indent = "\t" * (x if first else (x - 1))
+				if as_html:
+					if first:
+						toc_lines.append("")
+					toc_lines.append(f"{indent}\t{tag_start}\n{indent}\t\t<li>")
+				else:
+					toc_lines.append(f"{indent}- &nbsp;")
+			if first:
+				indent += "\t"
+		elif as_html and level > prev_level:
+			toc_lines.append(f"{indent}{tag_start}\n{indent}\t<li>")
+		elif as_html and level == prev_level:
+			if not first:
+				toc_lines[-1] += f"</li>"
+				toc_lines.append(f"{indent}\t<li>")
+		elif as_html: # level < prev_level; decreasing depth.
+			for x in range(level, prev_level):
+				indent = "\t" * x
+				toc_lines[-1] += f"</li>"
+				toc_lines.append(f"{indent}\t{tag_end}")
+			toc_lines.append(f"{indent}\t</li>")
+			toc_lines.append(f"{indent}\t<li>")
 		
-		indent = "\t" * (level - 1)
+		# Manage numbers for ordered Markdown lists.
 		if ordered:
 			if level == prev_level:
 				numbers_stack[-1] += 1
@@ -124,28 +172,57 @@ def markdown_toc(markdown_text, depth=3, start=1, classes=[], ordered=True, plai
 				for x in range(level, prev_level):
 					numbers_stack.pop()
 			list_marker = f"{numbers_stack[-1]}."
-		if plain:
-			toc_lines.append(f"{indent}{list_marker} [{clean_title}](#{slug})")
+		
+		if as_html:
+			if first and len(toc_lines) == 0:
+				toc_lines.append("")
+			if plain:
+				toc_lines[-1] += f'<a href="#{slug}">{clean_title}</a>'
+			else:
+				toc_lines[-1] += f'<a href="#{slug}" class="section-title">{clean_title}</a><a href="#{slug}" class="page-number"></a>'
 		else:
-			toc_lines.append(f"{indent}{list_marker} [{clean_title}](#{slug}){{.section-title}}[](#{slug}){{.page-number}}")
+			if plain:
+				toc_lines.append(f"{indent}{list_marker} [{clean_title}](#{slug})")
+			else:
+				toc_lines.append(f"{indent}{list_marker} [{clean_title}](#{slug}){{.section-title}}[](#{slug}){{.page-number}}")
+		
 		prev_level = level
+		i += 1
+	
+	if as_html and prev_level > 0:
+		for x in range(0, prev_level):
+			indent = "\t" * (x - 1)
+			toc_lines.append(f"{indent}\t\t</li>\n{indent}\t{tag_end}\n")
 	
 	toc = f"{'\n'.join(toc_lines)}"
-	if not plain:
-		classes.append("toc")
-		toc = f"{{.{' .'.join(classes)}}}\n{toc}"
-	#print(f"###\n{toc}###\n")
+	classes.append("toc")
+	if as_html:
+		if plain:
+			toc = f"{tag_start}\n\t<li>{toc}{indent}</li>\n{tag_end}"
+		else:
+			toc = f"<{tag_name} class=\"{' '.join(classes)}\">\n\t<li>{toc}{indent}</li>\n{tag_end}"
+	elif not plain:
+			toc = f"{{.{' .'.join(classes)}}}\n{toc}"
 	
+	#print(f"###\n{toc}###\n")
 	return toc
 
 
+def process_toc(text):
+	# Replace every ToC directive in text with a suitable ToC.
+	toc_pattern = r"(?im)^{toc(?:\s+([^\}]+?)\s*)?}"
+	return re.sub(toc_pattern, toc_replace, text)
+
+
 def toc_replace(the_match):
+	# Parse params for this ToC.
 	start_pos = the_match.end()
 	depth = 3
 	start_depth = 1
 	classes = []
 	ordered = True
 	plain = False
+	output = "markdown"
 	
 	if the_match.group(1):
 		depth_match = re.search(r"(?i)depth=['\"]?(\d+)['\"]?", the_match.group(1))
@@ -163,8 +240,12 @@ def toc_replace(the_match):
 			plain = True
 		for this_class in re.finditer(r"\.(\S+)", the_match.group(1)):
 			classes.append(this_class.group(1))
+		output_match = re.search(r"(?i)output=['\"]?(\S+)['\"]?", the_match.group(1))
+		if output_match and output_match.group(1):
+			output = output_match.group(1)
 	
-	return markdown_toc(the_match.string[start_pos:], depth=depth, start=start_depth, classes=classes, ordered=ordered, plain=plain)
+	return generate_toc(the_match.string[start_pos:], depth=depth, start=start_depth, classes=classes, ordered=ordered, plain=plain, output=output)
+
 
 class MGArgumentParser(argparse.ArgumentParser):
 	def convert_arg_line_to_args(self, arg_line):
@@ -222,7 +303,7 @@ check_tks = (args[0].check_tks == True)
 stop_on_tks = (args[0].stop_on_tks == True)
 process_figuremark = (args[0].process_figuremark == True)
 process_textindex = (args[0].process_textindex == True)
-process_toc = (args[0].process_toc == True)
+should_process_toc = (args[0].process_toc == True)
 run_transformations = (args[0].run_transformations == True)
 run_exclusions = (args[0].run_exclusions == True)
 output_formats = args[0].formats
@@ -538,9 +619,8 @@ if process_textindex:
 	master_contents = index.indexed_document()
 
 # Process ToC / Table of Contents
-if process_toc:
-	toc_pattern = r"(?im)^{toc(?:\s+([^\}]+?)\s*)?}"
-	master_contents = re.sub(toc_pattern, toc_replace, master_contents)
+if should_process_toc:
+	master_contents = process_toc(master_contents)
 
 # Process transformations.
 if run_transformations:
