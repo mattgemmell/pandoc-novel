@@ -494,7 +494,7 @@ The [[#exclusions][exclusions]] feature can readily be used for this purpose, an
 
 *** How can multiple different books be built from the same installation of this configuration?
 
-The build script can be called from any directory which contains a metadata JSON file, passing the relevant parameters. You'll also need a cover image in the same directory, for the resulting ePub file. Create an appropiate metadata file and cover image for each book, and invoke the script accordingly.
+The build script can be called from any directory which contains a metadata JSON file, passing the relevant parameters. You'll also need a cover image in the same directory, for the resulting ePub file. Create an appropriate metadata file and cover image for each book, and invoke the script accordingly.
 
 *** How can I customise the appearance or layout of a given book?
 
